@@ -9,12 +9,12 @@ window.SCRATCHLY_CONFIG = {
   FEE_WALLET: "6paaRBM1KK6VaFdkF3egw2zCLz3EPMF6ChbLYRntnVkf",
 
   // A coin neve a weboldalon (ha más a ticker, írd át)
-  TICKER: "SCRATCHLY",
+  TICKER: "SCR",
 
   // RPC cím. Ide másold a Helius linkedet, pl:
   // "https://mainnet.helius-rpc.com/?api-key=IDE_A_KULCSOD"
   // Ha üresen hagyod, a lassú, nyilvános RPC-t használja.
-  RPC_URL: "",
+  RPC_URL: "https://mainnet.helius-rpc.com/?api-key=844c2e25-a540-4621-97c7-f6839217b987",
 
   // Jutalék a visszakapott rentből, basis pointban (1500 = 15%)
   FEE_BPS_STANDARD: 1500,
