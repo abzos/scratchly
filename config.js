@@ -3,7 +3,7 @@
 // ============================================================
 window.SCRATCHLY_CONFIG = {
   // A coined mint címe (pump.fun)
-  COIN_MINT: "3xMg4dC3xVBPNWeeph9ArdsyTZQZV7QdRz3vRGbxpump",
+  COIN_MINT: "GKFQN4BYgEjNWS2SVYJAbxGCzmkN5tj77HEc9v7Wpump",
 
   // Ide érkezik a jutalék (a fee tárcád)
   FEE_WALLET: "6paaRBM1KK6VaFdkF3egw2zCLz3EPMF6ChbLYRntnVkf",
