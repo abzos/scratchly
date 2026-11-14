@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scratchly - Solana wallet cleaner</title>
+<meta name="description" content="Close empty Solana token accounts and reclaim your SOL. Non-custodial, one click.">
+<meta name="theme-color" content="#07070F">
+<meta property="og:title" content="Scratchly - Solana wallet cleaner">
+<meta property="og:description" content="Close empty token accounts and reclaim the SOL locked inside them. Non-custodial. One click.">
+<meta property="og:image" content="https://scratchly.cfd/og.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://scratchly.cfd/og.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07070F;--bg2:#0E0C22;--card:#14122B;--line:#2A2758;--text:#F5F7FF;--muted:#9AA3C7;--dim:#7D86AC;--v:#9B7BFF;--c:#2DE2E6;--grad:linear-gradient(90deg,#9B7BFF,#2DE2E6);--ok:#4ADE9A;--bad:#FF6B8B}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;overflow-x:hidden;padding-top:env(safe-area-inset-top)}
+body:before{content:"";position:fixed;inset:0;background:radial-gradient(900px 600px at 80% -10%,rgba(124,92,255,.28),transparent 60%),radial-gradient(700px 500px at -10% 40%,rgba(45,226,230,.10),transparent 60%);pointer-events:none;z-index:-1}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(7,7,15,.72);border-bottom:1px solid rgba(42,39,88,.6)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;letter-spacing:-.5px}
+.brand img{width:36px;height:36px;border-radius:50%}
+.navlinks{display:none;gap:28px;color:var(--muted);font-size:15px;font-weight:500}
+.navlinks a:hover{color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;font:600 16px Inter,sans-serif;border-radius:999px;padding:14px 26px;transition:transform .15s,opacity .15s}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--grad);color:#07070F}
+.btn.ghost{background:transparent;color:#fff;border:1px solid var(--line)}
+.btn.sm{padding:10px 18px;font-size:14px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.hero{padding:44px 0 28px;display:grid;gap:12px;align-items:center}
+.hero h1{font-size:clamp(40px,9vw,72px);line-height:1.02;letter-spacing:-2px;font-weight:800}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{margin:18px 0 26px;color:var(--muted);font-size:18px;max-width:520px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.pill{font-size:13px;font-weight:500;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:rgba(20,18,43,.6)}
+.heroart{display:flex;justify-content:center;position:relative}
+.heroart img{width:min(78%,420px);height:auto;filter:drop-shadow(0 30px 60px rgba(124,92,255,.35))}
+section{padding:36px 0}
+h2{font-size:clamp(28px,5vw,40px);letter-spacing:-1px;font-weight:700;line-height:1.1}
+.sub{color:var(--muted);margin-top:10px;max-width:560px}
+.panel{background:linear-gradient(180deg,#16143A,#100E26);border:1px solid var(--line);border-radius:28px;padding:26px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.center{text-align:center}
+.big{font-size:clamp(46px,12vw,72px);font-weight:800;letter-spacing:-2px;line-height:1}
+.muted{color:var(--muted)}.dim{color:var(--dim)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--line);font-size:15px}
+.row b{font-weight:600}
+.row.total{font-size:17px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:#0B0A1C;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--muted)}
+.badge{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px;background:rgba(155,123,255,.18);color:#C9B8FF}
+.badge.t2{background:rgba(45,226,230,.16);color:#7DF0F2}
+.stack{display:grid;gap:14px}
+.spin{width:34px;height:34px;border:4px solid var(--line);border-top-color:var(--c);border-radius:50%;animation:s 0.9s linear infinite;margin:0 auto 14px}
+@keyframes s{to{transform:rotate(360deg)}}
+details{margin-top:18px;border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:#0D0B20}
+summary{cursor:pointer;font-weight:600;font-size:15px;list-style:none}
+summary::-webkit-details-marker{display:none}
+.warn{font-size:13px;color:#FFC38A;background:rgba(255,160,70,.08);border:1px solid rgba(255,160,70,.25);border-radius:12px;padding:10px 12px;margin:12px 0}
+.tok{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.tok input{width:20px;height:20px;accent-color:#9B7BFF;flex:none}
+.tok .mint{font-family:ui-monospace,Menlo,monospace;color:var(--muted)}
+.tok .amt{margin-left:auto;font-weight:600;text-align:right}
+.grid3{display:grid;gap:14px;margin-top:22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px}
+.card.on{border-color:var(--v);box-shadow:0 0 0 1px var(--v),0 20px 50px rgba(124,92,255,.25)}
+.card h3{font-size:18px;font-weight:700}
+.card .pct{font-size:44px;font-weight:800;letter-spacing:-1.5px;margin:6px 0}
+.card p{color:var(--muted);font-size:14px}
+.step{display:flex;gap:16px;align-items:flex-start}
+.step .n{flex:none;width:38px;height:38px;border-radius:50%;background:var(--grad);color:#07070F;font-weight:800;display:grid;place-items:center}
+.step h3{font-size:18px;margin-bottom:2px}
+.addr{font-family:ui-monospace,Menlo,monospace;font-size:13px;word-break:break-all;color:#C9D0F0;background:#0B0A1C;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:8px}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+details.faq{background:var(--card)}
+details.faq p{color:var(--muted);margin-top:10px;font-size:15px}
+footer{padding:40px 0 calc(40px + env(safe-area-inset-bottom));border-top:1px solid var(--line);margin-top:30px;color:var(--dim);font-size:13px}
+footer .brand{margin-bottom:10px;color:#fff}
+.err{color:var(--bad);font-size:14px;margin-top:12px}
+.ok{color:var(--ok)}
+.txlink{display:block;font-size:14px;color:var(--c);margin-top:6px;word-break:break-all}
+[hidden]{display:none!important}
+@media(min-width:820px){
+ .navlinks{display:flex}
+ .hero{grid-template-columns:1.1fr .9fr;padding:72px 0 40px}
+ .grid3{grid-template-columns:repeat(3,1fr)}
+ .panel{padding:36px}
+}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <a class="brand" href="#top"><img src="logo.png" alt="Scratchly logo">scratchly</a>
+  <div class="navlinks"><a href="#app">Cleaner</a><a href="#fees">Fees</a><a href="#how">How it works</a><a href="#token">Token</a></div>
+  <button class="btn primary sm" id="btnConnect">Connect wallet</button>
+</div></nav>
+
+<main id="top">
+<div class="wrap hero">
+  <div>
+    <h1>Clean your <span class="grad">Solana wallet.</span></h1>
+    <p class="lead">Close empty token accounts and reclaim the SOL locked inside them. Non-custodial, one click, every transaction signed by you.</p>
+    <div class="cta"><a class="btn primary" href="#app">Start cleaning</a><a class="btn ghost" href="#how">How it works</a></div>
+    <div class="pills"><span class="pill">Non-custodial</span><span class="pill">Fees shown before you sign</span><span class="pill">Reduced fees for holders</span></div>
+  </div>
+  <div class="heroart"><img src="mascot.png" alt="Scratchly cat mascot holding a scratch card"></div>
+</div>
+
+<section id="app"><div class="wrap">
+  <div class="panel">
+    <div id="stIdle" class="center stack">
+      <div><h2>Reclaim your SOL</h2><p class="sub" style="margin:10px auto 0">Connect your wallet and we scan it for empty token accounts. Nothing is signed until you press clean.</p></div>
+      <div><button class="btn primary" id="btnConnect2">Connect wallet</button></div>
+      <div id="noWallet" hidden class="stack">
+        <p class="muted">No wallet detected in this browser. Open this page inside your wallet app:</p>
+        <div class="links" style="justify-content:center"><a class="btn ghost sm" id="lnkPhantom" href="#">Open in Phantom</a><a class="btn ghost sm" id="lnkSolflare" href="#">Open in Solflare</a></div>
+      </div>
+      <p class="err" id="errIdle" hidden></p>
+    </div>
+
+    <div id="stScan" class="center" hidden><div class="spin"></div><p class="muted">Scanning your wallet...</p></div>
+
+    <div id="stRes" hidden>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <span class="chip" id="chipAddr"></span><span class="badge" id="tierBadge"></span>
+      </div>
+      <div class="center" style="margin:26px 0 22px">
+        <div class="muted" style="font-size:14px">You can reclaim</div>
+        <div class="big grad" id="bigSol">0 SOL</div>
+        <div class="muted" id="bigSub" style="margin-top:8px"></div>
+      </div>
+      <div id="sumRows">
+        <div class="row"><span class="muted">Rent returned to you</span><b id="sReclaim">-</b></div>
+        <div class="row"><span class="muted">Scratchly fee (<span id="sPct">15%</span>)</span><b id="sFee">-</b></div>
+        <div class="row total"><span>You receive</span><b class="ok" id="sNet">-</b></div>
+      </div>
+      <p class="dim" style="font-size:13px;margin-top:6px" id="feeNote"></p>
+      <div style="margin-top:20px"><button class="btn primary" id="btnClean" style="width:100%">Clean wallet</button></div>
+      <p class="err" id="errRes" hidden></p>
+
+      <details id="adv">
+        <summary>Advanced: burn tokens you no longer want</summary>
+        <div class="warn">Burning is permanent. Only select tokens you are sure are worthless. Everything here is unselected by default.</div>
+        <div id="burnList"></div>
+        <label class="tok" style="border-top:0;margin-top:6px"><input type="checkbox" id="ack"><span style="font-size:14px">I understand that burning cannot be undone</span></label>
+      </details>
+      <div class="center" style="margin-top:16px"><button class="btn ghost sm" id="btnRescan">Rescan</button> <button class="btn ghost sm" id="btnDisc">Disconnect</button></div>
+    </div>
+
+    <div id="stDone" class="center stack" hidden>
+      <div><div class="big grad" id="doneSol">0 SOL</div><p class="muted" style="margin-top:8px" id="doneSub"></p></div>
+      <div id="doneTx" style="text-align:left"></div>
+      <p class="err" id="errDone" hidden></p>
+      <div class="cta" style="justify-content:center"><a class="btn primary" id="btnShare" target="_blank" rel="noopener">Share on X</a><button class="btn ghost" id="btnAgain">Scan again</button></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="fees"><div class="wrap">
+  <h2>Fees that reward holders</h2>
+  <p class="sub">A small fee is taken from the SOL you get back, never on top of it. The exact amount is shown before you sign.</p>
+  <div class="grid3" id="tierCards"></div>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <h2>How it works</h2>
+  <div class="stack" style="margin-top:24px;gap:22px">
+    <div class="step"><div class="n">1</div><div><h3>Connect</h3><p class="muted">Use Phantom, Solflare or Backpack. We only read your public token accounts.</p></div></div>
+    <div class="step"><div class="n">2</div><div><h3>Scan</h3><p class="muted">Empty token accounts hold rent you can get back. We list them and show the total.</p></div></div>
+    <div class="step"><div class="n">3</div><div><h3>Scratch it off</h3><p class="muted">Review the summary, approve in your wallet, and the SOL lands straight in your account.</p></div></div>
+  </div>
+</div></section>
+
+<section id="token"><div class="wrap">
+  <h2>The <span class="grad" id="tkName">$SCRATCHLY</span> token</h2>
+  <p class="sub">Holding the token lowers your fees. It is a utility feature of the app and carries no promise of returns.</p>
+  <div class="panel" style="margin-top:22px">
+    <div class="muted" style="font-size:14px">Token contract</div>
+    <div class="addr" id="mintAddr"></div>
+    <div class="links"><button class="btn ghost sm" id="cpMint">Copy address</button><a class="btn primary sm" id="lnkPump" target="_blank" rel="noopener">View on pump.fun</a><a class="btn ghost sm" id="lnkDex" target="_blank" rel="noopener">Dexscreener</a></div>
+    <div class="muted" style="font-size:14px;margin-top:22px">Fee wallet (all app fees are sent here)</div>
+    <div class="addr" id="feeAddr"></div>
+    <div class="links"><a class="btn ghost sm" id="lnkFee" target="_blank" rel="noopener">View on Solscan</a></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Questions</h2>
+  <div class="stack" style="margin-top:20px;gap:10px">
+    <details class="faq"><summary>Can Scratchly touch my funds?</summary><p>No. Scratchly never has your keys. Every transaction is built in your browser and signed in your own wallet. You can read exactly what you sign before approving.</p></details>
+    <details class="faq"><summary>What is rent?</summary><p>Every token account on Solana locks a small deposit of SOL. When an account is empty and closed, that deposit is returned to you.</p></details>
+    <details class="faq"><summary>Will it close accounts that hold tokens?</summary><p>Never by default. Only empty accounts are selected. Tokens with a balance can be burned and closed only if you pick them yourself in the advanced section.</p></details>
+    <details class="faq"><summary>How do holder fees work?</summary><p>The app reads your balance of the token when you connect. Holding enough puts you in a lower fee tier automatically. Nothing is staked or locked.</p></details>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <div class="brand"><img src="logo.png" alt="" style="width:28px;height:28px;border-radius:50%">scratchly</div>
+  <p>Scratchly is a utility tool. Use at your own risk and double check every transaction in your wallet. Nothing here is financial advice, and the token carries no promise of returns or profit.</p>
+</div></footer>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.98.0/lib/index.iife.min.js"></script>
+<script>
+(function(){
+const CFG = window.SCRATCHLY_CONFIG;
+const $ = id => document.getElementById(id);
+const RPC = CFG.RPC_URL || "https://api.mainnet-beta.solana.com";
+const TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+const TOKEN22_PROGRAM_ID = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
+const EMPTY_BATCH = 18, BURN_BATCH = 7;
+let provider = null, owner = null, hold = 0, empties = [], withBal = [], plan = null, busy = false;
+
+const short = s => s.slice(0,4) + "..." + s.slice(-4);
+const fmtSol = l => { const v = l/1e9; return (v === 0 ? "0" : v.toFixed(v < 0.01 ? 5 : 4).replace(/0+$/,"").replace(/\.$/,"")) + " SOL"; };
+const fmtTok = n => n >= 1e6 ? (n/1e6).toFixed(2).replace(/\.?0+$/,"") + "M" : n >= 1e3 ? (n/1e3).toFixed(2).replace(/\.?0+$/,"") + "K" : String(+n.toFixed(4));
+const pct = bps => (bps/100).toString().replace(/\.0+$/,"") + "%";
+const show = id => { ["stIdle","stScan","stRes","stDone"].forEach(x => $(x).hidden = x !== id); };
+
+function tierFor(h){
+  if (h >= CFG.TIER2_MIN) return {name:"Diamond", bps:CFG.FEE_BPS_TIER2, cls:"t2", idx:2};
+  if (h >= CFG.TIER1_MIN) return {name:"Holder", bps:CFG.FEE_BPS_TIER1, cls:"", idx:1};
+  return {name:"Standard", bps:CFG.FEE_BPS_STANDARD, cls:"", idx:0};
+}
+
+/* ---------- static sections ---------- */
+function drawTiers(active){
+  const T = [
+    {n:"Standard", b:CFG.FEE_BPS_STANDARD, d:"Everyone. No token needed."},
+    {n:"Holder", b:CFG.FEE_BPS_TIER1, d:"Hold " + fmtTok(CFG.TIER1_MIN) + " $" + CFG.TICKER + " or more."},
+    {n:"Diamond", b:CFG.FEE_BPS_TIER2, d:"Hold " + fmtTok(CFG.TIER2_MIN) + " $" + CFG.TICKER + " or more."}
+  ];
+  $("tierCards").innerHTML = T.map((t,i) => '<div class="card' + (i === active ? ' on' : '') + '"><h3>' + t.n + (i === active ? ' <span class="badge">Your tier</span>' : '') + '</h3><div class="pct ' + (i ? 'grad' : '') + '">' + pct(t.b) + '</div><p>' + t.d + '</p></div>').join("");
+}
+function initStatic(){
+  $("tkName").textContent = "$" + CFG.TICKER;
+  $("mintAddr").textContent = CFG.COIN_MINT;
+  $("feeAddr").textContent = CFG.FEE_WALLET;
+  $("lnkPump").href = "https://pump.fun/coin/" + CFG.COIN_MINT;
+  $("lnkDex").href = "https://dexscreener.com/solana/" + CFG.COIN_MINT;
+  $("lnkFee").href = "https://solscan.io/account/" + CFG.FEE_WALLET;
+  $("cpMint").onclick = () => { navigator.clipboard && navigator.clipboard.writeText(CFG.COIN_MINT); $("cpMint").textContent = "Copied"; setTimeout(() => $("cpMint").textContent = "Copy address", 1500); };
+  const u = encodeURIComponent(location.href.split("#")[0]), r = encodeURIComponent(location.origin);
+  $("lnkPhantom").href = "https://phantom.app/ul/browse/" + u + "?ref=" + r;
+  $("lnkSolflare").href = "https://solflare.com/ul/v1/browse/" + u + "?ref=" + r;
+  drawTiers(-1);
+}
+
+/* ---------- wallet ---------- */
+function findProvider(){
+  const w = window;
+  return (w.phantom && w.phantom.solana && w.phantom.solana.isPhantom && w.phantom.solana)
+      || (w.solflare && w.solflare.isSolflare && w.solflare)
+      || (w.backpack && w.backpack.solana) || (w.solana && w.solana.connect && w.solana) || null;
+}
+async function connect(){
+  $("errIdle").hidden = true;
+  provider = findProvider();
+  if (!provider){ $("noWallet").hidden = false; $("errIdle").hidden = true; show("stIdle"); location.hash = "#app"; return; }
+  try {
+    const res = await provider.connect();
+    const pk = res && res.publicKey ? res.publicKey : provider.publicKey;
+    owner = new solanaWeb3.PublicKey(pk.toString());
+    $("btnConnect").textContent = short(owner.toString());
+    provider.on && provider.on("disconnect", resetAll);
+    provider.on && provider.on("accountChanged", () => location.reload());
+    await scan();
+  } catch(e){ show("stIdle"); $("errIdle").textContent = "Connection cancelled or failed. " + (e.message || ""); $("errIdle").hidden = false; }
+}
+function resetAll(){ owner = null; provider = null; empties = []; withBal = []; plan = null; $("btnConnect").textContent = "Connect wallet"; drawTiers(-1); show("stIdle"); }
+
+/* ---------- scanning ---------- */
+async function rpc(method, params){
+  const r = await fetch(RPC, {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({jsonrpc:"2.0", id:1, method, params})});
+  const j = await r.json();
+  if (j.error) throw new Error(j.error.message);
+  return j.result;
+}
+async function scan(){
+  show("stScan");
+  try {
+    const all = [];
+    for (const pid of [TOKEN_PROGRAM_ID, TOKEN22_PROGRAM_ID]){
+      const res = await rpc("getTokenAccountsByOwner", [owner.toString(), {programId:pid}, {encoding:"jsonParsed"}]);
+      (res.value || []).forEach(a => all.push({a, pid}));
+    }
+    empties = []; withBal = []; hold = 0;
+    all.forEach(({a, pid}) => {
+      const info = a.account.data.parsed.info, ta = info.tokenAmount;
+      const item = {pubkey:a.pubkey, program:pid, lamports:a.account.lamports, mint:info.mint, amount:ta.amount, ui:parseFloat(ta.uiAmountString || "0"), decimals:ta.decimals};
+      if (info.mint === CFG.COIN_MINT) hold += item.ui;
+      if (info.state === "frozen") return;
+      if (ta.amount === "0") empties.push(item); else if (info.mint !== CFG.COIN_MINT) withBal.push(item);
+    });
+    withBal.sort((x, y) => x.mint.localeCompare(y.mint));
+    renderRes();
+    show("stRes");
+  } catch(e){
+    show("stIdle"); $("errIdle").textContent = "Scan failed: " + (e.message || "RPC error") + ". Try again in a moment."; $("errIdle").hidden = false;
+  }
+}
+
+/* ---------- planning ---------- */
+function chunk(arr, n){ const o = []; for (let i = 0; i < arr.length; i += n) o.push(arr.slice(i, i + n)); return o; }
+function buildPlan(burnSel){
+  const t = tierFor(hold);
+  const groups = chunk(empties, EMPTY_BATCH).concat(chunk(burnSel, BURN_BATCH));
+  const batches = groups.map(items => {
+    const reclaim = items.reduce((s, i) => s + i.lamports, 0);
+    return {items, reclaim, fee: Math.floor(reclaim * t.bps / 10000)};
+  });
+  const reclaim = batches.reduce((s, b) => s + b.reclaim, 0), fee = batches.reduce((s, b) => s + b.fee, 0);
+  return {tier:t, batches, reclaim, fee, net:reclaim - fee};
+}
+function selectedBurn(){
+  if (!$("ack").checked) return [];
+  return [...document.querySelectorAll("#burnList input[type=checkbox]:checked")].map(c => withBal[+c.dataset.i]);
+}
+function renderRes(){
+  $("chipAddr").textContent = short(owner.toString());
+  const t = tierFor(hold);
+  $("tierBadge").textContent = t.name + " tier - " + pct(t.bps) + " fee";
+  $("tierBadge").className = "badge " + t.cls;
+  drawTiers(t.idx);
+  $("burnList").innerHTML = withBal.length ? withBal.map((x, i) => '<label class="tok"><input type="checkbox" data-i="' + i + '"><span class="mint">' + short(x.mint) + '</span><span class="amt">' + fmtTok(x.ui) + '</span></label>').join("") : '<p class="muted" style="font-size:14px;padding:8px 0">No other tokens found.</p>';
+  document.querySelectorAll("#burnList input").forEach(c => c.onchange = refresh);
+  refresh();
+}
+function refresh(){
+  plan = buildPlan(selectedBurn());
+  const nEmpty = empties.length, nBurn = plan.batches.reduce((s, b) => s + b.items.length, 0) - nEmpty;
+  $("bigSol").textContent = fmtSol(plan.net);
+  $("bigSub").textContent = nEmpty + " empty account" + (nEmpty === 1 ? "" : "s") + (nBurn > 0 ? " + " + nBurn + " burned" : "");
+  $("sReclaim").textContent = fmtSol(plan.reclaim);
+  $("sPct").textContent = pct(plan.tier.bps);
+  $("sFee").textContent = plan.fee ? "-" + fmtSol(plan.fee) : "0 SOL";
+  $("sNet").textContent = fmtSol(plan.net);
+  const left = plan.tier.idx === 0 ? CFG.TIER1_MIN : plan.tier.idx === 1 ? CFG.TIER2_MIN : 0;
+  $("feeNote").textContent = left ? "Hold " + fmtTok(left) + " $" + CFG.TICKER + " for a lower fee. You hold " + fmtTok(hold) + "." : "You hold " + fmtTok(hold) + " $" + CFG.TICKER + ". Thank you for holding.";
+  const n = plan.batches.length;
+  $("btnClean").disabled = busy || plan.reclaim === 0;
+  $("btnClean").textContent = plan.reclaim === 0 ? "Nothing to clean" : "Clean wallet" + (n > 1 ? " (" + n + " transactions)" : "");
+}
+
+/* ---------- transactions ---------- */
+function u8(arr){ return typeof Buffer !== "undefined" ? Buffer.from(arr) : new Uint8Array(arr); }
+function closeIx(item){
+  const W = solanaWeb3;
+  return new W.TransactionInstruction({programId:new W.PublicKey(item.program), data:u8([9]), keys:[
+    {pubkey:new W.PublicKey(item.pubkey), isSigner:false, isWritable:true},
+    {pubkey:owner, isSigner:false, isWritable:true},
+    {pubkey:owner, isSigner:true, isWritable:false}]});
+}
+function burnIx(item){
+  const W = solanaWeb3, d = new Uint8Array(9); d[0] = 8;
+  new DataView(d.buffer).setBigUint64(1, BigInt(item.amount), true);
+  return new W.TransactionInstruction({programId:new W.PublicKey(item.program), data:u8(d), keys:[
+    {pubkey:new W.PublicKey(item.pubkey), isSigner:false, isWritable:true},
+    {pubkey:new W.PublicKey(item.mint), isSigner:false, isWritable:true},
+    {pubkey:owner, isSigner:true, isWritable:false}]});
+}
+async function clean(){
+  if (busy || !plan || !plan.reclaim) return;
+  busy = true; $("btnClean").disabled = true; $("btnClean").textContent = "Approve in your wallet..."; $("errRes").hidden = true;
+  const W = solanaWeb3, conn = new W.Connection(RPC, "confirmed"), feeKey = new W.PublicKey(CFG.FEE_WALLET);
+  try {
+    const bh = await conn.getLatestBlockhash();
+    const txs = plan.batches.map(b => {
+      const tx = new W.Transaction();
+      b.items.forEach(i => { if (i.ui > 0 || i.amount !== "0") tx.add(burnIx(i)); tx.add(closeIx(i)); });
+      if (b.fee > 0) tx.add(W.SystemProgram.transfer({fromPubkey:owner, toPubkey:feeKey, lamports:b.fee}));
+      tx.feePayer = owner; tx.recentBlockhash = bh.blockhash;
+      return tx;
+    });
+    let signed;
+    if (provider.signAllTransactions) signed = await provider.signAllTransactions(txs);
+    else { signed = []; for (const t of txs) signed.push(await provider.signTransaction(t)); }
+    $("btnClean").textContent = "Cleaning...";
+    const done = [], fails = [];
+    let got = 0, feePaid = 0;
+    for (let i = 0; i < signed.length; i++){
+      try {
+        const sig = await conn.sendRawTransaction(signed[i].serialize(), {skipPreflight:false});
+        await conn.confirmTransaction({signature:sig, blockhash:bh.blockhash, lastValidBlockHeight:bh.lastValidBlockHeight}, "confirmed");
+        done.push(sig); got += plan.batches[i].reclaim - plan.batches[i].fee; feePaid += plan.batches[i].fee;
+      } catch(e){ fails.push((e.message || "failed")); }
+    }
+    showDone(got, done, fails);
+  } catch(e){
+    $("errRes").textContent = /reject|denied|cancel/i.test(e.message || "") ? "Cancelled in wallet. Nothing was changed." : "Something went wrong: " + (e.message || "unknown error");
+    $("errRes").hidden = false;
+  }
+  busy = false; if (!$("stDone").hidden) return; refresh();
+}
+function showDone(got, sigs, fails){
+  $("doneSol").textContent = fmtSol(got);
+  $("doneSub").textContent = sigs.length ? "reclaimed to your wallet" : "No transaction went through";
+  $("doneTx").innerHTML = sigs.map((s, i) => '<a class="txlink" target="_blank" rel="noopener" href="https://solscan.io/tx/' + s + '">Transaction ' + (i + 1) + ': ' + short(s) + '</a>').join("");
+  $("errDone").hidden = !fails.length;
+  if (fails.length) $("errDone").textContent = fails.length + " transaction(s) failed: " + fails[0] + ". You can scan again and retry.";
+  $("btnShare").href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent("Just reclaimed " + fmtSol(got) + " from empty accounts in my Solana wallet with Scratchly.\n\nscratchly.cfd");
+  show("stDone");
+}
+
+/* ---------- wire up ---------- */
+initStatic();
+if (typeof solanaWeb3 === "undefined"){ $("errIdle").textContent = "Could not load the Solana library. Check your connection and reload."; $("errIdle").hidden = false; }
+$("btnConnect").onclick = () => owner ? (location.hash = "#app") : connect();
+$("btnConnect2").onclick = connect;
+$("btnClean").onclick = clean;
+$("ack").onchange = refresh;
+$("btnRescan").onclick = scan;
+$("btnAgain").onclick = scan;
+$("btnDisc").onclick = () => { try { provider && provider.disconnect && provider.disconnect(); } catch(e){} resetAll(); };
+})();
+</script>
+</body>
+</html>
