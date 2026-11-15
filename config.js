@@ -3,7 +3,6 @@
 // ============================================================
 
 window.SCRATCHLY_CONFIG = {
-  X_URL : "https://x.com/scratchlycfd?s=11"
   // A coined mint címe (pump.fun)
   COIN_MINT: "GKFQN4BYgEjNWS2SVYJAbxGCzmkN5tj77HEc9v7Wpump",
 
