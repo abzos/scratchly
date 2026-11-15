@@ -8,10 +8,10 @@
 <meta name="theme-color" content="#07070F">
 <meta property="og:title" content="Scratchly - Solana wallet cleaner">
 <meta property="og:description" content="Close empty token accounts and reclaim the SOL locked inside them. Non-custodial. One click.">
-<meta property="og:image" content="https://scratchly.cfd/og.png">
+<meta property="og:image" content="https://app.scratchly.cfd/og.png">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://scratchly.cfd/og.png">
+<meta name="twitter:image" content="https://app.scratchly.cfd/og.png">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -536,7 +536,8 @@ async function scan(){
     empties = []; withBal = []; hold = 0;
     all.forEach(({a, pid}) => {
       const info = a.account.data.parsed.info, ta = info.tokenAmount;
-      const item = {pubkey:a.pubkey, program:pid, lamports:a.account.lamports, mint:info.mint, amount:ta.amount, ui:parseFloat(ta.uiAmountString || "0"), decimals:ta.decimals};
+      const item = {pubkey:a.pubkey, program:pid, lamports:a.account.lamports, mint:info.mint, amount:ta.amount, ui:parseFloat(ta.uiAmountString || "0"), decimals:ta.decimals, harvest:false};
+      (info.extensions || []).forEach(x => { if (x.extension === "transferFeeAmount" && x.state && Number(x.state.withheldAmount) > 0) item.harvest = true; });
       if (info.mint === CFG.COIN_MINT) hold += item.ui;
       if (info.state === "frozen") return;
       if (ta.amount === "0") empties.push(item); else if (info.mint !== CFG.COIN_MINT) withBal.push(item);
@@ -608,14 +609,25 @@ function cuLimitIx(units){
   const d = new Uint8Array(5); d[0] = 2; new DataView(d.buffer).setUint32(1, units, true);
   return new solanaWeb3.TransactionInstruction({programId:new solanaWeb3.PublicKey(CB_PROGRAM), data:u8(d), keys:[]});
 }
-function buildTx(batch, blockhash, units){
-  const W = solanaWeb3, feeKey = new W.PublicKey(CFG.FEE_WALLET), tx = new W.Transaction();
-  if (units) tx.add(cuLimitIx(units));
-  batch.items.forEach(i => { if (i.amount !== "0") tx.add(burnIx(i)); tx.add(closeIx(i)); });
+function harvestIx(item){
+  const W = solanaWeb3;
+  // Token-2022: HarvestWithheldTokensToMint (barki futtathatja) - a fel nem szedett atutalasi dijat a mintbe gyujti, igy az account zarhatova valik
+  return new W.TransactionInstruction({programId:new W.PublicKey(TOKEN22_PROGRAM_ID), data:u8([26, 4]), keys:[
+    {pubkey:new W.PublicKey(item.mint), isSigner:false, isWritable:true},
+    {pubkey:new W.PublicKey(item.pubkey), isSigner:false, isWritable:true}]});
+}
+function buildTx(items, fee, blockhash, units){
+  const W = solanaWeb3, feeKey = new W.PublicKey(CFG.FEE_WALLET), tx = new W.Transaction(), map = [];
+  if (units){ tx.add(cuLimitIx(units)); map.push(-1); }
+  items.forEach((i, k) => {
+    if (i.amount !== "0"){ tx.add(burnIx(i)); map.push(k); }
+    if (i.harvest){ tx.add(harvestIx(i)); map.push(k); }
+    tx.add(closeIx(i)); map.push(k);
+  });
   // a jutalek-atutalas mindig benne van (0 is lehet), igy a statisztika minden tisztitast latni fog
-  tx.add(W.SystemProgram.transfer({fromPubkey:owner, toPubkey:feeKey, lamports:batch.fee}));
+  tx.add(W.SystemProgram.transfer({fromPubkey:owner, toPubkey:feeKey, lamports:fee})); map.push(-1);
   tx.feePayer = owner; tx.recentBlockhash = blockhash;
-  return tx;
+  return {tx, map};
 }
 function b64(u){ let s = ""; for (let i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); }
 async function simulate(tx){
@@ -626,25 +638,35 @@ async function simulate(tx){
 async function clean(){
   if (busy || !plan || !plan.reclaim) return;
   busy = true; $("btnClean").disabled = true; $("errRes").hidden = true;
-  const conn = new solanaWeb3.Connection(RPC, "confirmed"), total = plan.batches.length;
-  const done = [], fails = []; let got = 0, cancelled = false;
+  const conn = new solanaWeb3.Connection(RPC, "confirmed"), total = plan.batches.length, bps = plan.tier.bps;
+  const done = [], fails = [], skipped = []; let got = 0, cancelled = false;
   for (let i = 0; i < total; i++){
-    const batch = plan.batches[i];
+    const items = plan.batches[i].items.slice();
+    const calc = () => { const r = items.reduce((s, x) => s + x.lamports, 0); return {reclaim:r, fee:Math.floor(r * bps / 10000)}; };
     try {
       $("btnClean").textContent = total > 1 ? "Preparing " + (i + 1) + " of " + total + "..." : "Preparing...";
       const bh = await conn.getLatestBlockhash();
-      // 1) probaszimulacio: igy a Phantom elore latja, mi fog tortenni, es nem jelez hamis veszelyt
-      const sim = await simulate(buildTx(batch, bh.blockhash, null));
+      // 1) probaszimulacio. Ha egy account nem zarhato le, kihagyjuk, es a tobbit tovabb tisztitjuk.
+      let sim = null, tries = 0, c = calc();
+      while (items.length){
+        c = calc(); const b = buildTx(items, c.fee, bh.blockhash, null);
+        sim = await simulate(b.tx);
+        if (!sim.err) break;
+        const ie = sim.err && sim.err.InstructionError, k = ie ? b.map[ie[0]] : -1;
+        if (k >= 0 && tries++ < 15){ skipped.push(items[k]); items.splice(k, 1); continue; }
+        break;
+      }
+      if (!items.length) continue;
       if (sim.err){ fails.push("simulation failed (" + JSON.stringify(sim.err) + ")"); continue; }
       const units = Math.min(1400000, Math.ceil((sim.unitsConsumed || 30000) * 1.25) + 300);
       // 2) vegleges tranzakcio explicit compute limittel, egyetlen alairo
-      const tx = buildTx(batch, bh.blockhash, units);
+      const tx = buildTx(items, c.fee, bh.blockhash, units).tx;
       $("btnClean").textContent = "Approve in your wallet" + (total > 1 ? " (" + (i + 1) + "/" + total + ")" : "") + "...";
       const signed = await provider.signTransaction(tx);
       $("btnClean").textContent = "Cleaning...";
       const sig = await conn.sendRawTransaction(signed.serialize(), {skipPreflight:false});
       await conn.confirmTransaction({signature:sig, blockhash:bh.blockhash, lastValidBlockHeight:bh.lastValidBlockHeight}, "confirmed");
-      done.push(sig); got += batch.reclaim - batch.fee;
+      done.push(sig); got += c.reclaim - c.fee;
     } catch(e){
       const m = e && e.message ? e.message : String(e);
       if (/reject|denied|cancel/i.test(m)){ cancelled = true; break; }
@@ -652,17 +674,17 @@ async function clean(){
     }
   }
   busy = false;
-  if (done.length || fails.length){ showDone(got, done, fails); return; }
+  if (done.length || fails.length || skipped.length){ showDone(got, done, fails, skipped.length); return; }
   $("errRes").textContent = cancelled ? "Cancelled in wallet. Nothing was changed." : "Something went wrong. Please try again.";
   $("errRes").hidden = false; refresh();
 }
-function showDone(got, sigs, fails){
+function showDone(got, sigs, fails, skipped){
   $("doneSol").textContent = fmtSol(got);
-  $("doneSub").textContent = sigs.length ? "reclaimed to your wallet" : "No transaction went through";
+  $("doneSub").textContent = (sigs.length ? "reclaimed to your wallet" : "No transaction went through") + (skipped ? " (" + skipped + " account" + (skipped === 1 ? "" : "s") + " skipped: cannot be closed)" : "");
   $("doneTx").innerHTML = sigs.map((s, i) => '<a class="txlink" target="_blank" rel="noopener" href="https://solscan.io/tx/' + s + '">Transaction ' + (i + 1) + ': ' + short(s) + '</a>').join("");
   $("errDone").hidden = !fails.length;
   if (fails.length) $("errDone").textContent = fails.length + " transaction(s) failed: " + fails[0] + ". You can scan again and retry.";
-  $("btnShare").href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent("Just reclaimed " + fmtSol(got) + " from empty accounts in my Solana wallet with Scratchly.\n\nscratchly.cfd");
+  $("btnShare").href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent("Just reclaimed " + fmtSol(got) + " from empty accounts in my Solana wallet with Scratchly.\n\napp.scratchly.cfd");
   show("stDone"); if (sigs.length) confetti(60);
 }
 
