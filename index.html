@@ -603,38 +603,58 @@ function burnIx(item){
     {pubkey:new W.PublicKey(item.mint), isSigner:false, isWritable:true},
     {pubkey:owner, isSigner:true, isWritable:false}]});
 }
+const CB_PROGRAM = "ComputeBudget111111111111111111111111111111";
+function cuLimitIx(units){
+  const d = new Uint8Array(5); d[0] = 2; new DataView(d.buffer).setUint32(1, units, true);
+  return new solanaWeb3.TransactionInstruction({programId:new solanaWeb3.PublicKey(CB_PROGRAM), data:u8(d), keys:[]});
+}
+function buildTx(batch, blockhash, units){
+  const W = solanaWeb3, feeKey = new W.PublicKey(CFG.FEE_WALLET), tx = new W.Transaction();
+  if (units) tx.add(cuLimitIx(units));
+  batch.items.forEach(i => { if (i.amount !== "0") tx.add(burnIx(i)); tx.add(closeIx(i)); });
+  // a jutalek-atutalas mindig benne van (0 is lehet), igy a statisztika minden tisztitast latni fog
+  tx.add(W.SystemProgram.transfer({fromPubkey:owner, toPubkey:feeKey, lamports:batch.fee}));
+  tx.feePayer = owner; tx.recentBlockhash = blockhash;
+  return tx;
+}
+function b64(u){ let s = ""; for (let i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); }
+async function simulate(tx){
+  const bytes = tx.serialize({requireAllSignatures:false, verifySignatures:false});
+  const r = await rpc("simulateTransaction", [b64(bytes), {encoding:"base64", sigVerify:false, replaceRecentBlockhash:true, commitment:"processed"}]);
+  return r.value;
+}
 async function clean(){
   if (busy || !plan || !plan.reclaim) return;
-  busy = true; $("btnClean").disabled = true; $("btnClean").textContent = "Approve in your wallet..."; $("errRes").hidden = true;
-  const W = solanaWeb3, conn = new W.Connection(RPC, "confirmed"), feeKey = new W.PublicKey(CFG.FEE_WALLET);
-  try {
-    const bh = await conn.getLatestBlockhash();
-    const txs = plan.batches.map(b => {
-      const tx = new W.Transaction();
-      b.items.forEach(i => { if (i.amount !== "0") tx.add(burnIx(i)); tx.add(closeIx(i)); });
-      // a jutalek-atutalas mindig benne van (0 is lehet), igy a statisztika minden tisztitast latni fog
-      tx.add(W.SystemProgram.transfer({fromPubkey:owner, toPubkey:feeKey, lamports:b.fee}));
-      tx.feePayer = owner; tx.recentBlockhash = bh.blockhash;
-      return tx;
-    });
-    let signed;
-    if (provider.signAllTransactions) signed = await provider.signAllTransactions(txs);
-    else { signed = []; for (const t of txs) signed.push(await provider.signTransaction(t)); }
-    $("btnClean").textContent = "Cleaning...";
-    const done = [], fails = []; let got = 0;
-    for (let i = 0; i < signed.length; i++){
-      try {
-        const sig = await conn.sendRawTransaction(signed[i].serialize(), {skipPreflight:false});
-        await conn.confirmTransaction({signature:sig, blockhash:bh.blockhash, lastValidBlockHeight:bh.lastValidBlockHeight}, "confirmed");
-        done.push(sig); got += plan.batches[i].reclaim - plan.batches[i].fee;
-      } catch(e){ fails.push((e.message || "failed")); }
+  busy = true; $("btnClean").disabled = true; $("errRes").hidden = true;
+  const conn = new solanaWeb3.Connection(RPC, "confirmed"), total = plan.batches.length;
+  const done = [], fails = []; let got = 0, cancelled = false;
+  for (let i = 0; i < total; i++){
+    const batch = plan.batches[i];
+    try {
+      $("btnClean").textContent = total > 1 ? "Preparing " + (i + 1) + " of " + total + "..." : "Preparing...";
+      const bh = await conn.getLatestBlockhash();
+      // 1) probaszimulacio: igy a Phantom elore latja, mi fog tortenni, es nem jelez hamis veszelyt
+      const sim = await simulate(buildTx(batch, bh.blockhash, null));
+      if (sim.err){ fails.push("simulation failed (" + JSON.stringify(sim.err) + ")"); continue; }
+      const units = Math.min(1400000, Math.ceil((sim.unitsConsumed || 30000) * 1.25) + 300);
+      // 2) vegleges tranzakcio explicit compute limittel, egyetlen alairo
+      const tx = buildTx(batch, bh.blockhash, units);
+      $("btnClean").textContent = "Approve in your wallet" + (total > 1 ? " (" + (i + 1) + "/" + total + ")" : "") + "...";
+      const signed = await provider.signTransaction(tx);
+      $("btnClean").textContent = "Cleaning...";
+      const sig = await conn.sendRawTransaction(signed.serialize(), {skipPreflight:false});
+      await conn.confirmTransaction({signature:sig, blockhash:bh.blockhash, lastValidBlockHeight:bh.lastValidBlockHeight}, "confirmed");
+      done.push(sig); got += batch.reclaim - batch.fee;
+    } catch(e){
+      const m = e && e.message ? e.message : String(e);
+      if (/reject|denied|cancel/i.test(m)){ cancelled = true; break; }
+      fails.push(m);
     }
-    showDone(got, done, fails);
-  } catch(e){
-    $("errRes").textContent = /reject|denied|cancel/i.test(e.message || "") ? "Cancelled in wallet. Nothing was changed." : "Something went wrong: " + (e.message || "unknown error");
-    $("errRes").hidden = false;
   }
-  busy = false; if (!$("stDone").hidden) return; refresh();
+  busy = false;
+  if (done.length || fails.length){ showDone(got, done, fails); return; }
+  $("errRes").textContent = cancelled ? "Cancelled in wallet. Nothing was changed." : "Something went wrong. Please try again.";
+  $("errRes").hidden = false; refresh();
 }
 function showDone(got, sigs, fails){
   $("doneSol").textContent = fmtSol(got);
