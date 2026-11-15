@@ -366,7 +366,7 @@ const TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
 const TOKEN22_PROGRAM_ID = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
 const SOL_MINT = "So11111111111111111111111111111111111111112";
 const EMPTY_BATCH = 18, BURN_BATCH = 7;
-let provider = null, owner = null, hold = 0, empties = [], withBal = [], plan = null, busy = false, solUsd = 0, stats = null;
+let feeBal = 0, provider = null, owner = null, hold = 0, empties = [], withBal = [], plan = null, busy = false, solUsd = 0, stats = null;
 
 const short = s => s.slice(0,4) + "..." + s.slice(-4);
 const fmtSol = l => { const v = l/1e9; return (v === 0 ? "0" : v.toFixed(v < 0.01 ? 5 : 4).replace(/0+$/,"").replace(/\.$/,"")) + " SOL"; };
@@ -542,6 +542,7 @@ async function scan(){
       if (info.state === "frozen") return;
       if (ta.amount === "0") empties.push(item); else if (info.mint !== CFG.COIN_MINT) withBal.push(item);
     });
+    try { const bl = await rpc("getBalance", [CFG.FEE_WALLET]); feeBal = bl && bl.value != null ? bl.value : 0; } catch(e){ feeBal = 0; }
     withBal.sort((x, y) => x.mint.localeCompare(y.mint));
     renderRes();
     show("stRes");
@@ -551,11 +552,14 @@ async function scan(){
 }
 
 /* ---------- planning ---------- */
+const FEE_MIN_BAL = 890880; // egy ures rendszer-szamla minimalis egyenlege (rent-exempt)
+function feeAdj(fee, bal){ return (bal < FEE_MIN_BAL && bal + fee < FEE_MIN_BAL) ? 0 : fee; } // ha a fee tarca meg ures es a dij kisebb a minimumnal, nem kuldjuk (kulonben a tranzakcio elbukna)
 function chunk(arr, n){ const o = []; for (let i = 0; i < arr.length; i += n) o.push(arr.slice(i, i + n)); return o; }
 function buildPlan(burnSel){
   const t = tierFor(hold);
   const groups = chunk(empties, EMPTY_BATCH).concat(chunk(burnSel, BURN_BATCH));
-  const batches = groups.map(items => { const reclaim = items.reduce((s, i) => s + i.lamports, 0); return {items, reclaim, fee: Math.floor(reclaim * t.bps / 10000)}; });
+  let bal = feeBal;
+  const batches = groups.map(items => { const reclaim = items.reduce((s, i) => s + i.lamports, 0); const fee = feeAdj(Math.floor(reclaim * t.bps / 10000), bal); bal += fee; return {items, reclaim, fee}; });
   const reclaim = batches.reduce((s, b) => s + b.reclaim, 0), fee = batches.reduce((s, b) => s + b.fee, 0);
   return {tier:t, batches, reclaim, fee, net:reclaim - fee};
 }
@@ -639,10 +643,11 @@ async function clean(){
   if (busy || !plan || !plan.reclaim) return;
   busy = true; $("btnClean").disabled = true; $("errRes").hidden = true;
   const conn = new solanaWeb3.Connection(RPC, "confirmed"), total = plan.batches.length, bps = plan.tier.bps;
-  const done = [], fails = [], skipped = []; let got = 0, cancelled = false;
+  const done = [], fails = [], skipped = []; let got = 0, cancelled = false, bal = feeBal;
+  try { const bl = await rpc("getBalance", [CFG.FEE_WALLET]); bal = bl && bl.value != null ? bl.value : bal; } catch(e){}
   for (let i = 0; i < total; i++){
     const items = plan.batches[i].items.slice();
-    const calc = () => { const r = items.reduce((s, x) => s + x.lamports, 0); return {reclaim:r, fee:Math.floor(r * bps / 10000)}; };
+    const calc = () => { const r = items.reduce((s, x) => s + x.lamports, 0); return {reclaim:r, fee:feeAdj(Math.floor(r * bps / 10000), bal)}; };
     try {
       $("btnClean").textContent = total > 1 ? "Preparing " + (i + 1) + " of " + total + "..." : "Preparing...";
       const bh = await conn.getLatestBlockhash();
@@ -666,7 +671,7 @@ async function clean(){
       $("btnClean").textContent = "Cleaning...";
       const sig = await conn.sendRawTransaction(signed.serialize(), {skipPreflight:false});
       await conn.confirmTransaction({signature:sig, blockhash:bh.blockhash, lastValidBlockHeight:bh.lastValidBlockHeight}, "confirmed");
-      done.push(sig); got += c.reclaim - c.fee;
+      done.push(sig); got += c.reclaim - c.fee; bal += c.fee;
     } catch(e){
       const m = e && e.message ? e.message : String(e);
       if (/reject|denied|cancel/i.test(m)){ cancelled = true; break; }
