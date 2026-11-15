@@ -16,107 +16,213 @@
 <link rel="apple-touch-icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#07070F;--bg2:#0E0C22;--card:#14122B;--line:#2A2758;--text:#F5F7FF;--muted:#9AA3C7;--dim:#7D86AC;--v:#9B7BFF;--c:#2DE2E6;--grad:linear-gradient(90deg,#9B7BFF,#2DE2E6);--ok:#4ADE9A;--bad:#FF6B8B}
+:root{--bg:#07070F;--card:#12112A;--line:#2A2758;--text:#F5F7FF;--muted:#9AA3C7;--dim:#7D86AC;--v:#9B7BFF;--c:#2DE2E6;--grad:linear-gradient(100deg,#9B7BFF,#2DE2E6);--ok:#4ADE9A;--bad:#FF6B8B;--glass:rgba(255,255,255,.045);--disp:"Space Grotesk",Inter,system-ui,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;overflow-x:hidden;padding-top:env(safe-area-inset-top)}
-body:before{content:"";position:fixed;inset:0;background:radial-gradient(900px 600px at 80% -10%,rgba(124,92,255,.28),transparent 60%),radial-gradient(700px 500px at -10% 40%,rgba(45,226,230,.10),transparent 60%);pointer-events:none;z-index:-1}
 a{color:inherit;text-decoration:none}
-.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
-nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(7,7,15,.72);border-bottom:1px solid rgba(42,39,88,.6)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+/* background */
+.bgfx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.bgfx:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(155,123,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(155,123,255,.07) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 75%);mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 75%)}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;animation:drift 18s ease-in-out infinite alternate}
+.b1{width:520px;height:520px;background:#6C4BFF;top:-160px;right:-120px}
+.b2{width:420px;height:420px;background:#12B6C8;top:380px;left:-180px;opacity:.28;animation-duration:24s}
+@keyframes drift{to{transform:translate(-50px,60px) scale(1.12)}}
+/* nav + ticker */
+nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(7,7,15,.7);border-bottom:1px solid rgba(42,39,88,.6)}
 nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;letter-spacing:-.5px}
-.brand img{width:36px;height:36px;border-radius:50%}
+.brand{display:flex;align-items:center;gap:10px;font:700 21px var(--disp);letter-spacing:-.5px}
+.brand img{width:36px;height:36px;border-radius:50%;box-shadow:0 0 0 2px rgba(155,123,255,.35)}
 .navlinks{display:none;gap:28px;color:var(--muted);font-size:15px;font-weight:500}
 .navlinks a:hover{color:#fff}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;font:600 16px Inter,sans-serif;border-radius:999px;padding:14px 26px;transition:transform .15s,opacity .15s}
+.ticker{display:flex;align-items:center;border-bottom:1px solid rgba(42,39,88,.5);background:rgba(10,9,26,.6);font-size:13px;height:38px;overflow:hidden}
+.tkchip{flex:none;display:flex;align-items:center;gap:8px;padding:0 14px 0 18px;height:100%;border-right:1px solid rgba(42,39,88,.7);background:rgba(18,17,42,.9);font-weight:600;white-space:nowrap;z-index:2}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(74,222,154,.7);animation:pulse 1.8s infinite}
+.dot.off{background:var(--dim);animation:none;box-shadow:none}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(74,222,154,0)}100%{box-shadow:0 0 0 0 rgba(74,222,154,0)}}
+.up{color:var(--ok)}.down{color:var(--bad)}
+.marq{flex:1;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.marq-track{display:inline-flex;gap:34px;white-space:nowrap;animation:marq 38s linear infinite;color:var(--muted);padding-left:24px}
+.marq-track span b{color:#fff;font-weight:600}
+.marq-track i{font-style:normal;color:var(--v);margin-right:8px}
+@keyframes marq{to{transform:translateX(-50%)}}
+/* buttons */
+.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;font:600 16px Inter,sans-serif;border-radius:999px;padding:14px 26px;transition:transform .15s,box-shadow .2s,opacity .15s}
 .btn:active{transform:scale(.97)}
-.btn.primary{background:var(--grad);color:#07070F}
-.btn.ghost{background:transparent;color:#fff;border:1px solid var(--line)}
+.btn.primary{background:var(--grad);color:#07070F;box-shadow:0 8px 30px rgba(124,92,255,.35)}
+.btn.primary:hover{box-shadow:0 10px 40px rgba(45,226,230,.35)}
+.btn.primary:after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);animation:shine 4.5s infinite}
+@keyframes shine{0%,60%{left:-60%}100%{left:130%}}
+.btn.ghost{background:var(--glass);color:#fff;border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--v)}
 .btn.sm{padding:10px 18px;font-size:14px}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
-.hero{padding:44px 0 28px;display:grid;gap:12px;align-items:center}
-.hero h1{font-size:clamp(40px,9vw,72px);line-height:1.02;letter-spacing:-2px;font-weight:800}
+.btn[disabled]:after{display:none}
+/* hero */
+.hero{padding:40px 0 20px;display:grid;gap:24px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--glass);border-radius:999px;padding:6px 14px 6px 12px;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:18px}
+.hero h1{font:700 clamp(42px,10vw,78px)/1.0 var(--disp);letter-spacing:-2.5px}
 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p.lead{margin:18px 0 26px;color:var(--muted);font-size:18px;max-width:520px}
+.lead{margin:18px 0 26px;color:var(--muted);font-size:18px;max-width:520px}
 .cta{display:flex;gap:12px;flex-wrap:wrap}
-.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
-.pill{font-size:13px;font-weight:500;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:rgba(20,18,43,.6)}
-.heroart{display:flex;justify-content:center;position:relative}
-.heroart img{width:min(78%,420px);height:auto;filter:drop-shadow(0 30px 60px rgba(124,92,255,.35))}
-section{padding:36px 0}
-h2{font-size:clamp(28px,5vw,40px);letter-spacing:-1px;font-weight:700;line-height:1.1}
+.heroStat{display:flex;align-items:center;gap:14px;margin-top:26px;padding:14px 18px;border:1px solid var(--line);background:var(--glass);border-radius:18px;width:fit-content;max-width:100%}
+.heroStat .ic{width:42px;height:42px;border-radius:12px;background:var(--grad);display:grid;place-items:center;flex:none}
+.heroStat small{display:block;color:var(--dim);font-size:12px}
+.heroStat b{font:700 22px var(--disp);letter-spacing:-.5px}
+.heroart{position:relative;display:flex;justify-content:center;min-height:380px}
+.heroart:before{content:"";position:absolute;width:78%;aspect-ratio:1;border-radius:50%;top:6%;background:radial-gradient(circle,rgba(124,92,255,.55),transparent 65%);filter:blur(10px)}
+.heroart img{position:relative;width:min(70%,380px);height:auto;align-self:center;animation:float 5s ease-in-out infinite;filter:drop-shadow(0 30px 50px rgba(0,0,0,.5))}
+@keyframes float{50%{transform:translateY(-14px) rotate(1deg)}}
+.fchip{position:absolute;display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:14px;font-size:13px;font-weight:600;background:rgba(20,18,43,.82);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 12px 30px rgba(0,0,0,.4);animation:float 6s ease-in-out infinite}
+.fchip svg{flex:none}
+.fc1{top:8%;left:0}.fc2{top:46%;right:-2px;animation-delay:-2s}.fc3{bottom:6%;left:4%;animation-delay:-4s}
+/* sections */
+section{padding:38px 0}
+h2{font:700 clamp(28px,5vw,42px)/1.08 var(--disp);letter-spacing:-1.2px}
 .sub{color:var(--muted);margin-top:10px;max-width:560px}
-.panel{background:linear-gradient(180deg,#16143A,#100E26);border:1px solid var(--line);border-radius:28px;padding:26px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.tag{display:inline-block;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--c);margin-bottom:10px}
+.panel{position:relative;background:linear-gradient(180deg,rgba(26,23,64,.92),rgba(16,14,38,.92));border:1px solid var(--line);border-radius:28px;padding:26px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.panel.glow:before{content:"";position:absolute;inset:-1px;border-radius:29px;padding:1px;background:linear-gradient(140deg,rgba(155,123,255,.7),transparent 40%,transparent 60%,rgba(45,226,230,.6));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
 .center{text-align:center}
-.big{font-size:clamp(46px,12vw,72px);font-weight:800;letter-spacing:-2px;line-height:1}
+.big{font:700 clamp(46px,12vw,76px)/1 var(--disp);letter-spacing:-2.5px}
 .muted{color:var(--muted)}.dim{color:var(--dim)}
 .row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--line);font-size:15px}
-.row b{font-weight:600}
-.row.total{font-size:17px}
+.row b{font-weight:600}.row.total{font-size:17px}
 .chip{display:inline-flex;align-items:center;gap:8px;background:#0B0A1C;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--muted)}
 .badge{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px;background:rgba(155,123,255,.18);color:#C9B8FF}
 .badge.t2{background:rgba(45,226,230,.16);color:#7DF0F2}
 .stack{display:grid;gap:14px}
-.spin{width:34px;height:34px;border:4px solid var(--line);border-top-color:var(--c);border-radius:50%;animation:s 0.9s linear infinite;margin:0 auto 14px}
+.spin{width:34px;height:34px;border:4px solid var(--line);border-top-color:var(--c);border-radius:50%;animation:s .9s linear infinite;margin:0 auto 14px}
 @keyframes s{to{transform:rotate(360deg)}}
-details{margin-top:18px;border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:#0D0B20}
-summary{cursor:pointer;font-weight:600;font-size:15px;list-style:none}
-summary::-webkit-details-marker{display:none}
-.warn{font-size:13px;color:#FFC38A;background:rgba(255,160,70,.08);border:1px solid rgba(255,160,70,.25);border-radius:12px;padding:10px 12px;margin:12px 0}
+/* advanced */
+.adv{margin-top:20px;border-radius:18px;background:linear-gradient(#0D0B20,#0D0B20) padding-box,linear-gradient(120deg,rgba(155,123,255,.7),rgba(45,226,230,.5)) border-box;border:1px solid transparent}
+.adv summary{display:flex;align-items:center;gap:14px;cursor:pointer;padding:16px;list-style:none;-webkit-tap-highlight-color:transparent}
+.adv summary::-webkit-details-marker{display:none}
+.advIcon{flex:none;width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,#FF8A5C,#FF4F8B);display:grid;place-items:center}
+.advTxt{flex:1;min-width:0}.advTxt b{display:block;font-size:16px}.advTxt small{color:var(--muted);font-size:13px;line-height:1.3;display:block}
+.advBadge{flex:none;min-width:26px;height:26px;padding:0 8px;border-radius:999px;background:rgba(155,123,255,.2);color:#C9B8FF;font-size:13px;font-weight:700;display:grid;place-items:center}
+.chev{flex:none;transition:transform .25s;color:var(--muted)}
+.adv[open] .chev{transform:rotate(180deg)}
+.advBody{padding:0 16px 16px}
+.warn{font-size:13px;color:#FFC38A;background:rgba(255,160,70,.08);border:1px solid rgba(255,160,70,.25);border-radius:12px;padding:10px 12px;margin-bottom:10px}
 .tok{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
 .tok input{width:20px;height:20px;accent-color:#9B7BFF;flex:none}
 .tok .mint{font-family:ui-monospace,Menlo,monospace;color:var(--muted)}
 .tok .amt{margin-left:auto;font-weight:600;text-align:right}
+/* stats */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}
+.tile{background:var(--glass);border:1px solid var(--line);border-radius:20px;padding:18px;position:relative;overflow:hidden}
+.tile small{color:var(--dim);font-size:12px;font-weight:500;letter-spacing:.3px}
+.tile b{display:block;font:700 clamp(24px,6vw,34px) var(--disp);letter-spacing:-1px;margin-top:4px}
+.tile em{font-style:normal;font-size:12px;color:var(--muted)}
+.tile.wide{grid-column:1/-1}
+.duo{display:grid;gap:14px;margin-top:14px}
+.scwrap{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);min-height:190px;background:linear-gradient(135deg,#1B1750,#0E0C26);display:grid;place-items:center;text-align:center;padding:20px}
+.scwrap small{color:var(--muted)}
+.scwrap canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;transition:opacity .6s}
+.scwrap canvas.done{opacity:0;pointer-events:none}
+.feed{background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:6px 18px}
+.feed h3{font:600 15px Inter;padding:14px 0 6px;color:var(--muted)}
+.fi{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:14px;animation:fin .5s both}
+.fi:first-of-type{border-top:0}
+.fi .av{flex:none;width:34px;height:34px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-size:12px;font-weight:700;color:#07070F}
+.fi .t{margin-left:auto;text-align:right;color:var(--dim);font-size:12px}
+.fi .t b{display:block;color:var(--ok);font-size:14px}
+@keyframes fin{from{opacity:0;transform:translateY(8px)}}
+.empty{padding:22px 0;text-align:center;color:var(--dim);font-size:14px}
+/* tiers */
 .grid3{display:grid;gap:14px;margin-top:22px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:22px;transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-3px);border-color:rgba(155,123,255,.6)}
 .card.on{border-color:var(--v);box-shadow:0 0 0 1px var(--v),0 20px 50px rgba(124,92,255,.25)}
 .card h3{font-size:18px;font-weight:700}
-.card .pct{font-size:44px;font-weight:800;letter-spacing:-1.5px;margin:6px 0}
+.card .pct{font:700 46px var(--disp);letter-spacing:-1.5px;margin:6px 0}
 .card p{color:var(--muted);font-size:14px}
-.step{display:flex;gap:16px;align-items:flex-start}
-.step .n{flex:none;width:38px;height:38px;border-radius:50%;background:var(--grad);color:#07070F;font-weight:800;display:grid;place-items:center}
-.step h3{font-size:18px;margin-bottom:2px}
+/* token */
+.pxgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.px{background:#0B0A1C;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.px small{color:var(--dim);font-size:12px}.px b{display:block;font:600 18px var(--disp)}
+.pxmain{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.pxmain .v{font:700 clamp(34px,8vw,48px) var(--disp);letter-spacing:-1.5px}
+.pxmain .c{font-weight:700;font-size:16px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.06)}
+.chart{margin-top:16px;border-radius:18px;overflow:hidden;border:1px solid var(--line);height:360px;background:#0B0A1C}
+.chart iframe{width:100%;height:100%;border:0}
+.soon{margin:14px 0;padding:14px 16px;border-radius:16px;border:1px dashed var(--line);color:var(--muted);font-size:14px;display:flex;gap:10px;align-items:center}
 .addr{font-family:ui-monospace,Menlo,monospace;font-size:13px;word-break:break-all;color:#C9D0F0;background:#0B0A1C;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:8px}
 .links{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-details.faq{background:var(--card)}
+.tokart{display:none}
+/* how + faq */
+.step{display:flex;gap:16px;align-items:flex-start;padding:18px;border:1px solid var(--line);border-radius:20px;background:var(--glass)}
+.step .n{flex:none;width:40px;height:40px;border-radius:50%;background:var(--grad);color:#07070F;font:700 18px var(--disp);display:grid;place-items:center}
+.step h3{font-size:18px;margin-bottom:2px}
+details.faq{background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+details.faq summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:10px}
+details.faq summary::-webkit-details-marker{display:none}
+details.faq summary:after{content:"+";color:var(--c);font-size:20px;line-height:1}
+details.faq[open] summary:after{content:"-"}
 details.faq p{color:var(--muted);margin-top:10px;font-size:15px}
 footer{padding:40px 0 calc(40px + env(safe-area-inset-bottom));border-top:1px solid var(--line);margin-top:30px;color:var(--dim);font-size:13px}
 footer .brand{margin-bottom:10px;color:#fff}
-.err{color:var(--bad);font-size:14px;margin-top:12px}
-.ok{color:var(--ok)}
+.err{color:var(--bad);font-size:14px;margin-top:12px}.ok{color:var(--ok)}
 .txlink{display:block;font-size:14px;color:var(--c);margin-top:6px;word-break:break-all}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+.rv.in{opacity:1;transform:none}
+.cf{position:fixed;top:-12px;width:10px;height:14px;border-radius:2px;z-index:99;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.8}}
 [hidden]{display:none!important}
 @media(min-width:820px){
  .navlinks{display:flex}
- .hero{grid-template-columns:1.1fr .9fr;padding:72px 0 40px}
+ .hero{grid-template-columns:1.05fr .95fr;padding:64px 0 30px}
  .grid3{grid-template-columns:repeat(3,1fr)}
  .panel{padding:36px}
+ .tiles{grid-template-columns:repeat(4,1fr)}.tile.wide{grid-column:auto}
+ .duo{grid-template-columns:1fr 1fr}
+ .pxgrid{grid-template-columns:repeat(4,1fr)}
+ .tokwrap{display:grid;grid-template-columns:1.4fr .6fr;gap:24px;align-items:end}
+ .tokart{display:block}.tokart img{width:100%;max-width:300px;filter:drop-shadow(0 24px 40px rgba(0,0,0,.5))}
+ .stepsrow{grid-template-columns:repeat(3,1fr)}
 }
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
 </style>
 </head>
 <body>
+<div class="bgfx"><div class="blob b1"></div><div class="blob b2"></div></div>
+
 <nav><div class="wrap">
   <a class="brand" href="#top"><img src="logo.png" alt="Scratchly logo">scratchly</a>
-  <div class="navlinks"><a href="#app">Cleaner</a><a href="#fees">Fees</a><a href="#how">How it works</a><a href="#token">Token</a></div>
+  <div class="navlinks"><a href="#app">Cleaner</a><a href="#stats">Live stats</a><a href="#fees">Fees</a><a href="#token">Token</a><a href="#how">How it works</a></div>
   <button class="btn primary sm" id="btnConnect">Connect wallet</button>
 </div></nav>
+<div class="ticker">
+  <div class="tkchip"><span class="dot off" id="tkDot"></span><span id="tkSym">$TOKEN</span><span id="tkPrice" class="dim">launching soon</span><span id="tkChg"></span></div>
+  <div class="marq"><div class="marq-track" id="marq"></div></div>
+</div>
 
 <main id="top">
 <div class="wrap hero">
   <div>
+    <div class="eyebrow"><span class="dot"></span>Live on Solana</div>
     <h1>Clean your <span class="grad">Solana wallet.</span></h1>
     <p class="lead">Close empty token accounts and reclaim the SOL locked inside them. Non-custodial, one click, every transaction signed by you.</p>
-    <div class="cta"><a class="btn primary" href="#app">Start cleaning</a><a class="btn ghost" href="#how">How it works</a></div>
-    <div class="pills"><span class="pill">Non-custodial</span><span class="pill">Fees shown before you sign</span><span class="pill">Reduced fees for holders</span></div>
+    <div class="cta"><a class="btn primary" href="#app">Start cleaning</a><a class="btn ghost" href="#stats">Live stats</a></div>
+    <div class="heroStat">
+      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#07070F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg></div>
+      <div><small>Reclaimed through Scratchly</small><b id="heroTotal">0 SOL</b></div>
+    </div>
   </div>
-  <div class="heroart"><img src="mascot.png" alt="Scratchly cat mascot holding a scratch card"></div>
+  <div class="heroart">
+    <img src="mascot.png" alt="Scratchly cat mascot">
+    <div class="fchip fc1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2DE2E6" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Closes empty accounts</div>
+    <div class="fchip fc2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9B7BFF" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>One click</div>
+    <div class="fchip fc3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ADE9A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>You sign everything</div>
+  </div>
 </div>
 
-<section id="app"><div class="wrap">
-  <div class="panel">
+<section id="app"><div class="wrap rv">
+  <div class="panel glow">
     <div id="stIdle" class="center stack">
       <div><h2>Reclaim your SOL</h2><p class="sub" style="margin:10px auto 0">Connect your wallet and we scan it for empty token accounts. Nothing is signed until you press clean.</p></div>
       <div><button class="btn primary" id="btnConnect2">Connect wallet</button></div>
@@ -138,7 +244,7 @@ footer .brand{margin-bottom:10px;color:#fff}
         <div class="big grad" id="bigSol">0 SOL</div>
         <div class="muted" id="bigSub" style="margin-top:8px"></div>
       </div>
-      <div id="sumRows">
+      <div>
         <div class="row"><span class="muted">Rent returned to you</span><b id="sReclaim">-</b></div>
         <div class="row"><span class="muted">Scratchly fee (<span id="sPct">15%</span>)</span><b id="sFee">-</b></div>
         <div class="row total"><span>You receive</span><b class="ok" id="sNet">-</b></div>
@@ -147,11 +253,18 @@ footer .brand{margin-bottom:10px;color:#fff}
       <div style="margin-top:20px"><button class="btn primary" id="btnClean" style="width:100%">Clean wallet</button></div>
       <p class="err" id="errRes" hidden></p>
 
-      <details id="adv">
-        <summary>Advanced: burn tokens you no longer want</summary>
-        <div class="warn">Burning is permanent. Only select tokens you are sure are worthless. Everything here is unselected by default.</div>
-        <div id="burnList"></div>
-        <label class="tok" style="border-top:0;margin-top:6px"><input type="checkbox" id="ack"><span style="font-size:14px">I understand that burning cannot be undone</span></label>
+      <details id="adv" class="adv">
+        <summary>
+          <span class="advIcon"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2c1 3 4 5 4 9a4 4 0 11-8 0c0-1.2.4-2.2 1-3 .3 1 1 1.6 1.7 1.8C10.4 7 11 4.4 12 2z"/><path d="M12 22a6 6 0 006-6c0-1-.3-2-.8-2.8C16.4 14.4 15 15 14 15c-1.6 0-2-1.2-2-2.4-2 1.4-4 3.4-4 5.4a4 4 0 004 4z" opacity=".55"/></svg></span>
+          <span class="advTxt"><b>Advanced: burn tokens</b><small>Get rent back from tokens you do not want</small></span>
+          <span class="advBadge" id="advCount">0</span>
+          <svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <div class="advBody">
+          <div class="warn">Burning is permanent. Only select tokens you are sure are worthless. Everything here is unselected by default.</div>
+          <div id="burnList"></div>
+          <label class="tok" style="margin-top:6px"><input type="checkbox" id="ack"><span style="font-size:14px">I understand that burning cannot be undone</span></label>
+        </div>
       </details>
       <div class="center" style="margin-top:16px"><button class="btn ghost sm" id="btnRescan">Rescan</button> <button class="btn ghost sm" id="btnDisc">Disconnect</button></div>
     </div>
@@ -165,47 +278,80 @@ footer .brand{margin-bottom:10px;color:#fff}
   </div>
 </div></section>
 
-<section id="fees"><div class="wrap">
+<section id="stats"><div class="wrap rv">
+  <span class="tag">Live stats</span>
+  <h2>Scratched off, <span class="grad">on-chain.</span></h2>
+  <p class="sub">Every number here is counted from real Scratchly transactions on Solana.</p>
+  <div class="tiles">
+    <div class="tile wide"><small>Total SOL reclaimed</small><b id="stTotal">0</b><em id="stUsd">&nbsp;</em></div>
+    <div class="tile"><small>Accounts closed</small><b id="stAcc">0</b><em>empty accounts</em></div>
+    <div class="tile"><small>Wallets cleaned</small><b id="stWal">0</b><em>unique wallets</em></div>
+    <div class="tile"><small>Fees earned</small><b id="stFee">0</b><em>SOL</em></div>
+  </div>
+  <div class="duo">
+    <div class="scwrap" id="scwrap"><div><small>Total reclaimed so far</small><div class="big grad" id="scVal" style="font-size:clamp(40px,10vw,60px)">0 SOL</div></div><canvas id="scratch"></canvas></div>
+    <div class="feed"><h3>Recent cleans</h3><div id="feed"><div class="empty">No cleans yet. Be the first one.</div></div></div>
+  </div>
+  <p class="dim" style="font-size:12px;margin-top:10px" id="stUpd"></p>
+</div></section>
+
+<section id="fees"><div class="wrap rv">
+  <span class="tag">Fees</span>
   <h2>Fees that reward holders</h2>
   <p class="sub">A small fee is taken from the SOL you get back, never on top of it. The exact amount is shown before you sign.</p>
   <div class="grid3" id="tierCards"></div>
 </div></section>
 
-<section id="how"><div class="wrap">
-  <h2>How it works</h2>
-  <div class="stack" style="margin-top:24px;gap:22px">
-    <div class="step"><div class="n">1</div><div><h3>Connect</h3><p class="muted">Use Phantom, Solflare or Backpack. We only read your public token accounts.</p></div></div>
-    <div class="step"><div class="n">2</div><div><h3>Scan</h3><p class="muted">Empty token accounts hold rent you can get back. We list them and show the total.</p></div></div>
-    <div class="step"><div class="n">3</div><div><h3>Scratch it off</h3><p class="muted">Review the summary, approve in your wallet, and the SOL lands straight in your account.</p></div></div>
-  </div>
-</div></section>
-
-<section id="token"><div class="wrap">
-  <h2>The <span class="grad" id="tkName">$SCR</span> token</h2>
+<section id="token"><div class="wrap rv">
+  <div class="tokwrap"><div>
+  <span class="tag">Token</span>
+  <h2>The <span class="grad" id="tkName">$TOKEN</span> token</h2>
   <p class="sub">Holding the token lowers your fees. It is a utility feature of the app and carries no promise of returns.</p>
-  <div class="panel" style="margin-top:22px">
-    <div class="muted" style="font-size:14px">Token contract</div>
+  <div class="panel glow" style="margin-top:22px">
+    <div class="pxmain"><span class="v" id="pxPrice">-</span><span class="c" id="pxChg"></span><span class="dim" style="font-size:13px">live price</span></div>
+    <div class="soon" id="notLive"><span class="dot off"></span>Not trading yet. Live price, market cap and chart appear here at launch.</div>
+    <div class="pxgrid">
+      <div class="px"><small>Market cap</small><b id="pxMcap">-</b></div>
+      <div class="px"><small>Liquidity</small><b id="pxLiq">-</b></div>
+      <div class="px"><small>24h volume</small><b id="pxVol">-</b></div>
+      <div class="px"><small>24h txns</small><b id="pxTx">-</b></div>
+    </div>
+    <div class="chart" id="chartBox" hidden></div>
+    <div class="muted" style="font-size:14px;margin-top:22px">Token contract</div>
     <div class="addr" id="mintAddr"></div>
     <div class="links"><button class="btn ghost sm" id="cpMint">Copy address</button><a class="btn primary sm" id="lnkPump" target="_blank" rel="noopener">View on pump.fun</a><a class="btn ghost sm" id="lnkDex" target="_blank" rel="noopener">Dexscreener</a></div>
     <div class="muted" style="font-size:14px;margin-top:22px">Fee wallet (all app fees are sent here)</div>
     <div class="addr" id="feeAddr"></div>
     <div class="links"><a class="btn ghost sm" id="lnkFee" target="_blank" rel="noopener">View on Solscan</a></div>
+  </div></div>
+  <div class="tokart"><img src="mascot-cool.png" alt="Cool Scratchly cat with sunglasses"></div></div>
+</div></section>
+
+<section id="how"><div class="wrap rv">
+  <span class="tag">How it works</span>
+  <h2>Three taps. Done.</h2>
+  <div class="grid3 stepsrow" style="margin-top:22px">
+    <div class="step"><div class="n">1</div><div><h3>Connect</h3><p class="muted">Use Phantom, Solflare or Backpack. We only read your public token accounts.</p></div></div>
+    <div class="step"><div class="n">2</div><div><h3>Scan</h3><p class="muted">Empty token accounts hold rent you can get back. We list them and show the total.</p></div></div>
+    <div class="step"><div class="n">3</div><div><h3>Scratch it off</h3><p class="muted">Review the summary, approve in your wallet, and the SOL lands in your account.</p></div></div>
   </div>
 </div></section>
 
-<section><div class="wrap">
-  <h2>Questions</h2>
+<section><div class="wrap rv">
+  <span class="tag">FAQ</span><h2>Questions</h2>
   <div class="stack" style="margin-top:20px;gap:10px">
     <details class="faq"><summary>Can Scratchly touch my funds?</summary><p>No. Scratchly never has your keys. Every transaction is built in your browser and signed in your own wallet. You can read exactly what you sign before approving.</p></details>
     <details class="faq"><summary>What is rent?</summary><p>Every token account on Solana locks a small deposit of SOL. When an account is empty and closed, that deposit is returned to you.</p></details>
     <details class="faq"><summary>Will it close accounts that hold tokens?</summary><p>Never by default. Only empty accounts are selected. Tokens with a balance can be burned and closed only if you pick them yourself in the advanced section.</p></details>
     <details class="faq"><summary>How do holder fees work?</summary><p>The app reads your balance of the token when you connect. Holding enough puts you in a lower fee tier automatically. Nothing is staked or locked.</p></details>
+    <details class="faq"><summary>Where do the live stats come from?</summary><p>They are counted from Scratchly transactions on Solana and refreshed every few minutes. Anyone can verify them on the public fee wallet.</p></details>
   </div>
 </div></section>
 </main>
 
 <footer><div class="wrap">
   <div class="brand"><img src="logo.png" alt="" style="width:28px;height:28px;border-radius:50%">scratchly</div>
+  <div class="links" id="socials" style="margin:6px 0 14px"></div>
   <p>Scratchly is a utility tool. Use at your own risk and double check every transaction in your wallet. Nothing here is financial advice, and the token carries no promise of returns or profit.</p>
 </div></footer>
 
@@ -218,13 +364,17 @@ const $ = id => document.getElementById(id);
 const RPC = CFG.RPC_URL || "https://api.mainnet-beta.solana.com";
 const TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
 const TOKEN22_PROGRAM_ID = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
+const SOL_MINT = "So11111111111111111111111111111111111111112";
 const EMPTY_BATCH = 18, BURN_BATCH = 7;
-let provider = null, owner = null, hold = 0, empties = [], withBal = [], plan = null, busy = false;
+let provider = null, owner = null, hold = 0, empties = [], withBal = [], plan = null, busy = false, solUsd = 0, stats = null;
 
 const short = s => s.slice(0,4) + "..." + s.slice(-4);
 const fmtSol = l => { const v = l/1e9; return (v === 0 ? "0" : v.toFixed(v < 0.01 ? 5 : 4).replace(/0+$/,"").replace(/\.$/,"")) + " SOL"; };
 const fmtTok = n => n >= 1e6 ? (n/1e6).toFixed(2).replace(/\.?0+$/,"") + "M" : n >= 1e3 ? (n/1e3).toFixed(2).replace(/\.?0+$/,"") + "K" : String(+n.toFixed(4));
 const pct = bps => (bps/100).toString().replace(/\.0+$/,"") + "%";
+const compact = n => n >= 1e9 ? "$" + (n/1e9).toFixed(2) + "B" : n >= 1e6 ? "$" + (n/1e6).toFixed(2) + "M" : n >= 1e3 ? "$" + (n/1e3).toFixed(1) + "K" : "$" + n.toFixed(0);
+const fmtPrice = n => { if (!n) return "-"; if (n >= 1) return "$" + n.toFixed(2); const d = Math.min(10, Math.max(4, 2 - Math.floor(Math.log10(n)))); return "$" + n.toFixed(d); };
+const ago = t => { const s = Math.max(1, Math.floor(Date.now()/1000 - t)); return s < 60 ? s + "s ago" : s < 3600 ? Math.floor(s/60) + "m ago" : s < 86400 ? Math.floor(s/3600) + "h ago" : Math.floor(s/86400) + "d ago"; };
 const show = id => { ["stIdle","stScan","stRes","stDone"].forEach(x => $(x).hidden = x !== id); };
 
 function tierFor(h){
@@ -232,6 +382,21 @@ function tierFor(h){
   if (h >= CFG.TIER1_MIN) return {name:"Holder", bps:CFG.FEE_BPS_TIER1, cls:"", idx:1};
   return {name:"Standard", bps:CFG.FEE_BPS_STANDARD, cls:"", idx:0};
 }
+
+/* ---------- animations ---------- */
+function countTo(el, target, o){
+  o = o || {}; const dec = o.dec || 0, dur = o.dur || 1400, suf = o.suf || "", from = parseFloat(el.dataset.v || "0");
+  el.dataset.v = target; const t0 = performance.now();
+  (function step(t){ const p = Math.min(1, (t - t0)/dur), e = 1 - Math.pow(1 - p, 3), v = from + (target - from)*e;
+    el.textContent = v.toLocaleString("en-US", {minimumFractionDigits:dec, maximumFractionDigits:dec}) + suf; if (p < 1) requestAnimationFrame(step); })(t0);
+}
+function confetti(n){
+  const cols = ["#9B7BFF","#2DE2E6","#FFB86B","#FF7AA8","#4ADE9A"];
+  for (let i = 0; i < (n || 46); i++){ const d = document.createElement("div"); d.className = "cf"; d.style.left = Math.random()*100 + "vw"; d.style.background = cols[i % 5];
+    d.style.animationDuration = (2 + Math.random()*2) + "s"; d.style.animationDelay = Math.random()*.4 + "s"; document.body.appendChild(d); setTimeout(() => d.remove(), 4800); }
+}
+const io = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }), {threshold:.12}) : null;
+document.querySelectorAll(".rv").forEach(el => io ? io.observe(el) : el.classList.add("in"));
 
 /* ---------- static sections ---------- */
 function drawTiers(active){
@@ -243,9 +408,9 @@ function drawTiers(active){
   $("tierCards").innerHTML = T.map((t,i) => '<div class="card' + (i === active ? ' on' : '') + '"><h3>' + t.n + (i === active ? ' <span class="badge">Your tier</span>' : '') + '</h3><div class="pct ' + (i ? 'grad' : '') + '">' + pct(t.b) + '</div><p>' + t.d + '</p></div>').join("");
 }
 function initStatic(){
-  $("tkName").textContent = "$" + CFG.TICKER;
-  $("mintAddr").textContent = CFG.COIN_MINT;
-  $("feeAddr").textContent = CFG.FEE_WALLET;
+  const sym = "$" + CFG.TICKER;
+  $("tkName").textContent = sym; $("tkSym").textContent = sym;
+  $("mintAddr").textContent = CFG.COIN_MINT; $("feeAddr").textContent = CFG.FEE_WALLET;
   $("lnkPump").href = "https://pump.fun/coin/" + CFG.COIN_MINT;
   $("lnkDex").href = "https://dexscreener.com/solana/" + CFG.COIN_MINT;
   $("lnkFee").href = "https://solscan.io/account/" + CFG.FEE_WALLET;
@@ -253,7 +418,81 @@ function initStatic(){
   const u = encodeURIComponent(location.href.split("#")[0]), r = encodeURIComponent(location.origin);
   $("lnkPhantom").href = "https://phantom.app/ul/browse/" + u + "?ref=" + r;
   $("lnkSolflare").href = "https://solflare.com/ul/v1/browse/" + u + "?ref=" + r;
+  const so = []; if (CFG.X_URL) so.push('<a class="btn ghost sm" target="_blank" rel="noopener" href="' + CFG.X_URL + '">X / Twitter</a>'); if (CFG.TELEGRAM_URL) so.push('<a class="btn ghost sm" target="_blank" rel="noopener" href="' + CFG.TELEGRAM_URL + '">Telegram</a>');
+  $("socials").innerHTML = so.join(""); if (!so.length) $("socials").hidden = true;
   drawTiers(-1);
+}
+
+/* ---------- live price (Dexscreener) ---------- */
+async function dex(mint){
+  const r = await fetch("https://api.dexscreener.com/latest/dex/tokens/" + mint); const j = await r.json();
+  const p = (j.pairs || []).filter(x => x.chainId === "solana").sort((a, b) => ((b.liquidity && b.liquidity.usd) || 0) - ((a.liquidity && a.liquidity.usd) || 0));
+  return p[0] || null;
+}
+let chartPair = null;
+async function loadPrice(){
+  try {
+    const [t, s] = await Promise.all([dex(CFG.COIN_MINT), dex(SOL_MINT).catch(() => null)]);
+    if (s && s.priceUsd) solUsd = parseFloat(s.priceUsd);
+    if (!t){ setLive(false); return; }
+    setLive(true);
+    const px = parseFloat(t.priceUsd || 0), ch = t.priceChange && t.priceChange.h24 != null ? t.priceChange.h24 : null;
+    $("tkPrice").textContent = fmtPrice(px); $("tkPrice").className = ""; $("pxPrice").textContent = fmtPrice(px);
+    const cs = ch == null ? "" : (ch >= 0 ? "▲ " : "▼ ") + Math.abs(ch).toFixed(1) + "%", cc = ch == null ? "" : ch >= 0 ? "up" : "down";
+    $("tkChg").textContent = cs; $("tkChg").className = cc; $("pxChg").textContent = cs; $("pxChg").className = "c " + cc;
+    $("pxMcap").textContent = compact(t.marketCap || t.fdv || 0); $("pxLiq").textContent = compact((t.liquidity && t.liquidity.usd) || 0); $("pxVol").textContent = compact((t.volume && t.volume.h24) || 0);
+    const tx = t.txns && t.txns.h24 ? t.txns.h24.buys + t.txns.h24.sells : 0; $("pxTx").textContent = tx.toLocaleString("en-US");
+    if (t.pairAddress && chartPair !== t.pairAddress){ chartPair = t.pairAddress; $("chartBox").hidden = false;
+      $("chartBox").innerHTML = '<iframe loading="lazy" title="Price chart" src="https://dexscreener.com/solana/' + t.pairAddress + '?embed=1&theme=dark&trades=0&info=0&loadChartSettings=0&chartLeftToolbar=0&chartTheme=dark"></iframe>'; }
+    renderStats();
+  } catch(e){ setLive(false); }
+}
+function setLive(on){
+  $("tkDot").className = "dot" + (on ? "" : " off"); $("notLive").hidden = on;
+  if (!on){ $("tkPrice").textContent = "launching soon"; $("tkPrice").className = "dim"; $("tkChg").textContent = ""; $("pxPrice").textContent = "-"; $("pxChg").textContent = ""; }
+}
+
+/* ---------- live stats (stats.json) ---------- */
+async function loadStats(){
+  try { const r = await fetch("stats.json?t=" + Date.now()); if (!r.ok) throw 0; stats = await r.json(); } catch(e){ stats = stats || {totalReclaimed:0,totalFees:0,accounts:0,wallets:0,recent:[],updated:null}; }
+  renderStats(); renderFeed(); renderMarquee();
+}
+function renderStats(){
+  if (!stats) return; const sol = stats.totalReclaimed/1e9;
+  const dec = sol === 0 ? 0 : sol >= 100 ? 1 : sol >= 1 ? 3 : 4;
+  countTo($("stTotal"), sol, {dec, suf:" SOL"}); countTo($("stAcc"), stats.accounts); countTo($("stWal"), stats.wallets); countTo($("stFee"), stats.totalFees/1e9, {dec: stats.totalFees ? 4 : 0});
+  countTo($("heroTotal"), sol, {dec, suf:" SOL"});
+  $("stUsd").innerHTML = solUsd ? "≈ " + compact(sol*solUsd).replace(/^\$(\d+)$/, "$$$1") : "&nbsp;";
+  $("scVal").textContent = (sol === 0 ? "0" : sol.toFixed(dec)) + " SOL";
+  $("stUpd").textContent = stats.updated ? "Updated " + ago(new Date(stats.updated).getTime()/1000) + ". Refreshes every few minutes." : "Counting starts with the first clean.";
+}
+function renderFeed(){
+  const r = (stats && stats.recent) || [];
+  $("feed").innerHTML = r.length ? r.slice(0, 6).map(x => '<div class="fi"><div class="av">' + x.w.slice(0,2) + '</div><div><b>' + x.w + '</b><div class="dim" style="font-size:12px">' + x.n + ' account' + (x.n === 1 ? '' : 's') + ' closed</div></div><div class="t"><b>+' + fmtSol(x.l) + '</b>' + ago(x.t) + '</div></div>').join("") : '<div class="empty">No cleans yet. Be the first one.</div>';
+}
+function renderMarquee(){
+  const items = [];
+  ((stats && stats.recent) || []).slice(0, 5).forEach(x => items.push('<span><i>●</i><b>' + x.w + '</b> reclaimed ' + fmtSol(x.l) + '</span>'));
+  ["Close empty token accounts", "Reclaim your SOL", "Non-custodial", "Reduced fees for holders", "One click"].forEach(t => items.push('<span><i>✦</i>' + t + '</span>'));
+  const html = items.join(""); $("marq").innerHTML = html + html;
+}
+
+/* ---------- scratch card ---------- */
+function initScratch(){
+  const cv = $("scratch"), box = $("scwrap"); if (!cv.getContext) return; const ctx = cv.getContext("2d"), dpr = window.devicePixelRatio || 1;
+  let drawing = false, done = false, n = 0;
+  function paint(){ const r = box.getBoundingClientRect(); cv.width = r.width*dpr; cv.height = r.height*dpr; const w = cv.width, h = cv.height;
+    const g = ctx.createLinearGradient(0, 0, w, h); g.addColorStop(0, "#BFC8E4"); g.addColorStop(.5, "#EEF1FB"); g.addColorStop(1, "#A9B4D6");
+    ctx.globalCompositeOperation = "source-over"; ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = "rgba(125,134,172,.25)"; ctx.lineWidth = dpr; for (let i = -h; i < w; i += 14*dpr){ ctx.beginPath(); ctx.moveTo(i, h); ctx.lineTo(i + h, 0); ctx.stroke(); }
+    ctx.fillStyle = "#5A6290"; ctx.textAlign = "center"; ctx.font = "700 " + 20*dpr + "px Space Grotesk, Inter, sans-serif"; ctx.fillText("Scratch to reveal", w/2, h/2 - 4*dpr);
+    ctx.font = "500 " + 13*dpr + "px Inter, sans-serif"; ctx.fillText("total SOL reclaimed", w/2, h/2 + 18*dpr); }
+  function pos(e){ const r = cv.getBoundingClientRect(); return [(e.clientX - r.left)*dpr, (e.clientY - r.top)*dpr]; }
+  function move(e){ if (!drawing || done) return; const p = pos(e); ctx.globalCompositeOperation = "destination-out"; ctx.beginPath(); ctx.arc(p[0], p[1], 24*dpr, 0, 7); ctx.fill(); if (++n % 6 === 0) check(); }
+  function check(){ const d = ctx.getImageData(0, 0, cv.width, cv.height).data; let c = 0, t = 0; for (let i = 3; i < d.length; i += 64){ t++; if (d[i] === 0) c++; } if (c/t > .4){ done = true; cv.classList.add("done"); confetti(36); } }
+  cv.addEventListener("pointerdown", e => { drawing = true; cv.setPointerCapture && cv.setPointerCapture(e.pointerId); move(e); });
+  cv.addEventListener("pointermove", move); cv.addEventListener("pointerup", () => drawing = false); cv.addEventListener("pointercancel", () => drawing = false);
+  paint(); window.addEventListener("resize", () => { if (!done) paint(); });
 }
 
 /* ---------- wallet ---------- */
@@ -266,7 +505,7 @@ function findProvider(){
 async function connect(){
   $("errIdle").hidden = true;
   provider = findProvider();
-  if (!provider){ $("noWallet").hidden = false; $("errIdle").hidden = true; show("stIdle"); location.hash = "#app"; return; }
+  if (!provider){ $("noWallet").hidden = false; show("stIdle"); location.hash = "#app"; return; }
   try {
     const res = await provider.connect();
     const pk = res && res.publicKey ? res.publicKey : provider.publicKey;
@@ -315,10 +554,7 @@ function chunk(arr, n){ const o = []; for (let i = 0; i < arr.length; i += n) o.
 function buildPlan(burnSel){
   const t = tierFor(hold);
   const groups = chunk(empties, EMPTY_BATCH).concat(chunk(burnSel, BURN_BATCH));
-  const batches = groups.map(items => {
-    const reclaim = items.reduce((s, i) => s + i.lamports, 0);
-    return {items, reclaim, fee: Math.floor(reclaim * t.bps / 10000)};
-  });
+  const batches = groups.map(items => { const reclaim = items.reduce((s, i) => s + i.lamports, 0); return {items, reclaim, fee: Math.floor(reclaim * t.bps / 10000)}; });
   const reclaim = batches.reduce((s, b) => s + b.reclaim, 0), fee = batches.reduce((s, b) => s + b.fee, 0);
   return {tier:t, batches, reclaim, fee, net:reclaim - fee};
 }
@@ -329,9 +565,9 @@ function selectedBurn(){
 function renderRes(){
   $("chipAddr").textContent = short(owner.toString());
   const t = tierFor(hold);
-  $("tierBadge").textContent = t.name + " tier - " + pct(t.bps) + " fee";
-  $("tierBadge").className = "badge " + t.cls;
+  $("tierBadge").textContent = t.name + " tier - " + pct(t.bps) + " fee"; $("tierBadge").className = "badge " + t.cls;
   drawTiers(t.idx);
+  $("advCount").textContent = withBal.length;
   $("burnList").innerHTML = withBal.length ? withBal.map((x, i) => '<label class="tok"><input type="checkbox" data-i="' + i + '"><span class="mint">' + short(x.mint) + '</span><span class="amt">' + fmtTok(x.ui) + '</span></label>').join("") : '<p class="muted" style="font-size:14px;padding:8px 0">No other tokens found.</p>';
   document.querySelectorAll("#burnList input").forEach(c => c.onchange = refresh);
   refresh();
@@ -341,10 +577,8 @@ function refresh(){
   const nEmpty = empties.length, nBurn = plan.batches.reduce((s, b) => s + b.items.length, 0) - nEmpty;
   $("bigSol").textContent = fmtSol(plan.net);
   $("bigSub").textContent = nEmpty + " empty account" + (nEmpty === 1 ? "" : "s") + (nBurn > 0 ? " + " + nBurn + " burned" : "");
-  $("sReclaim").textContent = fmtSol(plan.reclaim);
-  $("sPct").textContent = pct(plan.tier.bps);
-  $("sFee").textContent = plan.fee ? "-" + fmtSol(plan.fee) : "0 SOL";
-  $("sNet").textContent = fmtSol(plan.net);
+  $("sReclaim").textContent = fmtSol(plan.reclaim); $("sPct").textContent = pct(plan.tier.bps);
+  $("sFee").textContent = plan.fee ? "-" + fmtSol(plan.fee) : "0 SOL"; $("sNet").textContent = fmtSol(plan.net);
   const left = plan.tier.idx === 0 ? CFG.TIER1_MIN : plan.tier.idx === 1 ? CFG.TIER2_MIN : 0;
   $("feeNote").textContent = left ? "Hold " + fmtTok(left) + " $" + CFG.TICKER + " for a lower fee. You hold " + fmtTok(hold) + "." : "You hold " + fmtTok(hold) + " $" + CFG.TICKER + ". Thank you for holding.";
   const n = plan.batches.length;
@@ -377,8 +611,9 @@ async function clean(){
     const bh = await conn.getLatestBlockhash();
     const txs = plan.batches.map(b => {
       const tx = new W.Transaction();
-      b.items.forEach(i => { if (i.ui > 0 || i.amount !== "0") tx.add(burnIx(i)); tx.add(closeIx(i)); });
-      if (b.fee > 0) tx.add(W.SystemProgram.transfer({fromPubkey:owner, toPubkey:feeKey, lamports:b.fee}));
+      b.items.forEach(i => { if (i.amount !== "0") tx.add(burnIx(i)); tx.add(closeIx(i)); });
+      // a jutalek-atutalas mindig benne van (0 is lehet), igy a statisztika minden tisztitast latni fog
+      tx.add(W.SystemProgram.transfer({fromPubkey:owner, toPubkey:feeKey, lamports:b.fee}));
       tx.feePayer = owner; tx.recentBlockhash = bh.blockhash;
       return tx;
     });
@@ -386,13 +621,12 @@ async function clean(){
     if (provider.signAllTransactions) signed = await provider.signAllTransactions(txs);
     else { signed = []; for (const t of txs) signed.push(await provider.signTransaction(t)); }
     $("btnClean").textContent = "Cleaning...";
-    const done = [], fails = [];
-    let got = 0, feePaid = 0;
+    const done = [], fails = []; let got = 0;
     for (let i = 0; i < signed.length; i++){
       try {
         const sig = await conn.sendRawTransaction(signed[i].serialize(), {skipPreflight:false});
         await conn.confirmTransaction({signature:sig, blockhash:bh.blockhash, lastValidBlockHeight:bh.lastValidBlockHeight}, "confirmed");
-        done.push(sig); got += plan.batches[i].reclaim - plan.batches[i].fee; feePaid += plan.batches[i].fee;
+        done.push(sig); got += plan.batches[i].reclaim - plan.batches[i].fee;
       } catch(e){ fails.push((e.message || "failed")); }
     }
     showDone(got, done, fails);
@@ -409,11 +643,14 @@ function showDone(got, sigs, fails){
   $("errDone").hidden = !fails.length;
   if (fails.length) $("errDone").textContent = fails.length + " transaction(s) failed: " + fails[0] + ". You can scan again and retry.";
   $("btnShare").href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent("Just reclaimed " + fmtSol(got) + " from empty accounts in my Solana wallet with Scratchly.\n\nscratchly.cfd");
-  show("stDone");
+  show("stDone"); if (sigs.length) confetti(60);
 }
 
 /* ---------- wire up ---------- */
-initStatic();
+initStatic(); initScratch(); renderMarquee();
+loadPrice(); loadStats();
+setInterval(() => { if (!document.hidden) loadPrice(); }, 20000);
+setInterval(() => { if (!document.hidden) loadStats(); }, 90000);
 if (typeof solanaWeb3 === "undefined"){ $("errIdle").textContent = "Could not load the Solana library. Check your connection and reload."; $("errIdle").hidden = false; }
 $("btnConnect").onclick = () => owner ? (location.hash = "#app") : connect();
 $("btnConnect2").onclick = connect;
