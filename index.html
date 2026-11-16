@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Scratchly - Solana wallet cleaner</title>
-<meta name="description" content="Close empty Solana token accounts and reclaim your SOL. Non-custodial, one click.">
-<meta name="theme-color" content="#07070F">
-<meta property="og:title" content="Scratchly - Solana wallet cleaner">
-<meta property="og:description" content="Close empty token accounts and reclaim the SOL locked inside them. Non-custodial. One click.">
+<title>Scratchly - Reclaim SOL from your Solana wallet</title>
+<meta name="description" content="Close empty Solana token accounts and reclaim the SOL locked inside. Non-custodial, fees shown before you sign, 0% for top holders.">
+<meta name="theme-color" content="#06060D">
+<meta property="og:title" content="Scratchly - Reclaim SOL from your Solana wallet">
+<meta property="og:description" content="Non-custodial wallet cleaner. 9% standard fee, 4% for holders, 0% for top holders. Live on-chain stats.">
 <meta property="og:image" content="https://app.scratchly.cfd/og.png">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
@@ -16,300 +16,338 @@
 <link rel="apple-touch-icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#07070F;--card:#12112A;--line:#2A2758;--text:#F5F7FF;--muted:#9AA3C7;--dim:#7D86AC;--v:#9B7BFF;--c:#2DE2E6;--grad:linear-gradient(100deg,#9B7BFF,#2DE2E6);--ok:#4ADE9A;--bad:#FF6B8B;--glass:rgba(255,255,255,.045);--disp:"Space Grotesk",Inter,system-ui,sans-serif}
+:root{--bg:#06060D;--s1:#0C0B1D;--s2:#12112B;--line:#25234B;--line2:#37336E;--tx:#F2F4FF;--mut:#98A1C8;--dim:#6E77A0;--v:#8B6CFF;--c:#2DE2E6;--ok:#4ADE9A;--bad:#FF6B8B;--warn:#FFB86B;
+--grad:linear-gradient(100deg,#8B6CFF,#2DE2E6);--disp:"Sora",Inter,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;overflow-x:hidden;padding-top:env(safe-area-inset-top)}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:84px}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx);line-height:1.6;overflow-x:hidden;padding-top:env(safe-area-inset-top)}
 a{color:inherit;text-decoration:none}
-.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
-/* background */
-.bgfx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
-.bgfx:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(155,123,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(155,123,255,.07) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 75%);mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 75%)}
-.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;animation:drift 18s ease-in-out infinite alternate}
-.b1{width:520px;height:520px;background:#6C4BFF;top:-160px;right:-120px}
-.b2{width:420px;height:420px;background:#12B6C8;top:380px;left:-180px;opacity:.28;animation-duration:24s}
-@keyframes drift{to{transform:translate(-50px,60px) scale(1.12)}}
-/* nav + ticker */
-nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(7,7,15,.7);border-bottom:1px solid rgba(42,39,88,.6)}
-nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
-.brand{display:flex;align-items:center;gap:10px;font:700 21px var(--disp);letter-spacing:-.5px}
-.brand img{width:36px;height:36px;border-radius:50%;box-shadow:0 0 0 2px rgba(155,123,255,.35)}
-.navlinks{display:none;gap:28px;color:var(--muted);font-size:15px;font-weight:500}
-.navlinks a:hover{color:#fff}
-.ticker{display:flex;align-items:center;border-bottom:1px solid rgba(42,39,88,.5);background:rgba(10,9,26,.6);font-size:13px;height:38px;overflow:hidden}
-.tkchip{flex:none;display:flex;align-items:center;gap:8px;padding:0 14px 0 18px;height:100%;border-right:1px solid rgba(42,39,88,.7);background:rgba(18,17,42,.9);font-weight:600;white-space:nowrap;z-index:2}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(74,222,154,.7);animation:pulse 1.8s infinite}
-.dot.off{background:var(--dim);animation:none;box-shadow:none}
-@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(74,222,154,0)}100%{box-shadow:0 0 0 0 rgba(74,222,154,0)}}
-.up{color:var(--ok)}.down{color:var(--bad)}
-.marq{flex:1;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
-.marq-track{display:inline-flex;gap:34px;white-space:nowrap;animation:marq 38s linear infinite;color:var(--muted);padding-left:24px}
-.marq-track span b{color:#fff;font-weight:600}
-.marq-track i{font-style:normal;color:var(--v);margin-right:8px}
-@keyframes marq{to{transform:translateX(-50%)}}
-/* buttons */
-.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;font:600 16px Inter,sans-serif;border-radius:999px;padding:14px 26px;transition:transform .15s,box-shadow .2s,opacity .15s}
-.btn:active{transform:scale(.97)}
-.btn.primary{background:var(--grad);color:#07070F;box-shadow:0 8px 30px rgba(124,92,255,.35)}
-.btn.primary:hover{box-shadow:0 10px 40px rgba(45,226,230,.35)}
-.btn.primary:after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);animation:shine 4.5s infinite}
-@keyframes shine{0%,60%{left:-60%}100%{left:130%}}
-.btn.ghost{background:var(--glass);color:#fff;border:1px solid var(--line)}
-.btn.ghost:hover{border-color:var(--v)}
-.btn.sm{padding:10px 18px;font-size:14px}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--c);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.bg{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(900px 620px at 85% -8%,rgba(139,108,255,.30),transparent 62%),radial-gradient(760px 520px at -8% 38%,rgba(45,226,230,.11),transparent 62%),var(--bg)}
+.bg:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(139,108,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(139,108,255,.06) 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(ellipse 85% 55% at 50% 0%,#000 25%,transparent 78%);mask-image:radial-gradient(ellipse 85% 55% at 50% 0%,#000 25%,transparent 78%)}
+.bg:after{content:"";position:absolute;inset:0;opacity:.045;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>")}
+/* nav */
+.nav{position:sticky;top:0;z-index:40;background:rgba(6,6,13,.74);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(37,35,75,.7)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;font:700 20px var(--disp);letter-spacing:-.4px}
+.brand img{width:34px;height:34px;border-radius:50%}
+.links{display:none;gap:26px;color:var(--mut);font-size:14px;font-weight:500}
+.links a:hover{color:#fff}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;font:600 15px Inter,sans-serif;border-radius:12px;padding:13px 22px;transition:transform .12s,box-shadow .2s,border-color .2s,background .2s}
+.btn:active{transform:scale(.98)}
+.btn.pri{background:var(--grad);color:#05050C;box-shadow:0 8px 28px rgba(139,108,255,.32)}
+.btn.pri:hover{box-shadow:0 10px 36px rgba(45,226,230,.32)}
+.btn.sec{background:rgba(255,255,255,.04);color:#fff;border:1px solid var(--line2)}
+.btn.sec:hover{border-color:var(--v)}
+.btn.sm{padding:9px 15px;font-size:13px;border-radius:10px}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
-.btn[disabled]:after{display:none}
-/* hero */
-.hero{padding:40px 0 20px;display:grid;gap:24px;align-items:center}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--glass);border-radius:999px;padding:6px 14px 6px 12px;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:18px}
-.hero h1{font:700 clamp(42px,10vw,78px)/1.0 var(--disp);letter-spacing:-2.5px}
-.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.lead{margin:18px 0 26px;color:var(--muted);font-size:18px;max-width:520px}
-.cta{display:flex;gap:12px;flex-wrap:wrap}
-.heroStat{display:flex;align-items:center;gap:14px;margin-top:26px;padding:14px 18px;border:1px solid var(--line);background:var(--glass);border-radius:18px;width:fit-content;max-width:100%}
-.heroStat .ic{width:42px;height:42px;border-radius:12px;background:var(--grad);display:grid;place-items:center;flex:none}
-.heroStat small{display:block;color:var(--dim);font-size:12px}
-.heroStat b{font:700 22px var(--disp);letter-spacing:-.5px}
-.heroart{position:relative;display:flex;justify-content:center;min-height:380px}
-.heroart:before{content:"";position:absolute;width:78%;aspect-ratio:1;border-radius:50%;top:6%;background:radial-gradient(circle,rgba(124,92,255,.55),transparent 65%);filter:blur(10px)}
-.heroart img{position:relative;width:min(70%,380px);height:auto;align-self:center;animation:float 5s ease-in-out infinite;filter:drop-shadow(0 30px 50px rgba(0,0,0,.5))}
-@keyframes float{50%{transform:translateY(-14px) rotate(1deg)}}
-.fchip{position:absolute;display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:14px;font-size:13px;font-weight:600;background:rgba(20,18,43,.82);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 12px 30px rgba(0,0,0,.4);animation:float 6s ease-in-out infinite}
-.fchip svg{flex:none}
-.fc1{top:8%;left:0}.fc2{top:46%;right:-2px;animation-delay:-2s}.fc3{bottom:6%;left:4%;animation-delay:-4s}
-/* sections */
-section{padding:38px 0}
-h2{font:700 clamp(28px,5vw,42px)/1.08 var(--disp);letter-spacing:-1.2px}
-.sub{color:var(--muted);margin-top:10px;max-width:560px}
-.tag{display:inline-block;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--c);margin-bottom:10px}
-.panel{position:relative;background:linear-gradient(180deg,rgba(26,23,64,.92),rgba(16,14,38,.92));border:1px solid var(--line);border-radius:28px;padding:26px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
-.panel.glow:before{content:"";position:absolute;inset:-1px;border-radius:29px;padding:1px;background:linear-gradient(140deg,rgba(155,123,255,.7),transparent 40%,transparent 60%,rgba(45,226,230,.6));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+/* rail */
+.rail{border-bottom:1px solid rgba(37,35,75,.55);background:rgba(10,9,24,.6)}
+.rail-in{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;max-width:1180px;margin:0 auto}
+.rail-in::-webkit-scrollbar{display:none}
+.ri{flex:none;display:flex;align-items:baseline;gap:8px;padding:10px 18px;border-right:1px solid rgba(37,35,75,.55);font-size:13px;white-space:nowrap}
+.ri:first-child{padding-left:20px}
+.ri small{color:var(--dim);font-size:12px}
+.ri b{font:600 13px var(--mono);color:#fff}
+.up{color:var(--ok)!important}.down{color:var(--bad)!important}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:6px;box-shadow:0 0 0 0 rgba(74,222,154,.6);animation:pulse 2s infinite}
+.dot.off{background:var(--dim);animation:none;box-shadow:none}
+@keyframes pulse{70%{box-shadow:0 0 0 7px rgba(74,222,154,0)}100%{box-shadow:0 0 0 0 rgba(74,222,154,0)}}
+/* top */
+.top{display:grid;gap:18px;padding:30px 20px 24px;grid-template-areas:"intro" "console" "bento"}
+.intro{grid-area:intro}
+.intro h1{font:700 clamp(32px,7.2vw,58px)/1.04 var(--disp);letter-spacing:-.035em;max-width:16ch}
+.lead{margin-top:14px;color:var(--mut);font-size:16.5px;max-width:52ch}
+.console{grid-area:console}
+.bento{grid-area:bento;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start}
+.glass{position:relative;background:linear-gradient(180deg,rgba(20,18,48,.78),rgba(12,11,29,.78));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:20px}
+.glass:before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(150deg,rgba(139,108,255,.55),rgba(37,35,75,.5) 38%,rgba(37,35,75,.5) 62%,rgba(45,226,230,.4));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.tile{padding:18px 18px 16px;min-width:0}
+.tile .k{font-size:12.5px;color:var(--dim);font-weight:500}
+.tile .v{font:700 clamp(24px,5.4vw,34px)/1.1 var(--disp);letter-spacing:-.03em;margin-top:6px;font-variant-numeric:tabular-nums}
+.tile .s{font-size:12.5px;color:var(--mut);margin-top:6px}
+.tile.w2{grid-column:span 2}
+.t-total .v{font-size:clamp(38px,9vw,60px);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.04em}
+.live{display:inline-flex;align-items:center;font:500 11.5px Inter;color:var(--ok);margin-left:8px}
+.chg{font:600 13px var(--mono);margin-left:8px}
+.t-price .v{display:flex;align-items:baseline;flex-wrap:wrap}
+.mini{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12.5px;color:var(--mut)}
+.mini b{font:600 12.5px var(--mono);color:#fff;margin-left:4px}
+.lnk{color:var(--c);font-size:12.5px;font-weight:500}
+.kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:8px}
+.kv span{font-size:12.5px;color:var(--mut)}
+.kv b{font:600 15px var(--mono)}
+.feed .row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px}
+.feed .row:first-of-type{border-top:0}
+.feed .av{flex:none;width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;color:#05050C;font:700 11px var(--mono)}
+.feed .r{margin-left:auto;text-align:right}
+.feed .r b{display:block;font:600 13px var(--mono);color:var(--ok)}
+.feed .r small{color:var(--dim);font-size:11.5px}
+.empty{padding:20px 0;color:var(--dim);font-size:13.5px}
+/* console */
+.panel{padding:22px;border-radius:26px}
+.panel .hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.panel h2{font:700 20px var(--disp);letter-spacing:-.02em}
+.muted{color:var(--mut)}.dim{color:var(--dim)}
 .center{text-align:center}
-.big{font:700 clamp(46px,12vw,76px)/1 var(--disp);letter-spacing:-2.5px}
-.muted{color:var(--muted)}.dim{color:var(--dim)}
-.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--line);font-size:15px}
-.row b{font-weight:600}.row.total{font-size:17px}
-.chip{display:inline-flex;align-items:center;gap:8px;background:#0B0A1C;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--muted)}
-.badge{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px;background:rgba(155,123,255,.18);color:#C9B8FF}
-.badge.t2{background:rgba(45,226,230,.16);color:#7DF0F2}
 .stack{display:grid;gap:14px}
-.spin{width:34px;height:34px;border:4px solid var(--line);border-top-color:var(--c);border-radius:50%;animation:s .9s linear infinite;margin:0 auto 14px}
+.big{font:700 clamp(40px,10vw,58px)/1 var(--disp);letter-spacing:-.04em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+.row2{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:14.5px}
+.row2 b{font:600 14.5px var(--mono)}
+.row2.total{font-size:16px}
+.chip{display:inline-flex;align-items:center;background:#08081A;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font:500 12.5px var(--mono);color:var(--mut)}
+.badge{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:4px 11px;background:rgba(139,108,255,.18);color:#CBBBFF}
+.badge.t2{background:rgba(45,226,230,.16);color:#8DF3F5}
+.spin{width:32px;height:32px;border:3px solid var(--line);border-top-color:var(--c);border-radius:50%;animation:s .9s linear infinite;margin:0 auto 12px}
 @keyframes s{to{transform:rotate(360deg)}}
-/* advanced */
-.adv{margin-top:20px;border-radius:18px;background:linear-gradient(#0D0B20,#0D0B20) padding-box,linear-gradient(120deg,rgba(155,123,255,.7),rgba(45,226,230,.5)) border-box;border:1px solid transparent}
-.adv summary{display:flex;align-items:center;gap:14px;cursor:pointer;padding:16px;list-style:none;-webkit-tap-highlight-color:transparent}
+.adv{margin-top:16px;border-radius:16px;background:linear-gradient(#0A0A1C,#0A0A1C) padding-box,linear-gradient(120deg,rgba(139,108,255,.7),rgba(45,226,230,.45)) border-box;border:1px solid transparent}
+.adv summary{display:flex;align-items:center;gap:12px;cursor:pointer;padding:14px;list-style:none;-webkit-tap-highlight-color:transparent}
 .adv summary::-webkit-details-marker{display:none}
-.advIcon{flex:none;width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,#FF8A5C,#FF4F8B);display:grid;place-items:center}
-.advTxt{flex:1;min-width:0}.advTxt b{display:block;font-size:16px}.advTxt small{color:var(--muted);font-size:13px;line-height:1.3;display:block}
-.advBadge{flex:none;min-width:26px;height:26px;padding:0 8px;border-radius:999px;background:rgba(155,123,255,.2);color:#C9B8FF;font-size:13px;font-weight:700;display:grid;place-items:center}
-.chev{flex:none;transition:transform .25s;color:var(--muted)}
+.advIcon{flex:none;width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#FF8A5C,#FF4F8B);display:grid;place-items:center}
+.advTxt{flex:1;min-width:0}.advTxt b{display:block;font-size:15px}.advTxt small{color:var(--mut);font-size:12.5px;line-height:1.3;display:block}
+.advBadge{flex:none;min-width:26px;height:26px;padding:0 8px;border-radius:999px;background:rgba(139,108,255,.2);color:#CBBBFF;font:600 12.5px var(--mono);display:grid;place-items:center}
+.chev{flex:none;transition:transform .25s;color:var(--mut)}
 .adv[open] .chev{transform:rotate(180deg)}
-.advBody{padding:0 16px 16px}
-.warn{font-size:13px;color:#FFC38A;background:rgba(255,160,70,.08);border:1px solid rgba(255,160,70,.25);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.advBody{padding:0 14px 14px}
+.warn{font-size:12.5px;color:#FFC38A;background:rgba(255,160,70,.08);border:1px solid rgba(255,160,70,.25);border-radius:12px;padding:10px 12px;margin-bottom:8px}
 .tok{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
-.tok input{width:20px;height:20px;accent-color:#9B7BFF;flex:none}
-.tok .mint{font-family:ui-monospace,Menlo,monospace;color:var(--muted)}
-.tok .amt{margin-left:auto;font-weight:600;text-align:right}
-/* stats */
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}
-.tile{background:var(--glass);border:1px solid var(--line);border-radius:20px;padding:18px;position:relative;overflow:hidden}
-.tile small{color:var(--dim);font-size:12px;font-weight:500;letter-spacing:.3px}
-.tile b{display:block;font:700 clamp(24px,6vw,34px) var(--disp);letter-spacing:-1px;margin-top:4px}
-.tile em{font-style:normal;font-size:12px;color:var(--muted)}
-.tile.wide{grid-column:1/-1}
-.duo{display:grid;gap:14px;margin-top:14px}
-.scwrap{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);min-height:190px;background:linear-gradient(135deg,#1B1750,#0E0C26);display:grid;place-items:center;text-align:center;padding:20px}
-.scwrap small{color:var(--muted)}
-.scwrap canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;transition:opacity .6s}
-.scwrap canvas.done{opacity:0;pointer-events:none}
-.feed{background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:6px 18px}
-.feed h3{font:600 15px Inter;padding:14px 0 6px;color:var(--muted)}
-.fi{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:14px;animation:fin .5s both}
-.fi:first-of-type{border-top:0}
-.fi .av{flex:none;width:34px;height:34px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-size:12px;font-weight:700;color:#07070F}
-.fi .t{margin-left:auto;text-align:right;color:var(--dim);font-size:12px}
-.fi .t b{display:block;color:var(--ok);font-size:14px}
-@keyframes fin{from{opacity:0;transform:translateY(8px)}}
-.empty{padding:22px 0;text-align:center;color:var(--dim);font-size:14px}
-/* tiers */
-.grid3{display:grid;gap:14px;margin-top:22px}
-.card{background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:22px;transition:transform .2s,border-color .2s}
-.card:hover{transform:translateY(-3px);border-color:rgba(155,123,255,.6)}
-.card.on{border-color:var(--v);box-shadow:0 0 0 1px var(--v),0 20px 50px rgba(124,92,255,.25)}
-.card h3{font-size:18px;font-weight:700}
-.card .pct{font:700 46px var(--disp);letter-spacing:-1.5px;margin:6px 0}
-.card p{color:var(--muted);font-size:14px}
+.tok input{width:19px;height:19px;accent-color:#8B6CFF;flex:none}
+.tok .mint{font-family:var(--mono);color:var(--mut);font-size:13px}
+.tok .amt{margin-left:auto;font:600 13px var(--mono);text-align:right}
+.err{color:var(--bad);font-size:13.5px;margin-top:10px}.ok{color:var(--ok)}
+.txlink{display:block;font:500 12.5px var(--mono);color:var(--c);margin-top:6px;word-break:break-all}
+.links-row{display:flex;gap:10px;flex-wrap:wrap}
+/* sections */
+section.s{padding:44px 0}
+h2.sec{font:700 clamp(26px,4.6vw,40px)/1.1 var(--disp);letter-spacing:-.03em}
+.sub{color:var(--mut);margin-top:10px;max-width:60ch}
+.sechead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+/* tiers + calc */
+.tiers{display:grid;gap:12px;margin-top:22px}
+.tier{padding:22px;border-radius:20px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.tier.on{border-color:var(--v);box-shadow:0 0 0 1px var(--v),0 18px 50px rgba(139,108,255,.22)}
+.tier h3{font-size:15px;font-weight:600;color:var(--mut);display:flex;align-items:center;gap:8px}
+.tier .pct{font:700 52px/1 var(--disp);letter-spacing:-.05em;margin:10px 0 8px}
+.tier .pct.g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tier p{font-size:13.5px;color:var(--mut)}
+.calc{margin-top:14px;padding:22px;border-radius:22px}
+.calc .top2{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.calc input[type=range]{width:100%;margin:16px 0 6px;accent-color:#8B6CFF}
+.calc .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.calc .c{background:#08081A;border:1px solid var(--line);border-radius:14px;padding:12px}
+.calc .c small{display:block;color:var(--dim);font-size:11.5px}
+.calc .c b{display:block;font:600 14px var(--mono);margin-top:2px}
+.calc .c em{font-style:normal;font-size:11.5px;color:var(--mut)}
 /* token */
 .pxgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
-.px{background:#0B0A1C;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
-.px small{color:var(--dim);font-size:12px}.px b{display:block;font:600 18px var(--disp)}
-.pxmain{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-.pxmain .v{font:700 clamp(34px,8vw,48px) var(--disp);letter-spacing:-1.5px}
-.pxmain .c{font-weight:700;font-size:16px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.06)}
-.chart{margin-top:16px;border-radius:18px;overflow:hidden;border:1px solid var(--line);height:360px;background:#0B0A1C}
+.px{background:#08081A;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.px small{color:var(--dim);font-size:12px}.px b{display:block;font:600 16px var(--mono);margin-top:2px}
+.chart{margin-top:14px;border-radius:16px;overflow:hidden;border:1px solid var(--line);height:360px;background:#08081A}
 .chart iframe{width:100%;height:100%;border:0}
-.soon{margin:14px 0;padding:14px 16px;border-radius:16px;border:1px dashed var(--line);color:var(--muted);font-size:14px;display:flex;gap:10px;align-items:center}
-.addr{font-family:ui-monospace,Menlo,monospace;font-size:13px;word-break:break-all;color:#C9D0F0;background:#0B0A1C;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:8px}
-.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-.tokart{display:none}
-/* how + faq */
-.step{display:flex;gap:16px;align-items:flex-start;padding:18px;border:1px solid var(--line);border-radius:20px;background:var(--glass)}
-.step .n{flex:none;width:40px;height:40px;border-radius:50%;background:var(--grad);color:#07070F;font:700 18px var(--disp);display:grid;place-items:center}
-.step h3{font-size:18px;margin-bottom:2px}
-details.faq{background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
-details.faq summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:10px}
-details.faq summary::-webkit-details-marker{display:none}
-details.faq summary:after{content:"+";color:var(--c);font-size:20px;line-height:1}
-details.faq[open] summary:after{content:"-"}
-details.faq p{color:var(--muted);margin-top:10px;font-size:15px}
-footer{padding:40px 0 calc(40px + env(safe-area-inset-bottom));border-top:1px solid var(--line);margin-top:30px;color:var(--dim);font-size:13px}
+.soon{margin:12px 0;padding:14px 16px;border-radius:14px;border:1px dashed var(--line2);color:var(--mut);font-size:14px;display:flex;gap:10px;align-items:center}
+.addr{font:500 12.5px var(--mono);word-break:break-all;color:#C9D0F0;background:#08081A;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:8px}
+/* whitepaper */
+.wp{margin-top:22px;padding:0;border-radius:24px;overflow:hidden}
+.wp-top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:22px 22px 18px;border-bottom:1px solid var(--line)}
+.wp-top .t{font:700 20px var(--disp);letter-spacing:-.02em}
+.wp-top .m{color:var(--dim);font-size:13px;margin-top:2px}
+.wp-body{display:grid}
+.toc{display:flex;gap:8px;overflow-x:auto;padding:14px 22px;border-bottom:1px solid var(--line);scrollbar-width:none}
+.toc::-webkit-scrollbar{display:none}
+.toc a{flex:none;font-size:13px;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.toc a:hover,.toc a.on{color:#fff;border-color:var(--v)}
+.doc{padding:24px 22px 30px;max-height:none}
+.doc h3{font:700 22px/1.2 var(--disp);letter-spacing:-.02em;margin:34px 0 12px;scroll-margin-top:90px}
+.doc h3:first-child{margin-top:0}
+.doc h4{font:600 15px Inter;margin:18px 0 6px;color:#fff}
+.doc p{color:#C6CCEA;margin:10px 0;max-width:72ch;font-size:15.5px;line-height:1.7}
+.doc ul,.doc ol{margin:10px 0 10px 20px;color:#C6CCEA;max-width:72ch;font-size:15.5px;line-height:1.65}
+.doc li{margin:6px 0}
+.doc b,.doc strong{color:#fff;font-weight:600}
+.doc code{font:500 13px var(--mono);background:#0A0A1C;border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.doc .note{margin:16px 0;padding:14px 16px;border-left:3px solid var(--v);background:rgba(139,108,255,.08);border-radius:0 12px 12px 0;color:#D8DCF5;font-size:14.5px;max-width:72ch}
+.doc table{width:100%;max-width:72ch;border-collapse:collapse;margin:14px 0;font-size:14.5px}
+.doc th,.doc td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+.doc th{color:var(--dim);font-weight:500;font-size:12.5px}
+.doc td.n{font-family:var(--mono)}
+/* roadmap */
+.rm{margin-top:22px;display:grid;gap:12px}
+.rm .head{display:none}
+.rm .track{border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.025);overflow:hidden}
+.rm .tn{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center}
+.rm .tn i{flex:none;width:36px;height:36px;border-radius:11px;background:rgba(139,108,255,.16);display:grid;place-items:center;font-style:normal}
+.rm .tn b{display:block;font:600 16px var(--disp)}.rm .tn small{color:var(--dim);font-size:12.5px}
+.rm .cell{padding:14px 18px;border-bottom:1px solid var(--line)}
+.rm .cell:last-child{border-bottom:0}
+.rm .cell:before{content:attr(data-p);display:block;font:600 12px var(--mono);color:var(--dim);margin-bottom:8px}
+.rm ul{list-style:none;display:grid;gap:9px}
+.rm li{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:#D0D5F0;line-height:1.45}
+.rm li:before{content:"";flex:none;width:8px;height:8px;border-radius:50%;margin-top:6px;background:var(--dim)}
+.rm li.live:before{background:var(--ok);box-shadow:0 0 8px rgba(74,222,154,.7)}
+.rm li.build:before{background:var(--c)}
+.rm li.plan:before{background:var(--v)}
+.rm li small{display:block;color:var(--dim);font-size:12.5px;margin-top:2px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;color:var(--mut)}
+.legend span{display:inline-flex;align-items:center;gap:6px}.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+/* faq + footer */
+.faq{display:grid;gap:8px;margin-top:20px}
+details.q{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:15px 18px}
+details.q summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:10px;font-size:15px}
+details.q summary::-webkit-details-marker{display:none}
+details.q summary:after{content:"+";color:var(--c);font-size:20px;line-height:1}
+details.q[open] summary:after{content:"-"}
+details.q p{color:var(--mut);margin-top:10px;font-size:14.5px}
+footer{padding:36px 0 calc(36px + env(safe-area-inset-bottom));border-top:1px solid var(--line);margin-top:24px;color:var(--dim);font-size:12.5px}
 footer .brand{margin-bottom:10px;color:#fff}
-.err{color:var(--bad);font-size:14px;margin-top:12px}.ok{color:var(--ok)}
-.txlink{display:block;font-size:14px;color:var(--c);margin-top:6px;word-break:break-all}
-.rv{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
-.rv.in{opacity:1;transform:none}
-.cf{position:fixed;top:-12px;width:10px;height:14px;border-radius:2px;z-index:99;pointer-events:none;animation:fall linear forwards}
+.cf{position:fixed;top:-12px;width:9px;height:13px;border-radius:2px;z-index:99;pointer-events:none;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.8}}
 [hidden]{display:none!important}
-@media(min-width:820px){
- .navlinks{display:flex}
- .hero{grid-template-columns:1.05fr .95fr;padding:64px 0 30px}
- .grid3{grid-template-columns:repeat(3,1fr)}
- .panel{padding:36px}
- .tiles{grid-template-columns:repeat(4,1fr)}.tile.wide{grid-column:auto}
- .duo{grid-template-columns:1fr 1fr}
+@media(min-width:760px){
+ .tiers{grid-template-columns:repeat(3,1fr)}
  .pxgrid{grid-template-columns:repeat(4,1fr)}
- .tokwrap{display:grid;grid-template-columns:1.4fr .6fr;gap:24px;align-items:end}
- .tokart{display:block}.tokart img{width:100%;max-width:300px;filter:drop-shadow(0 24px 40px rgba(0,0,0,.5))}
- .stepsrow{grid-template-columns:repeat(3,1fr)}
+ .rm .head{display:grid;grid-template-columns:220px repeat(3,1fr);gap:0;padding:0 0 8px;color:var(--dim);font:600 12px var(--mono)}
+ .rm .head span{padding:0 18px}
+ .rm .track{display:grid;grid-template-columns:220px repeat(3,1fr)}
+ .rm .tn{border-bottom:0;border-right:1px solid var(--line);align-items:flex-start;flex-direction:column;gap:8px}
+ .rm .cell{border-bottom:0;border-right:1px solid var(--line)}.rm .cell:last-child{border-right:0}
+ .rm .cell:before{display:none}
 }
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+@media(min-width:1000px){
+ .links{display:flex}
+ .top{grid-template-columns:minmax(0,1.3fr) minmax(380px,.78fr);grid-template-areas:"intro console" "bento console";gap:20px 28px;padding-top:44px;align-items:start}
+ .console{position:sticky;top:84px}
+ .bento{grid-template-columns:repeat(4,1fr)}
+ .tile.w2{grid-column:span 2}.tile.r2{grid-row:span 2}
+ .wp-body{grid-template-columns:230px 1fr}
+ .toc{flex-direction:column;overflow:visible;border-bottom:0;border-right:1px solid var(--line);padding:22px 16px;position:sticky;top:76px;align-self:start;max-height:calc(100vh - 90px)}
+ .toc a{border:0;border-radius:8px;padding:8px 10px;white-space:normal}
+ .doc{padding:30px 36px 40px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
 </style>
 </head>
 <body>
-<div class="bgfx"><div class="blob b1"></div><div class="blob b2"></div></div>
+<div class="bg"></div>
 
-<nav><div class="wrap">
+<header class="nav"><div class="wrap">
   <a class="brand" href="#top"><img src="logo.png" alt="Scratchly logo">scratchly</a>
-  <div class="navlinks"><a href="#app">Cleaner</a><a href="#stats">Live stats</a><a href="#fees">Fees</a><a href="#token">Token</a><a href="#how">How it works</a></div>
-  <button class="btn primary sm" id="btnConnect">Connect wallet</button>
-</div></nav>
-<div class="ticker">
-  <div class="tkchip"><span class="dot off" id="tkDot"></span><span id="tkSym">$TOKEN</span><span id="tkPrice" class="dim">launching soon</span><span id="tkChg"></span></div>
-  <div class="marq"><div class="marq-track" id="marq"></div></div>
-</div>
+  <nav class="links"><a href="#app">Cleaner</a><a href="#stats">Live stats</a><a href="#fees">Fees</a><a href="#token">Token</a><a href="#whitepaper">Whitepaper</a><a href="#roadmap">Roadmap</a></nav>
+  <button class="btn pri sm" id="btnConnect">Connect wallet</button>
+</div></header>
+<div class="rail"><div class="rail-in">
+  <div class="ri"><span class="dot off" id="tkDot"></span><b data-k="ticker">$SCR</b><b id="tkPrice" class="dim">launching soon</b><b id="tkChg"></b></div>
+  <div class="ri"><small>Market cap</small><b id="rMcap">-</b></div>
+  <div class="ri"><small>Fee wallet</small><b id="rFee">-</b></div>
+  <div class="ri"><small>Reclaimed</small><b id="rTotal">0 SOL</b></div>
+  <div class="ri"><small>Accounts closed</small><b id="rAcc">0</b></div>
+</div></div>
 
 <main id="top">
-<div class="wrap hero">
-  <div>
-    <div class="eyebrow"><span class="dot"></span>Live on Solana</div>
-    <h1>Clean your <span class="grad">Solana wallet.</span></h1>
-    <p class="lead">Close empty token accounts and reclaim the SOL locked inside them. Non-custodial, one click, every transaction signed by you.</p>
-    <div class="cta"><a class="btn primary" href="#app">Start cleaning</a><a class="btn ghost" href="#stats">Live stats</a></div>
-    <div class="heroStat">
-      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#07070F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg></div>
-      <div><small>Reclaimed through Scratchly</small><b id="heroTotal">0 SOL</b></div>
-    </div>
+<div class="wrap top">
+  <div class="intro">
+    <h1>Reclaim the SOL hiding in your wallet.</h1>
+    <p class="lead">Close empty token accounts and get the locked SOL back. Non-custodial, the fee is shown before you sign, and holders pay less.</p>
   </div>
-  <div class="heroart">
-    <img src="mascot.png" alt="Scratchly cat mascot">
-    <div class="fchip fc1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2DE2E6" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Closes empty accounts</div>
-    <div class="fchip fc2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9B7BFF" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>One click</div>
-    <div class="fchip fc3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ADE9A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>You sign everything</div>
-  </div>
-</div>
 
-<section id="app"><div class="wrap rv">
-  <div class="panel glow">
-    <div id="stIdle" class="center stack">
-      <div><h2>Reclaim your SOL</h2><p class="sub" style="margin:10px auto 0">Connect your wallet and we scan it for empty token accounts. Nothing is signed until you press clean.</p></div>
-      <div><button class="btn primary" id="btnConnect2">Connect wallet</button></div>
+  <aside class="console" id="app"><div class="panel glass">
+    <div class="hd"><h2>Wallet cleaner</h2><span class="muted" style="font-size:12.5px"><span class="dot"></span>Solana mainnet</span></div>
+    <div id="stIdle" class="stack" style="margin-top:14px">
+      <p class="muted" style="font-size:14.5px">Connect your wallet. We scan it for empty token accounts. Nothing is signed until you press clean.</p>
+      <div><button class="btn pri" id="btnConnect2" style="width:100%">Connect wallet</button></div>
       <div id="noWallet" hidden class="stack">
-        <p class="muted">No wallet detected in this browser. Open this page inside your wallet app:</p>
-        <div class="links" style="justify-content:center"><a class="btn ghost sm" id="lnkPhantom" href="#">Open in Phantom</a><a class="btn ghost sm" id="lnkSolflare" href="#">Open in Solflare</a></div>
+        <p class="muted" style="font-size:13.5px">No wallet found in this browser. Open this page inside your wallet app:</p>
+        <div class="links-row"><a class="btn sec sm" id="lnkPhantom" href="#">Open in Phantom</a><a class="btn sec sm" id="lnkSolflare" href="#">Open in Solflare</a></div>
       </div>
       <p class="err" id="errIdle" hidden></p>
+      <div class="row2" style="margin-top:2px"><span class="muted">Your fee</span><b><span data-k="std">9%</span> / <span data-k="hold">4%</span> / <span data-k="dia">0%</span></b></div>
     </div>
 
-    <div id="stScan" class="center" hidden><div class="spin"></div><p class="muted">Scanning your wallet...</p></div>
+    <div id="stScan" class="center" hidden style="padding:26px 0"><div class="spin"></div><p class="muted">Scanning your wallet...</p></div>
 
-    <div id="stRes" hidden>
+    <div id="stRes" hidden style="margin-top:14px">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="chip" id="chipAddr"></span><span class="badge" id="tierBadge"></span>
       </div>
-      <div class="center" style="margin:26px 0 22px">
-        <div class="muted" style="font-size:14px">You can reclaim</div>
-        <div class="big grad" id="bigSol">0 SOL</div>
-        <div class="muted" id="bigSub" style="margin-top:8px"></div>
+      <div class="center" style="margin:22px 0 18px">
+        <div class="muted" style="font-size:13.5px">You can reclaim</div>
+        <div class="big" id="bigSol" style="margin-top:6px">0 SOL</div>
+        <div class="muted" id="bigSub" style="margin-top:8px;font-size:14px"></div>
       </div>
       <div>
-        <div class="row"><span class="muted">Rent returned to you</span><b id="sReclaim">-</b></div>
-        <div class="row"><span class="muted">Scratchly fee (<span id="sPct">15%</span>)</span><b id="sFee">-</b></div>
-        <div class="row total"><span>You receive</span><b class="ok" id="sNet">-</b></div>
+        <div class="row2"><span class="muted">Rent returned to you</span><b id="sReclaim">-</b></div>
+        <div class="row2"><span class="muted">Scratchly fee (<span id="sPct">9%</span>)</span><b id="sFee">-</b></div>
+        <div class="row2 total"><span>You receive</span><b class="ok" id="sNet">-</b></div>
       </div>
-      <p class="dim" style="font-size:13px;margin-top:6px" id="feeNote"></p>
-      <div style="margin-top:20px"><button class="btn primary" id="btnClean" style="width:100%">Clean wallet</button></div>
+      <p class="dim" style="font-size:12.5px;margin-top:6px" id="feeNote"></p>
+      <div style="margin-top:16px"><button class="btn pri" id="btnClean" style="width:100%">Clean wallet</button></div>
       <p class="err" id="errRes" hidden></p>
-
       <details id="adv" class="adv">
         <summary>
-          <span class="advIcon"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2c1 3 4 5 4 9a4 4 0 11-8 0c0-1.2.4-2.2 1-3 .3 1 1 1.6 1.7 1.8C10.4 7 11 4.4 12 2z"/><path d="M12 22a6 6 0 006-6c0-1-.3-2-.8-2.8C16.4 14.4 15 15 14 15c-1.6 0-2-1.2-2-2.4-2 1.4-4 3.4-4 5.4a4 4 0 004 4z" opacity=".55"/></svg></span>
+          <span class="advIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 2c1 3 4 5 4 9a4 4 0 11-8 0c0-1.2.4-2.2 1-3 .3 1 1 1.6 1.7 1.8C10.4 7 11 4.4 12 2z"/><path d="M12 22a6 6 0 006-6c0-1-.3-2-.8-2.8C16.4 14.4 15 15 14 15c-1.6 0-2-1.2-2-2.4-2 1.4-4 3.4-4 5.4a4 4 0 004 4z" opacity=".55"/></svg></span>
           <span class="advTxt"><b>Advanced: burn tokens</b><small>Get rent back from tokens you do not want</small></span>
           <span class="advBadge" id="advCount">0</span>
-          <svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
         <div class="advBody">
           <div class="warn">Burning is permanent. Only select tokens you are sure are worthless. Everything here is unselected by default.</div>
           <div id="burnList"></div>
-          <label class="tok" style="margin-top:6px"><input type="checkbox" id="ack"><span style="font-size:14px">I understand that burning cannot be undone</span></label>
+          <label class="tok" style="margin-top:4px"><input type="checkbox" id="ack"><span style="font-size:13.5px">I understand that burning cannot be undone</span></label>
         </div>
       </details>
-      <div class="center" style="margin-top:16px"><button class="btn ghost sm" id="btnRescan">Rescan</button> <button class="btn ghost sm" id="btnDisc">Disconnect</button></div>
+      <div class="center" style="margin-top:14px"><button class="btn sec sm" id="btnRescan">Rescan</button> <button class="btn sec sm" id="btnDisc">Disconnect</button></div>
     </div>
 
-    <div id="stDone" class="center stack" hidden>
-      <div><div class="big grad" id="doneSol">0 SOL</div><p class="muted" style="margin-top:8px" id="doneSub"></p></div>
+    <div id="stDone" class="center stack" hidden style="margin-top:14px">
+      <div><div class="big" id="doneSol">0 SOL</div><p class="muted" style="margin-top:8px;font-size:14px" id="doneSub"></p></div>
       <div id="doneTx" style="text-align:left"></div>
       <p class="err" id="errDone" hidden></p>
-      <div class="cta" style="justify-content:center"><a class="btn primary" id="btnShare" target="_blank" rel="noopener">Share on X</a><button class="btn ghost" id="btnAgain">Scan again</button></div>
+      <div class="links-row" style="justify-content:center"><a class="btn pri sm" id="btnShare" target="_blank" rel="noopener">Share on X</a><button class="btn sec sm" id="btnAgain">Scan again</button></div>
     </div>
+  </div></aside>
+
+  <div class="bento" id="stats">
+    <div class="tile glass w2 t-total"><div class="k">Total SOL reclaimed<span class="live"><span class="dot"></span>live</span></div><div class="v" id="stTotal">0 SOL</div><div class="s" id="stUsd">&nbsp;</div></div>
+    <div class="tile glass w2 t-price"><div class="k"><span data-k="ticker">$SCR</span> price<span class="live" id="pxLive" hidden><span class="dot"></span>live</span></div>
+      <div class="v"><span id="bPrice">-</span><span class="chg" id="bChg"></span></div>
+      <div class="mini" id="bMini"><span>Not trading yet</span></div></div>
+    <div class="tile glass w2 t-fees"><div class="k">Fees received</div>
+      <div class="kv"><span>Fee wallet balance</span><b id="fwBal">-</b></div>
+      <div class="kv"><span id="fwUsd" style="color:var(--dim)">&nbsp;</span><span></span></div>
+      <div class="kv"><span>All-time fees</span><b id="stFee">0 SOL</b></div>
+      <div style="margin-top:10px"><a class="lnk" id="lnkFee2" target="_blank" rel="noopener">View wallet on Solscan</a></div></div>
+    <div class="tile glass w2 r2 feed"><div class="k">Recent cleans</div><div id="feed"><div class="empty">No cleans yet. The first one will show up here.</div></div><p class="dim" style="font-size:11.5px;margin-top:6px" id="stUpd"></p></div>
+    <div class="tile glass"><div class="k">Accounts closed</div><div class="v" id="stAcc">0</div></div>
+    <div class="tile glass"><div class="k">Wallets cleaned</div><div class="v" id="stWal">0</div></div>
+  </div>
+</div>
+
+<section class="s" id="fees"><div class="wrap">
+  <h2 class="sec">Fees that drop as you hold</h2>
+  <p class="sub">The fee is a share of the SOL you get back, never charged on top. You see the exact amount before you sign.</p>
+  <div class="tiers" id="tierCards"></div>
+  <div class="calc glass">
+    <div class="top2"><b style="font:600 16px var(--disp)">Fee calculator</b><span class="muted" style="font-size:13.5px"><b id="calcNv" style="font-family:var(--mono);color:#fff">50</b> empty accounts</span></div>
+    <input type="range" id="calcN" min="1" max="300" value="50" aria-label="Number of empty accounts">
+    <div class="cols">
+      <div class="c"><small>Standard</small><b id="cStd">-</b><em id="cStdF"></em></div>
+      <div class="c"><small>Holder</small><b id="cHold">-</b><em id="cHoldF"></em></div>
+      <div class="c"><small>Diamond</small><b id="cDia">-</b><em id="cDiaF"></em></div>
+    </div>
+    <p class="dim" style="font-size:12px;margin-top:10px">You receive per tier. Each empty account releases about 0.00204 SOL.</p>
   </div>
 </div></section>
 
-<section id="stats"><div class="wrap rv">
-  <span class="tag">Live stats</span>
-  <h2>Scratched off, <span class="grad">on-chain.</span></h2>
-  <p class="sub">Every number here is counted from real Scratchly transactions on Solana.</p>
-  <div class="tiles">
-    <div class="tile wide"><small>Total SOL reclaimed</small><b id="stTotal">0</b><em id="stUsd">&nbsp;</em></div>
-    <div class="tile"><small>Accounts closed</small><b id="stAcc">0</b><em>empty accounts</em></div>
-    <div class="tile"><small>Wallets cleaned</small><b id="stWal">0</b><em>unique wallets</em></div>
-    <div class="tile"><small>Fees earned</small><b id="stFee">0</b><em>SOL</em></div>
-  </div>
-  <div class="duo">
-    <div class="scwrap" id="scwrap"><div><small>Total reclaimed so far</small><div class="big grad" id="scVal" style="font-size:clamp(40px,10vw,60px)">0 SOL</div></div><canvas id="scratch"></canvas></div>
-    <div class="feed"><h3>Recent cleans</h3><div id="feed"><div class="empty">No cleans yet. Be the first one.</div></div></div>
-  </div>
-  <p class="dim" style="font-size:12px;margin-top:10px" id="stUpd"></p>
-</div></section>
-
-<section id="fees"><div class="wrap rv">
-  <span class="tag">Fees</span>
-  <h2>Fees that reward holders</h2>
-  <p class="sub">A small fee is taken from the SOL you get back, never on top of it. The exact amount is shown before you sign.</p>
-  <div class="grid3" id="tierCards"></div>
-</div></section>
-
-<section id="token"><div class="wrap rv">
-  <div class="tokwrap"><div>
-  <span class="tag">Token</span>
-  <h2>The <span class="grad" id="tkName">$TOKEN</span> token</h2>
-  <p class="sub">Holding the token lowers your fees. It is a utility feature of the app and carries no promise of returns.</p>
-  <div class="panel glow" style="margin-top:22px">
-    <div class="pxmain"><span class="v" id="pxPrice">-</span><span class="c" id="pxChg"></span><span class="dim" style="font-size:13px">live price</span></div>
-    <div class="soon" id="notLive"><span class="dot off"></span>Not trading yet. Live price, market cap and chart appear here at launch.</div>
+<section class="s" id="token"><div class="wrap">
+  <h2 class="sec"><span data-k="ticker">$SCR</span> token</h2>
+  <p class="sub">Your balance when you clean sets your fee tier. It is a utility feature of the app and carries no promise of returns.</p>
+  <div class="panel glass" style="margin-top:20px">
+    <div class="pxmain" style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><span style="font:700 clamp(32px,7vw,46px) var(--disp);letter-spacing:-.04em" id="pxPrice">-</span><span class="chg" id="pxChg" style="margin:0"></span></div>
+    <div class="soon" id="notLive"><span class="dot off" style="margin:0"></span>Not trading yet. Price, market cap and chart appear here at launch.</div>
     <div class="pxgrid">
       <div class="px"><small>Market cap</small><b id="pxMcap">-</b></div>
       <div class="px"><small>Liquidity</small><b id="pxLiq">-</b></div>
@@ -317,42 +355,145 @@ footer .brand{margin-bottom:10px;color:#fff}
       <div class="px"><small>24h txns</small><b id="pxTx">-</b></div>
     </div>
     <div class="chart" id="chartBox" hidden></div>
-    <div class="muted" style="font-size:14px;margin-top:22px">Token contract</div>
+    <div class="muted" style="font-size:13.5px;margin-top:20px">Token contract</div>
     <div class="addr" id="mintAddr"></div>
-    <div class="links"><button class="btn ghost sm" id="cpMint">Copy address</button><a class="btn primary sm" id="lnkPump" target="_blank" rel="noopener">View on pump.fun</a><a class="btn ghost sm" id="lnkDex" target="_blank" rel="noopener">Dexscreener</a></div>
-    <div class="muted" style="font-size:14px;margin-top:22px">Fee wallet (all app fees are sent here)</div>
+    <div class="links-row" style="margin-top:12px"><button class="btn sec sm" id="cpMint">Copy address</button><a class="btn pri sm" id="lnkPump" target="_blank" rel="noopener">View on pump.fun</a><a class="btn sec sm" id="lnkDex" target="_blank" rel="noopener">Dexscreener</a></div>
+    <div class="muted" style="font-size:13.5px;margin-top:20px">Fee wallet (all app fees go here)</div>
     <div class="addr" id="feeAddr"></div>
-    <div class="links"><a class="btn ghost sm" id="lnkFee" target="_blank" rel="noopener">View on Solscan</a></div>
-  </div></div>
-  <div class="tokart"><img src="mascot-cool.png" alt="Cool Scratchly cat with sunglasses"></div></div>
-</div></section>
-
-<section id="how"><div class="wrap rv">
-  <span class="tag">How it works</span>
-  <h2>Three taps. Done.</h2>
-  <div class="grid3 stepsrow" style="margin-top:22px">
-    <div class="step"><div class="n">1</div><div><h3>Connect</h3><p class="muted">Use Phantom, Solflare or Backpack. We only read your public token accounts.</p></div></div>
-    <div class="step"><div class="n">2</div><div><h3>Scan</h3><p class="muted">Empty token accounts hold rent you can get back. We list them and show the total.</p></div></div>
-    <div class="step"><div class="n">3</div><div><h3>Scratch it off</h3><p class="muted">Review the summary, approve in your wallet, and the SOL lands in your account.</p></div></div>
+    <div class="links-row" style="margin-top:12px"><a class="btn sec sm" id="lnkFee" target="_blank" rel="noopener">View on Solscan</a></div>
   </div>
 </div></section>
 
-<section><div class="wrap rv">
-  <span class="tag">FAQ</span><h2>Questions</h2>
-  <div class="stack" style="margin-top:20px;gap:10px">
-    <details class="faq"><summary>Can Scratchly touch my funds?</summary><p>No. Scratchly never has your keys. Every transaction is built in your browser and signed in your own wallet. You can read exactly what you sign before approving.</p></details>
-    <details class="faq"><summary>What is rent?</summary><p>Every token account on Solana locks a small deposit of SOL. When an account is empty and closed, that deposit is returned to you.</p></details>
-    <details class="faq"><summary>Will it close accounts that hold tokens?</summary><p>Never by default. Only empty accounts are selected. Tokens with a balance can be burned and closed only if you pick them yourself in the advanced section.</p></details>
-    <details class="faq"><summary>How do holder fees work?</summary><p>The app reads your balance of the token when you connect. Holding enough puts you in a lower fee tier automatically. Nothing is staked or locked.</p></details>
-    <details class="faq"><summary>Where do the live stats come from?</summary><p>They are counted from Scratchly transactions on Solana and refreshed every few minutes. Anyone can verify them on the public fee wallet.</p></details>
+<section class="s" id="whitepaper"><div class="wrap">
+  <h2 class="sec">Whitepaper</h2>
+  <p class="sub">How Scratchly works, what it costs, what the token does, and where the project is going. Read it here or download it.</p>
+  <div class="wp glass">
+    <div class="wp-top"><div><div class="t">Scratchly whitepaper</div><div class="m">Version 1.0 - November 2026</div></div><a class="btn pri sm" href="whitepaper.pdf" target="_blank" rel="noopener" download>Download PDF</a></div>
+    <div class="wp-body">
+      <nav class="toc" id="toc"><a href="#wp-abstract">Abstract</a><a href="#wp-problem">The problem</a><a href="#wp-solution">The solution</a><a href="#wp-how">How it works</a><a href="#wp-security">Security and trust model</a><a href="#wp-fees">Fee model</a><a href="#wp-token">The token</a><a href="#wp-transparency">Transparency and metrics</a><a href="#wp-roadmap">Roadmap</a><a href="#wp-risks">Risks</a><a href="#wp-disclaimer">Disclaimer</a></nav>
+      <article class="doc"><h3 id="wp-abstract">Abstract</h3>
+<p>Scratchly is a non-custodial utility for Solana wallets. It finds empty token accounts, closes them, and returns the SOL deposit locked inside to the wallet owner. A small fee, taken only from the SOL that is released, funds the product. Holding the project token <span data-k="ticker">$SCR</span> lowers that fee to <span data-k="hold">4%</span> or <span data-k="dia">0%</span>.</p>
+<p>This paper describes the problem, the mechanism, the fee model, the trust model, the role of the token, and the roadmap. It is written to be checked: every claim about how the product behaves can be verified on-chain or in the open transaction flow of the app.</p>
+
+<h3 id="wp-problem">The problem</h3>
+<p>Every token account on Solana holds a rent-exempt deposit of about <b>0.00203928 SOL</b>. An account is created whenever a wallet receives a new token: a swap, an airdrop, a memecoin purchase. Selling the full balance does not close the account, so the deposit stays locked. Active wallets accumulate dozens or hundreds of these accounts. One hundred empty accounts lock roughly 0.204 SOL.</p>
+<ul>
+<li><b>It is invisible.</b> Most wallets do not show empty accounts, so users do not know the SOL is there.</li>
+<li><b>It is tedious.</b> Closing accounts one by one inside a wallet takes many taps and confirmations.</li>
+<li><b>It is getting more complex.</b> Token-2022 accounts can carry extensions. An account that holds withheld transfer fees cannot be closed until those fees are harvested, and manual attempts fail with obscure error codes.</li>
+<li><b>Trust is a barrier.</b> Cleaning tools ask users to sign transactions they cannot easily inspect, and wallets increasingly warn about unfamiliar sites.</li>
+</ul>
+
+<h3 id="wp-solution">The solution</h3>
+<p>Scratchly reads the connected wallet, lists what can be reclaimed, builds the transactions, and shows one plain summary before anything is signed: SOL returned, fee, and what the user receives. The rent returns to the owner's wallet inside the same transaction that pays the fee. There is no deposit, no account, and no custody.</p>
+<p>The product has two modes. <b>Quick clean</b> closes empty accounts and is the default. <b>Advanced</b> lets the user burn tokens they no longer want and close those accounts too. Nothing in Advanced is selected by default, and burning requires an explicit confirmation.</p>
+
+<h3 id="wp-how">How it works</h3>
+<ol>
+<li><b>Connect.</b> The app receives only the public address of the wallet.</li>
+<li><b>Scan.</b> It queries all token accounts owned by the address under both the classic Token program and Token-2022. Accounts are sorted into empty, holding a balance, or frozen. Frozen accounts are never touched. Token-2022 accounts with withheld transfer fees are flagged.</li>
+<li><b>Plan.</b> Closures are grouped into transactions of up to 18 closes (up to 7 when burning). The fee is calculated per transaction from the SOL being released.</li>
+<li><b>Simulate.</b> Every transaction is simulated against the network before the wallet is asked to sign. If one account cannot be closed, it is dropped automatically and the rest continue. The result sets an explicit compute budget.</li>
+<li><b>Sign.</b> The only signer is the user's wallet. Each transaction is a separate prompt, so every approval matches what the user sees on screen.</li>
+<li><b>Send and confirm.</b> The signed transaction goes to the network with preflight checks on. The app shows the transaction links.</li>
+<li><b>Record.</b> Public statistics are derived from the on-chain transactions that involve the fee wallet.</li>
+</ol>
+<h4>What a transaction contains</h4>
+<ul>
+<li><code>CloseAccount</code> with the owner as the destination of the released SOL.</li>
+<li>Optionally <code>Burn</code>, only for tokens the user selected in Advanced.</li>
+<li>Where needed, <code>HarvestWithheldTokensToMint</code> so that a Token-2022 account becomes closable. Anyone can run this instruction.</li>
+<li>A <code>SystemProgram</code> transfer of the displayed fee to the fee wallet.</li>
+</ul>
+
+<h3 id="wp-security">Security and trust model</h3>
+<p>Scratchly is non-custodial. It has no access to private keys or seed phrases and cannot move funds without a signature from the owner. The instructions above are the complete list of what the app can ask a wallet to do.</p>
+<h4>What users should check</h4>
+<ul>
+<li>Open the app only from <b>app.scratchly.cfd</b>.</li>
+<li>Compare the wallet prompt with the on-screen summary before approving.</li>
+<li>Use a wallet with transaction simulation turned on.</li>
+</ul>
+<h4>Known limits</h4>
+<ul>
+<li><b>There is no smart contract.</b> The app composes standard instructions of existing programs. This keeps the attack surface small, and it also means the fee is applied by the front end rather than enforced by a contract.</li>
+<li><b>Front-end integrity matters.</b> The site is static and its source is versioned. Users who want more certainty can verify the instructions in their wallet prompt.</li>
+<li><b>Third-party services</b> supply the RPC connection, the Solana client library, and market data. An outage degrades the experience but cannot move funds.</li>
+<li><b>Wallets may warn</b> about new domains or about transactions that close accounts. We work with wallet teams on review and keep the transaction format as simple and transparent as possible.</li>
+</ul>
+
+<h3 id="wp-fees">Fee model</h3>
+<p>The fee is a percentage of the SOL released by closing accounts. It is never charged on top of the user's balance, and it is shown before signing. Network fees (about 0.000005 SOL per signature plus a small compute cost) are paid by the user as on any Solana transaction.</p>
+<table>
+<tr><th>Tier</th><th>Requirement</th><th>Fee on released SOL</th></tr>
+<tr><td>Standard</td><td>No token needed</td><td class="n" data-k="std">9%</td></tr>
+<tr><td>Holder</td><td>Hold <span data-k="t1">1M</span> <span data-k="ticker">$SCR</span></td><td class="n" data-k="hold">4%</td></tr>
+<tr><td>Diamond</td><td>Hold <span data-k="t2">5M</span> <span data-k="ticker">$SCR</span></td><td class="n" data-k="dia">0%</td></tr>
+</table>
+<h4>Example</h4>
+<p>A wallet with 100 empty token accounts releases 0.203928 SOL. At the Standard tier the fee is about 0.0184 SOL and the user receives about 0.1856 SOL. At the Holder tier the fee is about 0.0082 SOL and the user receives about 0.1957 SOL. At the Diamond tier the user receives the full 0.2039 SOL.</p>
+<div class="note"><b>Minimum balance rule.</b> A new Solana account must hold at least about 0.00089 SOL. While the fee wallet is below that minimum, a fee smaller than the gap would make the transaction fail, so the app skips the fee for that transaction instead. The user keeps the full amount.</div>
+<h4>Market context</h4>
+<p>Publicly listed fees among comparable rent-recovery tools range from roughly 1% to 20% as of November 2026. The Standard tier sits in the middle of that range. The tiers give holders a path to a lower or zero fee, and live fee reporting lets anyone see where the money goes.</p>
+
+<h3 id="wp-token">The token</h3>
+<p><span data-k="ticker">$SCR</span> is a utility token launched on pump.fun. Its role inside the product is simple: your balance at the moment you clean decides your fee tier.</p>
+<ul>
+<li>The app reads the balance of the connected wallet when it scans. No staking, lock-up, or transfer is needed.</li>
+<li>Thresholds are <span data-k="t1">1M</span> and <span data-k="t2">5M</span> tokens. With the standard pump.fun supply of 1,000,000,000 these are 0.1% and 0.5% of supply.</li>
+<li>Tiers are applied to the Solana wallet that signs the transaction.</li>
+</ul>
+<div class="note"><b>What the token is not.</b> It gives no ownership of the project, no claim on revenue, no dividends, and no governance rights. Its price can fall to zero. Nothing in this paper promises a return.</div>
+<p>Fee revenue is received by the public fee wallet. It supports operations, development, and growth. The team is working on a published fee-use policy, which may include buybacks. No amounts or timing are promised.</p>
+
+<h3 id="wp-transparency">Transparency and metrics</h3>
+<p>The fee wallet address is public on the site, and its balance is read live from the network. The counters on the site (SOL reclaimed, accounts closed, wallets cleaned, fees earned) are calculated by an automated job from public transactions that involve the fee wallet. Refresh takes a few minutes, so the numbers can lag. A clean you complete yourself is added to your screen immediately.</p>
+<p>Statistics are informational. Because anyone can create a transaction that touches the fee wallet, they should be read as an indicator, not as an audited figure. Token price and market data come from public DEX data.</p>
+
+<h3 id="wp-roadmap">Roadmap</h3>
+<p>The roadmap is organised in tracks (product, security, token and fees, community, ecosystem) and in three horizons: <b>Now</b>, <b>Next</b>, and <b>Later</b>. It is a statement of direction, not a promise of dates. The detailed roadmap is in the Roadmap section of the site.</p>
+
+<h3 id="wp-risks">Risks</h3>
+<ul>
+<li><b>Market risk.</b> The token is volatile and can lose all of its value.</li>
+<li><b>Technical risk.</b> Software can contain bugs. RPC providers, wallets, or the network can have outages or change behaviour.</li>
+<li><b>Wallet warnings.</b> New sites may be flagged by wallets until reviewed.</li>
+<li><b>Irreversibility.</b> Burning tokens cannot be undone. A closed account can be created again, and its deposit is paid again when a token is received.</li>
+<li><b>Regulatory risk.</b> Rules for crypto assets differ by country. Users are responsible for their own compliance and taxes.</li>
+<li><b>Dependency risk.</b> The product relies on third-party infrastructure.</li>
+</ul>
+
+<h3 id="wp-disclaimer">Disclaimer</h3>
+<p>This document is for information only. It is not financial, legal, or tax advice, and it is not an offer or solicitation to buy or sell any asset. Statements about the future describe intentions and may change. Use Scratchly at your own risk and review every transaction in your wallet before approving.</p>
+</article>
+    </div>
+  </div>
+</div></section>
+
+<section class="s" id="roadmap"><div class="wrap">
+  <h2 class="sec">Roadmap</h2>
+  <p class="sub">Five tracks, three horizons. A statement of direction, not a promise of dates.</p>
+  <div class="rm"><div class="head"><span>Track</span><span>Now</span><span>Next</span><span>Later</span></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></i><div><b>Product</b><small>What users can do</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Empty account cleaner for Token and Token-2022</li><li class="live">Advanced burn and close, opt-in per token</li><li class="live">Automatic harvest of withheld Token-2022 fees</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Dust detection with price data, to flag low-value tokens</li><li class="plan">Cleanup of empty NFT and edition accounts</li><li class="plan">Priority fee options for busy network hours</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Read-only multi-wallet overview</li><li class="plan">Scheduled scans with reminders</li><li class="">Cleanup of other reclaimable Solana accounts</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></i><div><b>Security and trust</b><small>How we earn confidence</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Transaction simulation before every signature</li><li class="live">Explicit compute budget on each transaction</li><li class="live">Single signer, fee shown before signing</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Wallet review requests to remove new-site warnings</li><li class="plan">Public source code and verification guide</li><li class="plan">Independent security review</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Bug bounty program</li><li class="">Guided flow for hardware wallets</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9.500c0-1 1-1.500 3-1.500s3 .7 3 1.800c0 2.200-6 1.200-6 3.700 0 1.100 1.200 1.800 3 1.800s3-.5 3-1.600"/></svg></i><div><b>Token and fees</b><small>What holding does</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Holder tiers at 9%, 4% and 0%</li><li class="live">Public fee wallet with live balance</li><li class="live">Fee and token metrics on the site</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Published fee-use policy</li><li class="plan">Public log of fee-wallet movements</li><li class="build">On-chain verified tier check in the app</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Buyback policy based on fee revenue, with proof</li><li class="">Extra holder perks inside the app</li><li class="">Referral rewards</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.5-4 3-6 6.500-6s6 2 6.500 6"/><path d="M16 5a3.500 3.500 0 010 6.500M18.500 14.500c2 .7 3 2.500 3.200 5.500"/></svg></i><div><b>Community and growth</b><small>How the project spreads</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Live stats and share card after each clean</li><li class="build">Launch campaign and educational posts</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Embeddable stats widget for partner sites</li><li class="plan">Community ambassadors</li><li class="plan">Public changelog</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Localized versions of the app</li><li class="">Community-led translations and guides</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.500"/><circle cx="18" cy="6" r="2.500"/><circle cx="18" cy="18" r="2.500"/><path d="M8.300 11l7.400-4M8.300 13l7.400 4"/></svg></i><div><b>Ecosystem</b><small>Where Scratchly connects</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Works with Phantom, Solflare and Backpack</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Embeddable Clean wallet widget for other dapps</li><li class="plan">Public read-only API for stats</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Wallet and analytics integrations</li><li class="">Hygiene tools for other networks, such as approval revokes on EVM chains</li></ul></div></div></div>
+  <div class="legend"><span><i style="background:var(--ok)"></i>Live</span><span><i style="background:var(--c)"></i>In progress</span><span><i style="background:var(--v)"></i>Planned</span><span><i style="background:var(--dim)"></i>Exploring</span></div>
+</div></section>
+
+<section class="s"><div class="wrap">
+  <h2 class="sec">Questions</h2>
+  <div class="faq">
+    <details class="q"><summary>Can Scratchly touch my funds?</summary><p>No. It never has your keys. Every transaction is built in your browser and signed in your own wallet, and you can read what you sign before approving.</p></details>
+    <details class="q"><summary>What is rent?</summary><p>Every token account on Solana locks a small deposit of SOL, about 0.00204. When an empty account is closed, the deposit returns to you.</p></details>
+    <details class="q"><summary>Will it close accounts that hold tokens?</summary><p>Never by default. Only empty accounts are selected. Tokens with a balance can be burned and closed only if you pick them yourself in Advanced.</p></details>
+    <details class="q"><summary>How do holder tiers work?</summary><p>The app reads your token balance when you connect. Holding enough puts you in a lower tier automatically. Nothing is staked or locked.</p></details>
+    <details class="q"><summary>My wallet shows a warning. What now?</summary><p>New sites are sometimes flagged until wallets review them. Check that the address is app.scratchly.cfd and that the prompt matches the summary on screen. If anything differs, do not approve.</p></details>
+    <details class="q"><summary>Where do the live stats come from?</summary><p>They are counted from Scratchly transactions on Solana and refreshed every few minutes. The fee wallet balance is read live from the network.</p></details>
   </div>
 </div></section>
 </main>
 
 <footer><div class="wrap">
-  <div class="brand"><img src="logo.png" alt="" style="width:28px;height:28px;border-radius:50%">scratchly</div>
-  <div class="links" id="socials" style="margin:6px 0 14px"></div>
-  <p>Scratchly is a utility tool. Use at your own risk and double check every transaction in your wallet. Nothing here is financial advice, and the token carries no promise of returns or profit.</p>
+  <div class="brand"><img src="logo.png" alt="" style="width:26px;height:26px;border-radius:50%">scratchly</div>
+  <div class="links-row" id="socials" style="margin:6px 0 14px"></div>
+  <p>Scratchly is a utility tool. Use at your own risk and check every transaction in your wallet. Nothing here is financial advice, and the token carries no promise of returns or profit.</p>
 </div></footer>
 
 <script src="config.js"></script>
@@ -360,19 +501,22 @@ footer .brand{margin-bottom:10px;color:#fff}
 window.__scratchlyStart = function(){
 (function(){
 const CFG = window.SCRATCHLY_CONFIG;
+// A dijszintek itt vannak megadva (felulirjak a config.js-ben levo ertekeket): 9% / 4% / 0%
+CFG.FEE_BPS_STANDARD = 900; CFG.FEE_BPS_TIER1 = 400; CFG.FEE_BPS_TIER2 = 0;
 const $ = id => document.getElementById(id);
 const RPC = CFG.RPC_URL || "https://api.mainnet-beta.solana.com";
 const TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
 const TOKEN22_PROGRAM_ID = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
 const SOL_MINT = "So11111111111111111111111111111111111111112";
 const EMPTY_BATCH = 18, BURN_BATCH = 7;
-let feeBal = 0, provider = null, owner = null, hold = 0, empties = [], withBal = [], plan = null, busy = false, solUsd = 0, stats = null;
+let feeBal = 0, provider = null, owner = null, hold = 0, empties = [], withBal = [], plan = null, busy = false, solUsd = 0, stats = null, pending = null, liveFee = null;
 
 const short = s => s.slice(0,4) + "..." + s.slice(-4);
 const fmtSol = l => { const v = l/1e9; return (v === 0 ? "0" : v.toFixed(v < 0.01 ? 5 : 4).replace(/0+$/,"").replace(/\.$/,"")) + " SOL"; };
 const fmtTok = n => n >= 1e6 ? (n/1e6).toFixed(2).replace(/\.?0+$/,"") + "M" : n >= 1e3 ? (n/1e3).toFixed(2).replace(/\.?0+$/,"") + "K" : String(+n.toFixed(4));
 const pct = bps => (bps/100).toString().replace(/\.0+$/,"") + "%";
 const compact = n => n >= 1e9 ? "$" + (n/1e9).toFixed(2) + "B" : n >= 1e6 ? "$" + (n/1e6).toFixed(2) + "M" : n >= 1e3 ? "$" + (n/1e3).toFixed(1) + "K" : "$" + n.toFixed(0);
+const usd = n => "$" + n.toLocaleString("en-US", {maximumFractionDigits: n < 10 ? 2 : 0});
 const fmtPrice = n => { if (!n) return "-"; if (n >= 1) return "$" + n.toFixed(2); const d = Math.min(10, Math.max(4, 2 - Math.floor(Math.log10(n)))); return "$" + n.toFixed(d); };
 const ago = t => { const s = Math.max(1, Math.floor(Date.now()/1000 - t)); return s < 60 ? s + "s ago" : s < 3600 ? Math.floor(s/60) + "m ago" : s < 86400 ? Math.floor(s/3600) + "h ago" : Math.floor(s/86400) + "d ago"; };
 const show = id => { ["stIdle","stScan","stRes","stDone"].forEach(x => $(x).hidden = x !== id); };
@@ -382,45 +526,55 @@ function tierFor(h){
   if (h >= CFG.TIER1_MIN) return {name:"Holder", bps:CFG.FEE_BPS_TIER1, cls:"", idx:1};
   return {name:"Standard", bps:CFG.FEE_BPS_STANDARD, cls:"", idx:0};
 }
-
-/* ---------- animations ---------- */
 function countTo(el, target, o){
-  o = o || {}; const dec = o.dec || 0, dur = o.dur || 1400, suf = o.suf || "", from = parseFloat(el.dataset.v || "0");
+  o = o || {}; const dec = o.dec || 0, dur = o.dur || 1200, suf = o.suf || "", from = parseFloat(el.dataset.v || "0");
+  if (from === target) { el.textContent = target.toLocaleString("en-US", {minimumFractionDigits:dec, maximumFractionDigits:dec}) + suf; return; }
   el.dataset.v = target; const t0 = performance.now();
   (function step(t){ const p = Math.min(1, (t - t0)/dur), e = 1 - Math.pow(1 - p, 3), v = from + (target - from)*e;
     el.textContent = v.toLocaleString("en-US", {minimumFractionDigits:dec, maximumFractionDigits:dec}) + suf; if (p < 1) requestAnimationFrame(step); })(t0);
 }
 function confetti(n){
-  const cols = ["#9B7BFF","#2DE2E6","#FFB86B","#FF7AA8","#4ADE9A"];
+  const cols = ["#8B6CFF","#2DE2E6","#FFB86B","#FF7AA8","#4ADE9A"];
   for (let i = 0; i < (n || 46); i++){ const d = document.createElement("div"); d.className = "cf"; d.style.left = Math.random()*100 + "vw"; d.style.background = cols[i % 5];
     d.style.animationDuration = (2 + Math.random()*2) + "s"; d.style.animationDelay = Math.random()*.4 + "s"; document.body.appendChild(d); setTimeout(() => d.remove(), 4800); }
 }
-const io = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }), {threshold:.12}) : null;
-document.querySelectorAll(".rv").forEach(el => io ? io.observe(el) : el.classList.add("in"));
 
-/* ---------- static sections ---------- */
+/* ---------- static content ---------- */
+function fillKeys(){
+  const m = {ticker:"$" + CFG.TICKER, t1:fmtTok(CFG.TIER1_MIN), t2:fmtTok(CFG.TIER2_MIN), std:pct(CFG.FEE_BPS_STANDARD), hold:pct(CFG.FEE_BPS_TIER1), dia:pct(CFG.FEE_BPS_TIER2)};
+  document.querySelectorAll("[data-k]").forEach(e => { const v = m[e.dataset.k]; if (v != null) e.textContent = v; });
+}
 function drawTiers(active){
   const T = [
     {n:"Standard", b:CFG.FEE_BPS_STANDARD, d:"Everyone. No token needed."},
     {n:"Holder", b:CFG.FEE_BPS_TIER1, d:"Hold " + fmtTok(CFG.TIER1_MIN) + " $" + CFG.TICKER + " or more."},
     {n:"Diamond", b:CFG.FEE_BPS_TIER2, d:"Hold " + fmtTok(CFG.TIER2_MIN) + " $" + CFG.TICKER + " or more."}
   ];
-  $("tierCards").innerHTML = T.map((t,i) => '<div class="card' + (i === active ? ' on' : '') + '"><h3>' + t.n + (i === active ? ' <span class="badge">Your tier</span>' : '') + '</h3><div class="pct ' + (i ? 'grad' : '') + '">' + pct(t.b) + '</div><p>' + t.d + '</p></div>').join("");
+  $("tierCards").innerHTML = T.map((t,i) => '<div class="tier' + (i === active ? ' on' : '') + '"><h3>' + t.n + (i === active ? ' <span class="badge">Your tier</span>' : '') + '</h3><div class="pct' + (i ? ' g' : '') + '">' + pct(t.b) + '</div><p>' + t.d + '</p></div>').join("");
+}
+function calc(){
+  const n = +$("calcN").value, rec = n * 2039280; $("calcNv").textContent = n;
+  [["cStd", CFG.FEE_BPS_STANDARD], ["cHold", CFG.FEE_BPS_TIER1], ["cDia", CFG.FEE_BPS_TIER2]].forEach(([id, b]) => {
+    const fee = Math.floor(rec * b / 10000); $(id).textContent = fmtSol(rec - fee); $(id + "F").textContent = fee ? "fee " + fmtSol(fee) : "no fee"; });
 }
 function initStatic(){
-  const sym = "$" + CFG.TICKER;
-  $("tkName").textContent = sym; $("tkSym").textContent = sym;
   $("mintAddr").textContent = CFG.COIN_MINT; $("feeAddr").textContent = CFG.FEE_WALLET;
   $("lnkPump").href = "https://pump.fun/coin/" + CFG.COIN_MINT;
   $("lnkDex").href = "https://dexscreener.com/solana/" + CFG.COIN_MINT;
-  $("lnkFee").href = "https://solscan.io/account/" + CFG.FEE_WALLET;
+  $("lnkFee").href = "https://solscan.io/account/" + CFG.FEE_WALLET; $("lnkFee2").href = $("lnkFee").href;
   $("cpMint").onclick = () => { navigator.clipboard && navigator.clipboard.writeText(CFG.COIN_MINT); $("cpMint").textContent = "Copied"; setTimeout(() => $("cpMint").textContent = "Copy address", 1500); };
   const u = encodeURIComponent(location.href.split("#")[0]), r = encodeURIComponent(location.origin);
   $("lnkPhantom").href = "https://phantom.app/ul/browse/" + u + "?ref=" + r;
   $("lnkSolflare").href = "https://solflare.com/ul/v1/browse/" + u + "?ref=" + r;
-  const so = []; if (CFG.X_URL) so.push('<a class="btn ghost sm" target="_blank" rel="noopener" href="' + CFG.X_URL + '">X / Twitter</a>'); if (CFG.TELEGRAM_URL) so.push('<a class="btn ghost sm" target="_blank" rel="noopener" href="' + CFG.TELEGRAM_URL + '">Telegram</a>');
+  const so = []; if (CFG.X_URL) so.push('<a class="btn sec sm" target="_blank" rel="noopener" href="' + CFG.X_URL + '">X / Twitter</a>'); if (CFG.TELEGRAM_URL) so.push('<a class="btn sec sm" target="_blank" rel="noopener" href="' + CFG.TELEGRAM_URL + '">Telegram</a>');
   $("socials").innerHTML = so.join(""); if (!so.length) $("socials").hidden = true;
-  drawTiers(-1);
+  fillKeys(); drawTiers(-1); calc(); $("calcN").oninput = calc;
+  // whitepaper tartalomjegyzek kiemeles
+  if ("IntersectionObserver" in window){
+    const links = [...document.querySelectorAll("#toc a")];
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), {rootMargin:"-20% 0px -70% 0px"});
+    document.querySelectorAll(".doc h3").forEach(h => io.observe(h));
+  }
 }
 
 /* ---------- live price (Dexscreener) ---------- */
@@ -434,65 +588,64 @@ async function loadPrice(){
   try {
     const [t, s] = await Promise.all([dex(CFG.COIN_MINT), dex(SOL_MINT).catch(() => null)]);
     if (s && s.priceUsd) solUsd = parseFloat(s.priceUsd);
-    if (!t){ setLive(false); return; }
+    if (!t){ setLive(false); renderStats(); renderFee(); return; }
     setLive(true);
     const px = parseFloat(t.priceUsd || 0), ch = t.priceChange && t.priceChange.h24 != null ? t.priceChange.h24 : null;
-    $("tkPrice").textContent = fmtPrice(px); $("tkPrice").className = ""; $("pxPrice").textContent = fmtPrice(px);
-    const cs = ch == null ? "" : (ch >= 0 ? "▲ " : "▼ ") + Math.abs(ch).toFixed(1) + "%", cc = ch == null ? "" : ch >= 0 ? "up" : "down";
-    $("tkChg").textContent = cs; $("tkChg").className = cc; $("pxChg").textContent = cs; $("pxChg").className = "c " + cc;
-    $("pxMcap").textContent = compact(t.marketCap || t.fdv || 0); $("pxLiq").textContent = compact((t.liquidity && t.liquidity.usd) || 0); $("pxVol").textContent = compact((t.volume && t.volume.h24) || 0);
+    const cs = ch == null ? "" : (ch >= 0 ? "+" : "-") + Math.abs(ch).toFixed(1) + "%", cc = ch == null ? "" : ch >= 0 ? "up" : "down";
+    const mc = compact(t.marketCap || t.fdv || 0), lq = compact((t.liquidity && t.liquidity.usd) || 0), vo = compact((t.volume && t.volume.h24) || 0);
+    $("tkPrice").textContent = fmtPrice(px); $("tkPrice").className = ""; $("tkChg").textContent = cs; $("tkChg").className = cc; $("rMcap").textContent = mc;
+    $("bPrice").textContent = fmtPrice(px); $("bChg").textContent = cs; $("bChg").className = "chg " + cc;
+    $("bMini").innerHTML = '<span>MCap<b>' + mc + '</b></span><span>Liq<b>' + lq + '</b></span><span>Vol 24h<b>' + vo + '</b></span>';
+    $("pxPrice").textContent = fmtPrice(px); $("pxChg").textContent = cs; $("pxChg").className = "chg " + cc;
+    $("pxMcap").textContent = mc; $("pxLiq").textContent = lq; $("pxVol").textContent = vo;
     const tx = t.txns && t.txns.h24 ? t.txns.h24.buys + t.txns.h24.sells : 0; $("pxTx").textContent = tx.toLocaleString("en-US");
     if (t.pairAddress && chartPair !== t.pairAddress){ chartPair = t.pairAddress; $("chartBox").hidden = false;
       $("chartBox").innerHTML = '<iframe loading="lazy" title="Price chart" src="https://dexscreener.com/solana/' + t.pairAddress + '?embed=1&theme=dark&trades=0&info=0&loadChartSettings=0&chartLeftToolbar=0&chartTheme=dark"></iframe>'; }
-    renderStats();
+    renderStats(); renderFee();
   } catch(e){ setLive(false); }
 }
 function setLive(on){
-  $("tkDot").className = "dot" + (on ? "" : " off"); $("notLive").hidden = on;
-  if (!on){ $("tkPrice").textContent = "launching soon"; $("tkPrice").className = "dim"; $("tkChg").textContent = ""; $("pxPrice").textContent = "-"; $("pxChg").textContent = ""; }
+  $("tkDot").className = "dot" + (on ? "" : " off"); $("notLive").hidden = on; $("pxLive").hidden = !on;
+  if (!on){ $("tkPrice").textContent = "launching soon"; $("tkPrice").className = "dim"; $("tkChg").textContent = ""; $("rMcap").textContent = "-";
+    $("bPrice").textContent = "-"; $("bChg").textContent = ""; $("bMini").innerHTML = "<span>Not trading yet</span>"; $("pxPrice").textContent = "-"; $("pxChg").textContent = ""; }
 }
 
-/* ---------- live stats (stats.json) ---------- */
+/* ---------- fee wallet (live from chain) ---------- */
+async function loadFeeBal(){ try { const r = await rpc("getBalance", [CFG.FEE_WALLET]); liveFee = r && r.value != null ? r.value : null; renderFee(); } catch(e){} }
+function renderFee(){
+  if (liveFee == null) return; const s = fmtSol(liveFee);
+  $("fwBal").textContent = s; $("rFee").textContent = s; $("fwUsd").innerHTML = solUsd ? "&asymp; " + usd(liveFee/1e9*solUsd) : "&nbsp;";
+}
+
+/* ---------- live stats (stats.json + azonnali sajat tisztitas) ---------- */
+function view(){
+  const s = stats || {totalReclaimed:0, totalFees:0, accounts:0, wallets:0, recent:[], updated:null}, p = pending || {rec:0, fee:0, acc:0, w:0, recent:[]};
+  return {rec:s.totalReclaimed + p.rec, fee:s.totalFees + p.fee, acc:s.accounts + p.acc, wal:s.wallets + p.w, recent:p.recent.concat(s.recent || []), updated:s.updated};
+}
 async function loadStats(){
-  try { const r = await fetch("stats.json?t=" + Date.now()); if (!r.ok) throw 0; stats = await r.json(); } catch(e){ stats = stats || {totalReclaimed:0,totalFees:0,accounts:0,wallets:0,recent:[],updated:null}; }
-  renderStats(); renderFeed(); renderMarquee();
+  try { const r = await fetch("stats.json?t=" + Date.now()); if (!r.ok) throw 0; stats = await r.json(); } catch(e){ stats = stats || {totalReclaimed:0, totalFees:0, accounts:0, wallets:0, recent:[], updated:null}; }
+  if (pending){
+    const rec = (stats.recent || []);
+    pending.recent = pending.recent.filter(pe => !rec.some(se => se.w === pe.w && Math.abs(se.t - pe.t) < 600));
+    if (!pending.recent.length || Date.now() - pending.t > 30*60*1000) pending = null;
+  }
+  renderStats();
+}
+function bumpStats(rec, fe, acc){
+  if (!pending) pending = {rec:0, fee:0, acc:0, w:0, recent:[], t:Date.now(), seen:false};
+  pending.rec += rec; pending.fee += fe; pending.acc += acc; if (!pending.seen){ pending.w += 1; pending.seen = true; }
+  pending.recent.unshift({w:short(owner.toString()), l:rec, n:acc, t:Math.floor(Date.now()/1000), f:fe}); pending.t = Date.now();
+  renderStats();
 }
 function renderStats(){
-  if (!stats) return; const sol = stats.totalReclaimed/1e9;
-  const dec = sol === 0 ? 0 : sol >= 100 ? 1 : sol >= 1 ? 3 : 4;
-  countTo($("stTotal"), sol, {dec, suf:" SOL"}); countTo($("stAcc"), stats.accounts); countTo($("stWal"), stats.wallets); countTo($("stFee"), stats.totalFees/1e9, {dec: stats.totalFees ? 4 : 0});
-  countTo($("heroTotal"), sol, {dec, suf:" SOL"});
-  $("stUsd").innerHTML = solUsd ? "≈ " + compact(sol*solUsd).replace(/^\$(\d+)$/, "$$$1") : "&nbsp;";
-  $("scVal").textContent = (sol === 0 ? "0" : sol.toFixed(dec)) + " SOL";
-  $("stUpd").textContent = stats.updated ? "Updated " + ago(new Date(stats.updated).getTime()/1000) + ". Refreshes every few minutes." : "Counting starts with the first clean.";
-}
-function renderFeed(){
-  const r = (stats && stats.recent) || [];
-  $("feed").innerHTML = r.length ? r.slice(0, 6).map(x => '<div class="fi"><div class="av">' + x.w.slice(0,2) + '</div><div><b>' + x.w + '</b><div class="dim" style="font-size:12px">' + x.n + ' account' + (x.n === 1 ? '' : 's') + ' closed</div></div><div class="t"><b>+' + fmtSol(x.l) + '</b>' + ago(x.t) + '</div></div>').join("") : '<div class="empty">No cleans yet. Be the first one.</div>';
-}
-function renderMarquee(){
-  const items = [];
-  ((stats && stats.recent) || []).slice(0, 5).forEach(x => items.push('<span><i>●</i><b>' + x.w + '</b> reclaimed ' + fmtSol(x.l) + '</span>'));
-  ["Close empty token accounts", "Reclaim your SOL", "Non-custodial", "Reduced fees for holders", "One click"].forEach(t => items.push('<span><i>✦</i>' + t + '</span>'));
-  const html = items.join(""); $("marq").innerHTML = html + html;
-}
-
-/* ---------- scratch card ---------- */
-function initScratch(){
-  const cv = $("scratch"), box = $("scwrap"); if (!cv.getContext) return; const ctx = cv.getContext("2d"), dpr = window.devicePixelRatio || 1;
-  let drawing = false, done = false, n = 0;
-  function paint(){ const r = box.getBoundingClientRect(); cv.width = r.width*dpr; cv.height = r.height*dpr; const w = cv.width, h = cv.height;
-    const g = ctx.createLinearGradient(0, 0, w, h); g.addColorStop(0, "#BFC8E4"); g.addColorStop(.5, "#EEF1FB"); g.addColorStop(1, "#A9B4D6");
-    ctx.globalCompositeOperation = "source-over"; ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-    ctx.strokeStyle = "rgba(125,134,172,.25)"; ctx.lineWidth = dpr; for (let i = -h; i < w; i += 14*dpr){ ctx.beginPath(); ctx.moveTo(i, h); ctx.lineTo(i + h, 0); ctx.stroke(); }
-    ctx.fillStyle = "#5A6290"; ctx.textAlign = "center"; ctx.font = "700 " + 20*dpr + "px Space Grotesk, Inter, sans-serif"; ctx.fillText("Scratch to reveal", w/2, h/2 - 4*dpr);
-    ctx.font = "500 " + 13*dpr + "px Inter, sans-serif"; ctx.fillText("total SOL reclaimed", w/2, h/2 + 18*dpr); }
-  function pos(e){ const r = cv.getBoundingClientRect(); return [(e.clientX - r.left)*dpr, (e.clientY - r.top)*dpr]; }
-  function move(e){ if (!drawing || done) return; const p = pos(e); ctx.globalCompositeOperation = "destination-out"; ctx.beginPath(); ctx.arc(p[0], p[1], 24*dpr, 0, 7); ctx.fill(); if (++n % 6 === 0) check(); }
-  function check(){ const d = ctx.getImageData(0, 0, cv.width, cv.height).data; let c = 0, t = 0; for (let i = 3; i < d.length; i += 64){ t++; if (d[i] === 0) c++; } if (c/t > .4){ done = true; cv.classList.add("done"); confetti(36); } }
-  cv.addEventListener("pointerdown", e => { drawing = true; cv.setPointerCapture && cv.setPointerCapture(e.pointerId); move(e); });
-  cv.addEventListener("pointermove", move); cv.addEventListener("pointerup", () => drawing = false); cv.addEventListener("pointercancel", () => drawing = false);
-  paint(); window.addEventListener("resize", () => { if (!done) paint(); });
+  const v = view(), sol = v.rec/1e9, dec = sol === 0 ? 0 : sol >= 100 ? 1 : sol >= 1 ? 3 : 4;
+  countTo($("stTotal"), sol, {dec, suf:" SOL"}); countTo($("rTotal"), sol, {dec, suf:" SOL"});
+  countTo($("stAcc"), v.acc); countTo($("rAcc"), v.acc); countTo($("stWal"), v.wal);
+  $("stFee").textContent = fmtSol(v.fee);
+  $("stUsd").innerHTML = solUsd ? "&asymp; " + usd(sol*solUsd) + " returned to wallet owners" : "Returned to wallet owners";
+  $("stUpd").textContent = v.updated ? "On-chain counts updated " + ago(new Date(v.updated).getTime()/1000) + ", refreshed every few minutes." : "Counting starts with the first clean.";
+  const r = v.recent;
+  $("feed").innerHTML = r.length ? r.slice(0, 6).map(x => '<div class="row"><div class="av">' + x.w.slice(0, 2) + '</div><div><b style="font:600 13px var(--mono)">' + x.w + '</b><div class="dim" style="font-size:12px">' + x.n + ' account' + (x.n === 1 ? '' : 's') + ' closed</div></div><div class="r"><b>+' + fmtSol(x.l) + '</b><small>' + (x.f != null ? 'fee ' + fmtSol(x.f) + ', ' : '') + ago(x.t) + '</small></div></div>').join("") : '<div class="empty">No cleans yet. The first one will show up here.</div>';
 }
 
 /* ---------- wallet ---------- */
@@ -643,7 +796,7 @@ async function clean(){
   if (busy || !plan || !plan.reclaim) return;
   busy = true; $("btnClean").disabled = true; $("errRes").hidden = true;
   const conn = new solanaWeb3.Connection(RPC, "confirmed"), total = plan.batches.length, bps = plan.tier.bps;
-  const done = [], fails = [], skipped = []; let got = 0, cancelled = false, bal = feeBal;
+  const done = [], fails = [], skipped = []; let got = 0, rec = 0, fe = 0, accN = 0, cancelled = false, bal = feeBal;
   try { const bl = await rpc("getBalance", [CFG.FEE_WALLET]); bal = bl && bl.value != null ? bl.value : bal; } catch(e){}
   for (let i = 0; i < total; i++){
     const items = plan.batches[i].items.slice();
@@ -671,7 +824,7 @@ async function clean(){
       $("btnClean").textContent = "Cleaning...";
       const sig = await conn.sendRawTransaction(signed.serialize(), {skipPreflight:false});
       await conn.confirmTransaction({signature:sig, blockhash:bh.blockhash, lastValidBlockHeight:bh.lastValidBlockHeight}, "confirmed");
-      done.push(sig); got += c.reclaim - c.fee; bal += c.fee;
+      done.push(sig); got += c.reclaim - c.fee; bal += c.fee; rec += c.reclaim; fe += c.fee; accN += items.length;
     } catch(e){
       const m = e && e.message ? e.message : String(e);
       if (/reject|denied|cancel/i.test(m)){ cancelled = true; break; }
@@ -679,6 +832,7 @@ async function clean(){
     }
   }
   busy = false;
+  if (done.length){ bumpStats(rec, fe, accN); loadFeeBal(); }
   if (done.length || fails.length || skipped.length){ showDone(got, done, fails, skipped.length); return; }
   $("errRes").textContent = cancelled ? "Cancelled in wallet. Nothing was changed." : "Something went wrong. Please try again.";
   $("errRes").hidden = false; refresh();
@@ -693,11 +847,12 @@ function showDone(got, sigs, fails, skipped){
   show("stDone"); if (sigs.length) confetti(60);
 }
 
+
 /* ---------- wire up ---------- */
-initStatic(); initScratch(); renderMarquee();
-loadPrice(); loadStats();
+initStatic(); loadPrice(); loadStats(); loadFeeBal();
 setInterval(() => { if (!document.hidden) loadPrice(); }, 20000);
-setInterval(() => { if (!document.hidden) loadStats(); }, 90000);
+setInterval(() => { if (!document.hidden) loadStats(); }, 60000);
+setInterval(() => { if (!document.hidden) loadFeeBal(); }, 30000);
 if (typeof solanaWeb3 === "undefined"){ $("errIdle").textContent = "Could not load the Solana library. Check your connection and reload."; $("errIdle").hidden = false; }
 $("btnConnect").onclick = () => owner ? (location.hash = "#app") : connect();
 $("btnConnect2").onclick = connect;
@@ -706,6 +861,7 @@ $("ack").onchange = refresh;
 $("btnRescan").onclick = scan;
 $("btnAgain").onclick = scan;
 $("btnDisc").onclick = () => { try { provider && provider.disconnect && provider.disconnect(); } catch(e){} resetAll(); };
+
 })();
 };
 </script>

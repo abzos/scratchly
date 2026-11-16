@@ -12,8 +12,10 @@ async function rpc(method, params) {
   for (let i = 0; i < 4; i++) {
     try {
       const r = await fetch(RPC, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: ++rid, method, params }) });
-      if (r.status === 429) { await sleep(1500 * (i + 1)); continue; }
-      const j = await r.json();
+      if (r.status === 429) { await sleep(1500 * (i + 1)); if (i === 3) throw new Error("HTTP 429 (rate limit)"); continue; }
+      const txt = await r.text();
+      if (!r.ok) throw new Error("HTTP " + r.status + ": " + txt.slice(0, 100).replace(/\s+/g, " "));
+      let j; try { j = JSON.parse(txt); } catch (e) { throw new Error("Bad response: " + txt.slice(0, 100).replace(/\s+/g, " ")); }
       if (j.error) throw new Error(j.error.message);
       return j.result;
     } catch (e) { if (i === 3) throw e; await sleep(1000 * (i + 1)); }
@@ -21,7 +23,7 @@ async function rpc(method, params) {
 }
 const short = s => s.slice(0, 4) + "..." + s.slice(-4);
 
-(async () => {
+async function main() {
   let S = { totalReclaimed: 0, totalFees: 0, accounts: 0, wallets: 0, lastSig: null, recent: [], updated: null, _seen: [] };
   try { S = Object.assign(S, JSON.parse(fs.readFileSync("stats.json", "utf8"))); } catch (e) {}
   const seen = new Set(S._seen);
@@ -62,13 +64,23 @@ const short = s => s.slice(0, 4) + "..." + s.slice(-4);
     S.totalFees += fee;
     S.accounts += closed;
     if (dest) seen.add(dest);
-    S.recent.unshift({ w: dest ? short(dest) : "unknown", l: reclaimed, n: closed, t: tx.blockTime });
+    S.recent.unshift({ w: dest ? short(dest) : "unknown", l: reclaimed, n: closed, t: tx.blockTime, f: fee });
     S.recent = S.recent.slice(0, 10);
   }
   if (batch.length) S.lastSig = batch[batch.length - 1].signature;
   S.wallets = seen.size;
   S._seen = [...seen];
-  S.updated = new Date().toISOString();
+  S.updated = new Date().toISOString(); delete S.error; delete S.errorAt;
   fs.writeFileSync("stats.json", JSON.stringify(S));
   console.log("done:", S.totalReclaimed, "lamports,", S.accounts, "accounts,", S.wallets, "wallets");
-})().catch(e => { console.error(e); process.exit(1); });
+}
+main().catch(e => {
+  // a hibat beleirjuk a stats.json-ba, igy az oldalon (app.scratchly.cfd/stats.json) is lathato
+  console.error(e);
+  let S = {}; try { S = JSON.parse(fs.readFileSync("stats.json", "utf8")); } catch (x) {}
+  let host = "?"; try { host = new URL(RPC).host; } catch (x) { host = "invalid RPC url"; }
+  S.error = String(e && e.message ? e.message : e).slice(0, 300) + " [rpc: " + host + "]";
+  S.errorAt = new Date().toISOString();
+  fs.writeFileSync("stats.json", JSON.stringify(S));
+  process.exit(0);
+});
