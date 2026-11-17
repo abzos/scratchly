@@ -248,6 +248,30 @@ footer .brand{margin-bottom:10px;color:#fff}
 
 .kp b span{display:inline;color:inherit;font-size:inherit;line-height:inherit}
 
+/* prioritas, advanced eszkozok, verify, dev */
+.prio{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;font-size:13.5px}
+.seg{display:inline-flex;background:#08081A;border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;color:var(--mut);font:600 13px Inter;padding:7px 14px;border-radius:8px;cursor:pointer}
+.seg button.on{background:var(--grad);color:#05050C}
+.advtools{display:flex;gap:8px;margin:6px 0}
+.tok .amt small{display:block;font:500 11.5px Inter;color:var(--dim);margin-top:1px}
+.tok .amt small.hv{color:var(--warn)}.tok .amt small.dust{color:var(--ok)}
+.vgrid{display:grid;gap:12px;margin-top:20px}
+.vcard{padding:22px;border-radius:22px}
+.vcard h3{font:600 17px var(--disp);letter-spacing:-.02em;margin-bottom:10px}
+.prog{display:grid;gap:6px;padding:12px 0;border-top:1px solid var(--line)}
+.prog:first-of-type{border-top:0}
+.prog b{font-size:14.5px}.prog small{display:block;color:var(--mut);font-size:12.5px;line-height:1.4}
+.prog code{font:500 12px var(--mono);color:#C9D0F0;word-break:break-all;background:#08081A;border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.prog .btn{justify-self:start}
+.vsteps{margin-left:20px;color:#C6CCEA;font-size:14.5px;line-height:1.6}.vsteps li{margin:8px 0}
+.cl{display:grid;gap:16px}
+.clr{display:grid;grid-template-columns:76px 1fr;gap:12px}
+.clr .d b{display:block;font:600 14px var(--mono);color:#fff}.clr .d small{color:var(--dim);font-size:12px}
+.clr ul{list-style:none;display:grid;gap:5px;font-size:14px;color:#D0D5F0}
+.clr li:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--v);margin-right:9px;vertical-align:middle}
+@media(min-width:900px){.vgrid{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
@@ -255,7 +279,7 @@ footer .brand{margin-bottom:10px;color:#fff}
 
 <header class="nav"><div class="wrap">
   <a class="brand" href="#top"><img src="logo.png" alt="Scratchly logo">scratchly</a>
-  <nav class="links"><a href="#app">Cleaner</a><a href="#stats">Live stats</a><a href="#fees">Fees</a><a href="#token">Token</a><a href="#roadmap">Roadmap</a><a href="#whitepaper">Whitepaper</a></nav>
+  <nav class="links"><a href="#app">Cleaner</a><a href="#stats">Live stats</a><a href="#fees">Fees</a><a href="#token">Token</a><a href="#verify">Verify</a><a href="#roadmap">Roadmap</a><a href="#whitepaper">Whitepaper</a></nav>
   <button class="btn pri sm" id="btnConnect">Connect wallet</button>
 </div></header>
 <div class="rail"><div class="rail-in">
@@ -303,7 +327,9 @@ footer .brand{margin-bottom:10px;color:#fff}
         <div class="row2 total"><span>You receive</span><b class="ok" id="sNet">-</b></div>
       </div>
       <p class="dim" style="font-size:12.5px;margin-top:6px" id="feeNote"></p>
-      <div style="margin-top:16px"><button class="btn pri" id="btnClean" style="width:100%">Clean wallet</button></div>
+      <div class="prio"><span class="muted">Network priority</span><div class="seg"><button type="button" class="on" id="prio0">Standard</button><button type="button" id="prio1">Fast</button></div></div>
+      <p class="dim" style="font-size:12px;margin:2px 0 0" id="prioNote">Standard uses no priority fee.</p>
+      <div style="margin-top:14px"><button class="btn pri" id="btnClean" style="width:100%">Clean wallet</button></div>
       <p class="err" id="errRes" hidden></p>
       <details id="adv" class="adv">
         <summary>
@@ -314,6 +340,9 @@ footer .brand{margin-bottom:10px;color:#fff}
         </summary>
         <div class="advBody">
           <div class="warn">Burning is permanent. Only select tokens you are sure are worthless. Everything here is unselected by default.</div>
+          <div class="advtools"><button class="btn sec sm" id="btnDust" type="button">Select likely dust</button><button class="btn sec sm" id="btnClear" type="button">Clear</button></div>
+          <p class="dim" style="font-size:12px;margin:6px 0" id="priceNote"></p>
+          <div class="warn" id="valWarn" hidden></div>
           <div id="burnList"></div>
           <label class="tok" style="margin-top:4px"><input type="checkbox" id="ack"><span style="font-size:13.5px">I understand that burning cannot be undone</span></label>
         </div>
@@ -383,17 +412,36 @@ footer .brand{margin-bottom:10px;color:#fff}
   </div>
 </div></section>
 
+<section class="s" id="verify"><div class="wrap">
+  <h2 class="sec">Verify what you sign</h2>
+  <p class="sub">Scratchly only ever uses four standard Solana programs. Compare them with your wallet prompt before you approve.</p>
+  <div class="vgrid">
+    <div class="glass vcard"><h3>Programs used</h3><div id="progList"></div></div>
+    <div class="glass vcard"><h3>Check it in four steps</h3>
+      <ol class="vsteps">
+        <li>Make sure the address bar says <b>app.scratchly.cfd</b>.</li>
+        <li>In your wallet prompt, check that every instruction belongs to the programs on the left.</li>
+        <li>Check that the only SOL transfer goes to the fee wallet below, and matches the fee on screen.</li>
+        <li>If anything else appears, reject the request.</li>
+      </ol>
+      <div class="muted" style="font-size:13px;margin-top:14px">Fee wallet</div>
+      <div class="addr" id="feeAddr2"></div>
+      <div class="links-row" style="margin-top:12px" id="srcLink"><button class="btn sec sm" data-open="wp-security" type="button">Read the security model</button></div>
+    </div>
+  </div>
+</div></section>
+
 <section class="s" id="roadmap"><div class="wrap">
   <h2 class="sec">Roadmap</h2>
   <p class="sub">Five tracks, three horizons. A statement of direction, not a promise of dates.</p>
-  <div class="rm"><div class="head"><span>Track</span><span>Now</span><span>Next</span><span>Later</span></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></i><div><b>Product</b><small>What users can do</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Empty account cleaner for Token and Token-2022</li><li class="live">Advanced burn and close, opt-in per token</li><li class="live">Automatic harvest of withheld Token-2022 fees</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Dust detection with price data, to flag low-value tokens</li><li class="plan">Cleanup of empty NFT and edition accounts</li><li class="plan">Priority fee options for busy network hours</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Read-only multi-wallet overview</li><li class="plan">Scheduled scans with reminders</li><li class="">Cleanup of other reclaimable Solana accounts</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></i><div><b>Security and trust</b><small>How we earn confidence</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Transaction simulation before every signature</li><li class="live">Explicit compute budget on each transaction</li><li class="live">Single signer, fee shown before signing</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Wallet review requests to remove new-site warnings</li><li class="plan">Public source code and verification guide</li><li class="plan">Independent security review</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Bug bounty program</li><li class="">Guided flow for hardware wallets</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9.500c0-1 1-1.500 3-1.500s3 .7 3 1.800c0 2.200-6 1.200-6 3.700 0 1.100 1.200 1.800 3 1.800s3-.5 3-1.600"/></svg></i><div><b>Token and fees</b><small>What holding does</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Holder tiers at 9%, 4% and 0%</li><li class="live">Public fee wallet with live balance</li><li class="live">Fee and token metrics on the site</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Published fee-use policy</li><li class="plan">Public log of fee-wallet movements</li><li class="build">On-chain verified tier check in the app</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Buyback policy based on fee revenue, with proof</li><li class="">Extra holder perks inside the app</li><li class="">Referral rewards</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.5-4 3-6 6.500-6s6 2 6.500 6"/><path d="M16 5a3.500 3.500 0 010 6.500M18.500 14.500c2 .7 3 2.500 3.200 5.500"/></svg></i><div><b>Community and growth</b><small>How the project spreads</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Live stats and share card after each clean</li><li class="build">Launch campaign and educational posts</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Embeddable stats widget for partner sites</li><li class="plan">Community ambassadors</li><li class="plan">Public changelog</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Localized versions of the app</li><li class="">Community-led translations and guides</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.500"/><circle cx="18" cy="6" r="2.500"/><circle cx="18" cy="18" r="2.500"/><path d="M8.300 11l7.400-4M8.300 13l7.400 4"/></svg></i><div><b>Ecosystem</b><small>Where Scratchly connects</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Works with Phantom, Solflare and Backpack</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Embeddable Clean wallet widget for other dapps</li><li class="plan">Public read-only API for stats</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Wallet and analytics integrations</li><li class="">Hygiene tools for other networks, such as approval revokes on EVM chains</li></ul></div></div></div>
+  <div class="rm"><div class="head"><span>Track</span><span>Now</span><span>Next</span><span>Later</span></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></i><div><b>Product</b><small>What users can do</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Empty account cleaner for Token and Token-2022</li><li class="live">Advanced burn and close, opt-in per token</li><li class="live">Automatic harvest of withheld Token-2022 fees</li><li class="live">Market value and dust hints in Advanced</li><li class="live">Network priority option: Standard or Fast</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Cleanup of empty NFT and edition accounts</li><li class="plan">More price sources for dust detection</li><li class="plan">Saved preferences</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Read-only multi-wallet overview</li><li class="plan">Scheduled scans with reminders</li><li class="">Cleanup of other reclaimable Solana accounts</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></i><div><b>Security and trust</b><small>How we earn confidence</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Transaction simulation before every signature</li><li class="live">Explicit compute budget on each transaction</li><li class="live">Single signer, fee shown before signing</li><li class="live">Verify panel listing every program used</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Wallet review requests to remove new-site warnings</li><li class="build">Source code publication and verification notes</li><li class="plan">Independent security review</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Bug bounty program</li><li class="">Guided flow for hardware wallets</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9.500c0-1 1-1.500 3-1.500s3 .7 3 1.800c0 2.200-6 1.200-6 3.700 0 1.100 1.200 1.800 3 1.800s3-.5 3-1.600"/></svg></i><div><b>Token and fees</b><small>What holding does</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Holder tiers at 9%, 4% and 0%</li><li class="live">Public fee wallet with live balance</li><li class="live">Fee and token metrics on the site</li><li class="live">Fee amount shown for every clean in the public feed</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Published fee-use policy</li><li class="plan">Public log of fee-wallet movements</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Buyback policy based on fee revenue, with proof</li><li class="">Extra holder perks inside the app</li><li class="">Referral rewards</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.5-4 3-6 6.500-6s6 2 6.500 6"/><path d="M16 5a3.500 3.500 0 010 6.500M18.500 14.500c2 .7 3 2.500 3.200 5.500"/></svg></i><div><b>Community and growth</b><small>How the project spreads</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Live stats and share card after each clean</li><li class="live">Public changelog</li><li class="live">Embeddable live counter widget</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Launch campaign and educational posts</li><li class="plan">Community ambassadors</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Localized versions of the app</li><li class="">Community-led translations and guides</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.500"/><circle cx="18" cy="6" r="2.500"/><circle cx="18" cy="18" r="2.500"/><path d="M8.300 11l7.400-4M8.300 13l7.400 4"/></svg></i><div><b>Ecosystem</b><small>Where Scratchly connects</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Works with Phantom, Solflare and Backpack</li><li class="live">Public read-only stats JSON</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Embeddable Clean wallet widget for other dapps</li><li class="plan">Wallet and analytics integrations</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Hygiene tools for other networks, such as approval revokes on EVM chains</li></ul></div></div></div>
   <div class="legend"><span><i style="background:var(--ok)"></i>Live</span><span><i style="background:var(--c)"></i>In progress</span><span><i style="background:var(--v)"></i>Planned</span><span><i style="background:var(--dim)"></i>Exploring</span></div>
 </div></section>
 
 <section class="s" id="whitepaper"><div class="wrap">
   <div class="wpcard glass">
     <div class="wpc-head">
-      <div><h2 class="sec" style="font-size:clamp(24px,4vw,34px)">Whitepaper</h2><p class="sub" style="margin-top:8px">Version 1.0, November 2026. Eleven short sections, about 8 pages.</p></div>
+      <div><h2 class="sec" style="font-size:clamp(24px,4vw,34px)">Whitepaper</h2><p class="sub" style="margin-top:8px">Version 1.1, November 2026. Eleven short sections, about 8 pages.</p></div>
       <div class="links-row"><button class="btn pri" data-open="">Read online</button><a class="btn sec" href="whitepaper.pdf" target="_blank" rel="noopener" download>Download PDF</a></div>
     </div>
     <div class="wpc-grid">
@@ -402,6 +450,25 @@ footer .brand{margin-bottom:10px;color:#fff}
       <button class="kp" data-open="wp-token"><small>Why the token</small><b>Your balance sets your tier</b><span>No staking and no lock-up. Hold more, pay less.</span></button>
       <button class="kp" data-open="wp-security"><small>How it stays safe</small><b>No custody, simulated first</b><span>One signer, every transaction checked before you sign it.</span></button>
     </div>
+  </div>
+</div></section>
+
+<section class="s" id="dev"><div class="wrap">
+  <h2 class="sec">Embed, API and changelog</h2>
+  <p class="sub">Show the live counter on your own site, read the public stats, and follow what changed.</p>
+  <div class="vgrid">
+    <div class="glass vcard"><h3>Live counter widget</h3><p class="muted" style="font-size:14px;margin:6px 0">Drop this on any page.</p>
+      <div class="addr" id="embedCode"></div>
+      <div class="links-row" style="margin-top:12px"><button class="btn sec sm" id="cpEmbed" type="button">Copy code</button><a class="btn sec sm" href="widget.html" target="_blank" rel="noopener">Preview</a></div>
+      <h3 style="margin-top:22px">Public stats JSON</h3><p class="muted" style="font-size:14px;margin:6px 0">Read-only, no key needed.</p>
+      <div class="addr" id="jsonUrl"></div>
+      <div class="links-row" style="margin-top:12px"><button class="btn sec sm" id="cpJson" type="button">Copy URL</button><a class="btn sec sm" href="stats.json" target="_blank" rel="noopener">Open</a></div></div>
+    <div class="glass vcard"><h3>Changelog</h3><div class="cl">
+      <div class="clr"><div class="d"><b>v1.1</b><small>Nov 2026</small></div><ul><li>Market value and dust hints in Advanced</li><li>Network priority option: Standard or Fast</li><li>Verify panel with every program used</li><li>Embeddable live counter and public stats JSON</li><li>Public changelog</li></ul></div>
+      <div class="clr"><div class="d"><b>v1.0</b><small>Nov 2026</small></div><ul><li>New design with live stats, token price and fee wallet balance</li><li>Fees reduced to 9% / 4% / 0%</li><li>Whitepaper and roadmap</li></ul></div>
+      <div class="clr"><div class="d"><b>v0.9</b><small>Nov 2026</small></div><ul><li>Simulation before every signature, explicit compute budget</li><li>Token-2022 withheld fee harvest, unclosable accounts skipped</li></ul></div>
+      <div class="clr"><div class="d"><b>v0.1</b><small>Nov 2026</small></div><ul><li>Wallet cleaner for empty token accounts, holder fee tiers</li></ul></div>
+    </div></div>
   </div>
 </div></section>
 
@@ -420,7 +487,7 @@ footer .brand{margin-bottom:10px;color:#fff}
 
 <div class="reader" id="wpReader" hidden role="dialog" aria-modal="true" aria-label="Scratchly whitepaper">
   <div class="reader-in">
-    <div class="reader-bar"><div><b>Scratchly whitepaper</b><small>Version 1.0 - November 2026</small></div><div class="links-row"><a class="btn sec sm" href="whitepaper.pdf" target="_blank" rel="noopener" download>PDF</a><button class="btn pri sm" id="wpClose">Close</button></div></div>
+    <div class="reader-bar"><div><b>Scratchly whitepaper</b><small>Version 1.1 - November 2026</small></div><div class="links-row"><a class="btn sec sm" href="whitepaper.pdf" target="_blank" rel="noopener" download>PDF</a><button class="btn pri sm" id="wpClose">Close</button></div></div>
     <div class="wp-body"><nav class="toc" id="toc"><a href="#wp-abstract">Abstract</a><a href="#wp-problem">The problem</a><a href="#wp-solution">The solution</a><a href="#wp-how">How it works</a><a href="#wp-security">Security and trust model</a><a href="#wp-fees">Fee model</a><a href="#wp-token">The token</a><a href="#wp-transparency">Transparency and metrics</a><a href="#wp-roadmap">Roadmap</a><a href="#wp-risks">Risks</a><a href="#wp-disclaimer">Disclaimer</a></nav><article class="doc"><h3 id="wp-abstract">Abstract</h3>
 <p>Scratchly is a non-custodial utility for Solana wallets. It finds empty token accounts, closes them, and returns the SOL deposit locked inside to the wallet owner. A small fee, taken only from the SOL that is released, funds the product. Holding the project token <span data-k="ticker">$SCR</span> lowers that fee to <span data-k="hold">4%</span> or <span data-k="dia">0%</span>.</p>
 <p>This paper describes the problem, the mechanism, the fee model, the trust model, the role of the token, and the roadmap. It is written to be checked: every claim about how the product behaves can be verified on-chain or in the open transaction flow of the app.</p>
@@ -436,7 +503,7 @@ footer .brand{margin-bottom:10px;color:#fff}
 
 <h3 id="wp-solution">The solution</h3>
 <p>Scratchly reads the connected wallet, lists what can be reclaimed, builds the transactions, and shows one plain summary before anything is signed: SOL returned, fee, and what the user receives. The rent returns to the owner's wallet inside the same transaction that pays the fee. There is no deposit, no account, and no custody.</p>
-<p>The product has two modes. <b>Quick clean</b> closes empty accounts and is the default. <b>Advanced</b> lets the user burn tokens they no longer want and close those accounts too. Nothing in Advanced is selected by default, and burning requires an explicit confirmation.</p>
+<p>The product has two modes. <b>Quick clean</b> closes empty accounts and is the default. <b>Advanced</b> lets the user burn tokens they no longer want and close those accounts too. Nothing in Advanced is selected by default, and burning requires an explicit confirmation. Where a market price exists, Advanced shows the value next to each token and can pre-select likely dust, so valuable tokens are not burned by mistake.</p>
 
 <h3 id="wp-how">How it works</h3>
 <ol>
@@ -444,7 +511,7 @@ footer .brand{margin-bottom:10px;color:#fff}
 <li><b>Scan.</b> It queries all token accounts owned by the address under both the classic Token program and Token-2022. Accounts are sorted into empty, holding a balance, or frozen. Frozen accounts are never touched. Token-2022 accounts with withheld transfer fees are flagged.</li>
 <li><b>Plan.</b> Closures are grouped into transactions of up to 18 closes (up to 7 when burning). The fee is calculated per transaction from the SOL being released.</li>
 <li><b>Simulate.</b> Every transaction is simulated against the network before the wallet is asked to sign. If one account cannot be closed, it is dropped automatically and the rest continue. The result sets an explicit compute budget.</li>
-<li><b>Sign.</b> The only signer is the user's wallet. Each transaction is a separate prompt, so every approval matches what the user sees on screen.</li>
+<li><b>Sign.</b> The only signer is the user's wallet. Each transaction is a separate prompt, so every approval matches what the user sees on screen. An optional Fast setting adds a small priority fee for busy network hours.</li>
 <li><b>Send and confirm.</b> The signed transaction goes to the network with preflight checks on. The app shows the transaction links.</li>
 <li><b>Record.</b> Public statistics are derived from the on-chain transactions that involve the fee wallet.</li>
 </ol>
@@ -567,6 +634,54 @@ function confetti(n){
   for (let i = 0; i < (n || 46); i++){ const d = document.createElement("div"); d.className = "cf"; d.style.left = Math.random()*100 + "vw"; d.style.background = cols[i % 5];
     d.style.animationDuration = (2 + Math.random()*2) + "s"; d.style.animationDelay = Math.random()*.4 + "s"; document.body.appendChild(d); setTimeout(() => d.remove(), 4800); }
 }
+
+let prio = 0; const prices = {}; const PRIO_MICRO = 100000;
+const PROGRAMS = [
+  {n:"Token Program", a:"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", u:"Closes empty accounts and burns tokens you select."},
+  {n:"Token-2022 Program", a:"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb", u:"The same for Token-2022 accounts, plus harvesting withheld fees."},
+  {n:"System Program", a:"11111111111111111111111111111111", u:"One SOL transfer: the fee, sent to the fee wallet."},
+  {n:"Compute Budget", a:"ComputeBudget111111111111111111111111111111", u:"Sets the compute limit and the optional priority fee."}];
+const fmtVal = n => n < 0.01 ? "< $0.01" : usd(n);
+function copyTxt(s, btn){ navigator.clipboard && navigator.clipboard.writeText(s); if (btn){ const o = btn.textContent; btn.textContent = "Copied"; setTimeout(() => btn.textContent = o, 1400); } }
+function initVerify(){
+  $("progList").innerHTML = PROGRAMS.map(p => '<div class="prog"><div><b>' + p.n + '</b><small>' + p.u + '</small></div><code>' + p.a + '</code><button class="btn sec sm" type="button" data-copy="' + p.a + '">Copy</button></div>').join("");
+  document.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyTxt(b.dataset.copy, b));
+  $("feeAddr2").textContent = CFG.FEE_WALLET;
+  if (CFG.REPO_URL) $("srcLink").insertAdjacentHTML("afterbegin", '<a class="btn pri sm" target="_blank" rel="noopener" href="' + CFG.REPO_URL + '">View source code</a>');
+  const embed = '<iframe src="' + location.origin + '/widget.html" width="320" height="150" style="border:0;border-radius:16px" loading="lazy"></iframe>';
+  $("embedCode").textContent = embed; $("jsonUrl").textContent = location.origin + "/stats.json";
+  $("cpEmbed").onclick = () => copyTxt(embed, $("cpEmbed")); $("cpJson").onclick = () => copyTxt(location.origin + "/stats.json", $("cpJson"));
+}
+function renderBurnList(){
+  $("burnList").innerHTML = withBal.length ? withBal.map((x, i) => {
+    const val = x.value != null ? '<small class="' + (x.value >= 1 ? 'hv' : x.value < 0.01 ? 'dust' : '') + '">' + (x.value >= 1 ? 'Worth ' : '') + fmtVal(x.value) + '</small>' : x.priced ? '<small>No market price</small>' : '';
+    return '<label class="tok"><input type="checkbox" data-i="' + i + '"><span class="mint">' + short(x.mint) + '</span><span class="amt">' + fmtTok(x.ui) + val + '</span></label>'; }).join("") : '<p class="muted" style="font-size:14px;padding:8px 0">No other tokens found.</p>';
+  document.querySelectorAll("#burnList input").forEach(c => c.onchange = refresh);
+}
+async function priceTokens(){
+  const mints = [...new Set(withBal.map(x => x.mint))];
+  $("priceNote").textContent = mints.length ? "Looking up market prices..." : "";
+  try {
+    for (let i = 0; i < mints.length; i += 30){
+      const part = mints.slice(i, i + 30), r = await fetch("https://api.dexscreener.com/latest/dex/tokens/" + part.join(",")), j = await r.json();
+      (j.pairs || []).filter(p => p.chainId === "solana" && p.baseToken && part.includes(p.baseToken.address)).forEach(p => {
+        const cur = prices[p.baseToken.address], liq = (p.liquidity && p.liquidity.usd) || 0;
+        if (!cur || liq > cur.liq) prices[p.baseToken.address] = {px:parseFloat(p.priceUsd || 0), liq}; });
+    }
+  } catch(e){}
+  withBal.forEach(x => { x.priced = true; const p = prices[x.mint]; x.value = p && p.px ? x.ui * p.px : null; });
+  const keep = [...document.querySelectorAll("#burnList input:checked")].map(c => +c.dataset.i);
+  renderBurnList(); keep.forEach(i => { const el = document.querySelector('#burnList input[data-i="' + i + '"]'); if (el) el.checked = true; });
+  const n = withBal.filter(x => x.value != null).length;
+  $("priceNote").textContent = withBal.length ? n + " of " + withBal.length + " tokens have a market price. Tokens without one are never selected automatically." : "";
+  refresh();
+}
+function updateValWarn(){
+  const sel = [...document.querySelectorAll("#burnList input:checked")].map(c => withBal[+c.dataset.i]).filter(Boolean);
+  const total = sel.reduce((s, x) => s + (x.value || 0), 0), w = $("valWarn");
+  if (total >= 0.5){ w.textContent = "The tokens you selected are worth about " + usd(total) + " in total. Burning is permanent."; w.hidden = false; } else w.hidden = true;
+}
+function setPrio(v){ prio = v; $("prio0").classList.toggle("on", !v); $("prio1").classList.toggle("on", !!v); $("prioNote").textContent = v ? "Fast adds a small priority fee, under 0.00001 SOL per transaction." : "Standard uses no priority fee."; }
 
 /* ---------- static content ---------- */
 function fillKeys(){
@@ -766,12 +881,11 @@ function renderRes(){
   $("tierBadge").textContent = t.name + " tier - " + pct(t.bps) + " fee"; $("tierBadge").className = "badge " + t.cls;
   drawTiers(t.idx);
   $("advCount").textContent = withBal.length;
-  $("burnList").innerHTML = withBal.length ? withBal.map((x, i) => '<label class="tok"><input type="checkbox" data-i="' + i + '"><span class="mint">' + short(x.mint) + '</span><span class="amt">' + fmtTok(x.ui) + '</span></label>').join("") : '<p class="muted" style="font-size:14px;padding:8px 0">No other tokens found.</p>';
-  document.querySelectorAll("#burnList input").forEach(c => c.onchange = refresh);
+  renderBurnList(); priceTokens();
   refresh();
 }
 function refresh(){
-  plan = buildPlan(selectedBurn());
+  updateValWarn(); plan = buildPlan(selectedBurn());
   const nEmpty = empties.length, nBurn = plan.batches.reduce((s, b) => s + b.items.length, 0) - nEmpty;
   $("bigSol").textContent = fmtSol(plan.net);
   $("bigSub").textContent = nEmpty + " empty account" + (nEmpty === 1 ? "" : "s") + (nBurn > 0 ? " + " + nBurn + " burned" : "");
@@ -813,9 +927,13 @@ function harvestIx(item){
     {pubkey:new W.PublicKey(item.mint), isSigner:false, isWritable:true},
     {pubkey:new W.PublicKey(item.pubkey), isSigner:false, isWritable:true}]});
 }
+function cuPriceIx(micro){
+  const d = new Uint8Array(9); d[0] = 3; new DataView(d.buffer).setBigUint64(1, BigInt(micro), true);
+  return new solanaWeb3.TransactionInstruction({programId:new solanaWeb3.PublicKey(CB_PROGRAM), data:u8(d), keys:[]});
+}
 function buildTx(items, fee, blockhash, units){
   const W = solanaWeb3, feeKey = new W.PublicKey(CFG.FEE_WALLET), tx = new W.Transaction(), map = [];
-  if (units){ tx.add(cuLimitIx(units)); map.push(-1); }
+  if (units){ tx.add(cuLimitIx(units)); map.push(-1); if (prio){ tx.add(cuPriceIx(PRIO_MICRO)); map.push(-1); } }
   items.forEach((i, k) => {
     if (i.amount !== "0"){ tx.add(burnIx(i)); map.push(k); }
     if (i.harvest){ tx.add(harvestIx(i)); map.push(k); }
@@ -889,7 +1007,7 @@ function showDone(got, sigs, fails, skipped){
 
 
 /* ---------- wire up ---------- */
-initStatic(); loadPrice(); loadStats(); loadFeeBal();
+initStatic(); initVerify(); loadPrice(); loadStats(); loadFeeBal();
 setInterval(() => { if (!document.hidden) loadPrice(); }, 20000);
 setInterval(() => { if (!document.hidden) loadStats(); }, 60000);
 setInterval(() => { if (!document.hidden) loadFeeBal(); }, 30000);
@@ -901,6 +1019,13 @@ $("ack").onchange = refresh;
 $("btnRescan").onclick = scan;
 $("btnAgain").onclick = scan;
 $("btnDisc").onclick = () => { try { provider && provider.disconnect && provider.disconnect(); } catch(e){} resetAll(); };
+$("prio0").onclick = () => setPrio(0); $("prio1").onclick = () => setPrio(1);
+$("btnDust").onclick = () => {
+  document.querySelectorAll("#burnList input").forEach(c => { const x = withBal[+c.dataset.i]; c.checked = !!x && x.value != null && x.value < 0.01; });
+  if (!$("ack").checked) $("priceNote").textContent = "Dust selected. Tick the confirmation below to include it.";
+  refresh();
+};
+$("btnClear").onclick = () => { document.querySelectorAll("#burnList input").forEach(c => c.checked = false); refresh(); };
 
 })();
 };
