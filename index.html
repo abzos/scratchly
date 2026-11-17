@@ -229,6 +229,25 @@ footer .brand{margin-bottom:10px;color:#fff}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
+/* whitepaper kartya + olvasonezet */
+.wpcard{padding:24px;border-radius:24px}
+.wpc-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.wpc-grid{display:grid;gap:10px;margin-top:20px}
+.kp{all:unset;box-sizing:border-box;cursor:pointer;display:block;padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid var(--line);transition:border-color .2s,transform .15s}
+.kp:hover{border-color:var(--v)}.kp:active{transform:scale(.99)}.kp:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.kp small{display:block;color:var(--dim);font-size:12px;font-weight:500}
+.kp b{display:block;font:600 17px var(--disp);margin:4px 0;letter-spacing:-.02em}
+.kp span{display:block;color:var(--mut);font-size:13.5px;line-height:1.45}
+.reader{position:fixed;inset:0;z-index:90;background:rgba(4,4,10,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow-y:auto;overscroll-behavior:contain}
+.reader-in{max-width:1080px;margin:0 auto;min-height:100%;background:var(--s1);border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.reader-bar{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:calc(12px + env(safe-area-inset-top)) 18px 12px;background:rgba(12,11,29,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.reader-bar b{display:block;font:700 16px var(--disp)}.reader-bar small{color:var(--dim);font-size:12px}
+.reader .toc{position:static;top:auto}
+@media(min-width:760px){.wpc-grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:1000px){.reader .toc{position:sticky;top:64px}}
+
+.kp b span{display:inline;color:inherit;font-size:inherit;line-height:inherit}
+
 </style>
 </head>
 <body>
@@ -236,7 +255,7 @@ footer .brand{margin-bottom:10px;color:#fff}
 
 <header class="nav"><div class="wrap">
   <a class="brand" href="#top"><img src="logo.png" alt="Scratchly logo">scratchly</a>
-  <nav class="links"><a href="#app">Cleaner</a><a href="#stats">Live stats</a><a href="#fees">Fees</a><a href="#token">Token</a><a href="#whitepaper">Whitepaper</a><a href="#roadmap">Roadmap</a></nav>
+  <nav class="links"><a href="#app">Cleaner</a><a href="#stats">Live stats</a><a href="#fees">Fees</a><a href="#token">Token</a><a href="#roadmap">Roadmap</a><a href="#whitepaper">Whitepaper</a></nav>
   <button class="btn pri sm" id="btnConnect">Connect wallet</button>
 </div></header>
 <div class="rail"><div class="rail-in">
@@ -364,14 +383,45 @@ footer .brand{margin-bottom:10px;color:#fff}
   </div>
 </div></section>
 
+<section class="s" id="roadmap"><div class="wrap">
+  <h2 class="sec">Roadmap</h2>
+  <p class="sub">Five tracks, three horizons. A statement of direction, not a promise of dates.</p>
+  <div class="rm"><div class="head"><span>Track</span><span>Now</span><span>Next</span><span>Later</span></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></i><div><b>Product</b><small>What users can do</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Empty account cleaner for Token and Token-2022</li><li class="live">Advanced burn and close, opt-in per token</li><li class="live">Automatic harvest of withheld Token-2022 fees</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Dust detection with price data, to flag low-value tokens</li><li class="plan">Cleanup of empty NFT and edition accounts</li><li class="plan">Priority fee options for busy network hours</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Read-only multi-wallet overview</li><li class="plan">Scheduled scans with reminders</li><li class="">Cleanup of other reclaimable Solana accounts</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></i><div><b>Security and trust</b><small>How we earn confidence</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Transaction simulation before every signature</li><li class="live">Explicit compute budget on each transaction</li><li class="live">Single signer, fee shown before signing</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Wallet review requests to remove new-site warnings</li><li class="plan">Public source code and verification guide</li><li class="plan">Independent security review</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Bug bounty program</li><li class="">Guided flow for hardware wallets</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9.500c0-1 1-1.500 3-1.500s3 .7 3 1.800c0 2.200-6 1.200-6 3.700 0 1.100 1.200 1.800 3 1.800s3-.5 3-1.600"/></svg></i><div><b>Token and fees</b><small>What holding does</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Holder tiers at 9%, 4% and 0%</li><li class="live">Public fee wallet with live balance</li><li class="live">Fee and token metrics on the site</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Published fee-use policy</li><li class="plan">Public log of fee-wallet movements</li><li class="build">On-chain verified tier check in the app</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Buyback policy based on fee revenue, with proof</li><li class="">Extra holder perks inside the app</li><li class="">Referral rewards</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.5-4 3-6 6.500-6s6 2 6.500 6"/><path d="M16 5a3.500 3.500 0 010 6.500M18.500 14.500c2 .7 3 2.500 3.200 5.500"/></svg></i><div><b>Community and growth</b><small>How the project spreads</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Live stats and share card after each clean</li><li class="build">Launch campaign and educational posts</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Embeddable stats widget for partner sites</li><li class="plan">Community ambassadors</li><li class="plan">Public changelog</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Localized versions of the app</li><li class="">Community-led translations and guides</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.500"/><circle cx="18" cy="6" r="2.500"/><circle cx="18" cy="18" r="2.500"/><path d="M8.300 11l7.400-4M8.300 13l7.400 4"/></svg></i><div><b>Ecosystem</b><small>Where Scratchly connects</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Works with Phantom, Solflare and Backpack</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Embeddable Clean wallet widget for other dapps</li><li class="plan">Public read-only API for stats</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Wallet and analytics integrations</li><li class="">Hygiene tools for other networks, such as approval revokes on EVM chains</li></ul></div></div></div>
+  <div class="legend"><span><i style="background:var(--ok)"></i>Live</span><span><i style="background:var(--c)"></i>In progress</span><span><i style="background:var(--v)"></i>Planned</span><span><i style="background:var(--dim)"></i>Exploring</span></div>
+</div></section>
+
 <section class="s" id="whitepaper"><div class="wrap">
-  <h2 class="sec">Whitepaper</h2>
-  <p class="sub">How Scratchly works, what it costs, what the token does, and where the project is going. Read it here or download it.</p>
-  <div class="wp glass">
-    <div class="wp-top"><div><div class="t">Scratchly whitepaper</div><div class="m">Version 1.0 - November 2026</div></div><a class="btn pri sm" href="whitepaper.pdf" target="_blank" rel="noopener" download>Download PDF</a></div>
-    <div class="wp-body">
-      <nav class="toc" id="toc"><a href="#wp-abstract">Abstract</a><a href="#wp-problem">The problem</a><a href="#wp-solution">The solution</a><a href="#wp-how">How it works</a><a href="#wp-security">Security and trust model</a><a href="#wp-fees">Fee model</a><a href="#wp-token">The token</a><a href="#wp-transparency">Transparency and metrics</a><a href="#wp-roadmap">Roadmap</a><a href="#wp-risks">Risks</a><a href="#wp-disclaimer">Disclaimer</a></nav>
-      <article class="doc"><h3 id="wp-abstract">Abstract</h3>
+  <div class="wpcard glass">
+    <div class="wpc-head">
+      <div><h2 class="sec" style="font-size:clamp(24px,4vw,34px)">Whitepaper</h2><p class="sub" style="margin-top:8px">Version 1.0, November 2026. Eleven short sections, about 8 pages.</p></div>
+      <div class="links-row"><button class="btn pri" data-open="">Read online</button><a class="btn sec" href="whitepaper.pdf" target="_blank" rel="noopener" download>Download PDF</a></div>
+    </div>
+    <div class="wpc-grid">
+      <button class="kp" data-open="wp-solution"><small>What it is</small><b>A non-custodial cleaner</b><span>Closes empty token accounts and returns the locked SOL to you.</span></button>
+      <button class="kp" data-open="wp-fees"><small>What it costs</small><b><span data-k="std">9%</span> / <span data-k="hold">4%</span> / <span data-k="dia">0%</span></b><span>A share of the SOL released, shown before you sign.</span></button>
+      <button class="kp" data-open="wp-token"><small>Why the token</small><b>Your balance sets your tier</b><span>No staking and no lock-up. Hold more, pay less.</span></button>
+      <button class="kp" data-open="wp-security"><small>How it stays safe</small><b>No custody, simulated first</b><span>One signer, every transaction checked before you sign it.</span></button>
+    </div>
+  </div>
+</div></section>
+
+<section class="s"><div class="wrap">
+  <h2 class="sec">Questions</h2>
+  <div class="faq">
+    <details class="q"><summary>Can Scratchly touch my funds?</summary><p>No. It never has your keys. Every transaction is built in your browser and signed in your own wallet, and you can read what you sign before approving.</p></details>
+    <details class="q"><summary>What is rent?</summary><p>Every token account on Solana locks a small deposit of SOL, about 0.00204. When an empty account is closed, the deposit returns to you.</p></details>
+    <details class="q"><summary>Will it close accounts that hold tokens?</summary><p>Never by default. Only empty accounts are selected. Tokens with a balance can be burned and closed only if you pick them yourself in Advanced.</p></details>
+    <details class="q"><summary>How do holder tiers work?</summary><p>The app reads your token balance when you connect. Holding enough puts you in a lower tier automatically. Nothing is staked or locked.</p></details>
+    <details class="q"><summary>My wallet shows a warning. What now?</summary><p>New sites are sometimes flagged until wallets review them. Check that the address is app.scratchly.cfd and that the prompt matches the summary on screen. If anything differs, do not approve.</p></details>
+    <details class="q"><summary>Where do the live stats come from?</summary><p>They are counted from Scratchly transactions on Solana and refreshed every few minutes. The fee wallet balance is read live from the network.</p></details>
+  </div>
+</div></section>
+</main>
+
+<div class="reader" id="wpReader" hidden role="dialog" aria-modal="true" aria-label="Scratchly whitepaper">
+  <div class="reader-in">
+    <div class="reader-bar"><div><b>Scratchly whitepaper</b><small>Version 1.0 - November 2026</small></div><div class="links-row"><a class="btn sec sm" href="whitepaper.pdf" target="_blank" rel="noopener" download>PDF</a><button class="btn pri sm" id="wpClose">Close</button></div></div>
+    <div class="wp-body"><nav class="toc" id="toc"><a href="#wp-abstract">Abstract</a><a href="#wp-problem">The problem</a><a href="#wp-solution">The solution</a><a href="#wp-how">How it works</a><a href="#wp-security">Security and trust model</a><a href="#wp-fees">Fee model</a><a href="#wp-token">The token</a><a href="#wp-transparency">Transparency and metrics</a><a href="#wp-roadmap">Roadmap</a><a href="#wp-risks">Risks</a><a href="#wp-disclaimer">Disclaimer</a></nav><article class="doc"><h3 id="wp-abstract">Abstract</h3>
 <p>Scratchly is a non-custodial utility for Solana wallets. It finds empty token accounts, closes them, and returns the SOL deposit locked inside to the wallet owner. A small fee, taken only from the SOL that is released, funds the product. Holding the project token <span data-k="ticker">$SCR</span> lowers that fee to <span data-k="hold">4%</span> or <span data-k="dia">0%</span>.</p>
 <p>This paper describes the problem, the mechanism, the fee model, the trust model, the role of the token, and the roadmap. It is written to be checked: every claim about how the product behaves can be verified on-chain or in the open transaction flow of the app.</p>
 
@@ -465,30 +515,9 @@ footer .brand{margin-bottom:10px;color:#fff}
 
 <h3 id="wp-disclaimer">Disclaimer</h3>
 <p>This document is for information only. It is not financial, legal, or tax advice, and it is not an offer or solicitation to buy or sell any asset. Statements about the future describe intentions and may change. Use Scratchly at your own risk and review every transaction in your wallet before approving.</p>
-</article>
-    </div>
+</article></div>
   </div>
-</div></section>
-
-<section class="s" id="roadmap"><div class="wrap">
-  <h2 class="sec">Roadmap</h2>
-  <p class="sub">Five tracks, three horizons. A statement of direction, not a promise of dates.</p>
-  <div class="rm"><div class="head"><span>Track</span><span>Now</span><span>Next</span><span>Later</span></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></i><div><b>Product</b><small>What users can do</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Empty account cleaner for Token and Token-2022</li><li class="live">Advanced burn and close, opt-in per token</li><li class="live">Automatic harvest of withheld Token-2022 fees</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Dust detection with price data, to flag low-value tokens</li><li class="plan">Cleanup of empty NFT and edition accounts</li><li class="plan">Priority fee options for busy network hours</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Read-only multi-wallet overview</li><li class="plan">Scheduled scans with reminders</li><li class="">Cleanup of other reclaimable Solana accounts</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></i><div><b>Security and trust</b><small>How we earn confidence</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Transaction simulation before every signature</li><li class="live">Explicit compute budget on each transaction</li><li class="live">Single signer, fee shown before signing</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Wallet review requests to remove new-site warnings</li><li class="plan">Public source code and verification guide</li><li class="plan">Independent security review</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Bug bounty program</li><li class="">Guided flow for hardware wallets</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9.500c0-1 1-1.500 3-1.500s3 .7 3 1.800c0 2.200-6 1.200-6 3.700 0 1.100 1.200 1.800 3 1.800s3-.5 3-1.600"/></svg></i><div><b>Token and fees</b><small>What holding does</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Holder tiers at 9%, 4% and 0%</li><li class="live">Public fee wallet with live balance</li><li class="live">Fee and token metrics on the site</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Published fee-use policy</li><li class="plan">Public log of fee-wallet movements</li><li class="build">On-chain verified tier check in the app</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Buyback policy based on fee revenue, with proof</li><li class="">Extra holder perks inside the app</li><li class="">Referral rewards</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.5-4 3-6 6.500-6s6 2 6.500 6"/><path d="M16 5a3.500 3.500 0 010 6.500M18.500 14.500c2 .7 3 2.500 3.200 5.500"/></svg></i><div><b>Community and growth</b><small>How the project spreads</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Live stats and share card after each clean</li><li class="build">Launch campaign and educational posts</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Embeddable stats widget for partner sites</li><li class="plan">Community ambassadors</li><li class="plan">Public changelog</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Localized versions of the app</li><li class="">Community-led translations and guides</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.500"/><circle cx="18" cy="6" r="2.500"/><circle cx="18" cy="18" r="2.500"/><path d="M8.300 11l7.400-4M8.300 13l7.400 4"/></svg></i><div><b>Ecosystem</b><small>Where Scratchly connects</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Works with Phantom, Solflare and Backpack</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Embeddable Clean wallet widget for other dapps</li><li class="plan">Public read-only API for stats</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Wallet and analytics integrations</li><li class="">Hygiene tools for other networks, such as approval revokes on EVM chains</li></ul></div></div></div>
-  <div class="legend"><span><i style="background:var(--ok)"></i>Live</span><span><i style="background:var(--c)"></i>In progress</span><span><i style="background:var(--v)"></i>Planned</span><span><i style="background:var(--dim)"></i>Exploring</span></div>
-</div></section>
-
-<section class="s"><div class="wrap">
-  <h2 class="sec">Questions</h2>
-  <div class="faq">
-    <details class="q"><summary>Can Scratchly touch my funds?</summary><p>No. It never has your keys. Every transaction is built in your browser and signed in your own wallet, and you can read what you sign before approving.</p></details>
-    <details class="q"><summary>What is rent?</summary><p>Every token account on Solana locks a small deposit of SOL, about 0.00204. When an empty account is closed, the deposit returns to you.</p></details>
-    <details class="q"><summary>Will it close accounts that hold tokens?</summary><p>Never by default. Only empty accounts are selected. Tokens with a balance can be burned and closed only if you pick them yourself in Advanced.</p></details>
-    <details class="q"><summary>How do holder tiers work?</summary><p>The app reads your token balance when you connect. Holding enough puts you in a lower tier automatically. Nothing is staked or locked.</p></details>
-    <details class="q"><summary>My wallet shows a warning. What now?</summary><p>New sites are sometimes flagged until wallets review them. Check that the address is app.scratchly.cfd and that the prompt matches the summary on screen. If anything differs, do not approve.</p></details>
-    <details class="q"><summary>Where do the live stats come from?</summary><p>They are counted from Scratchly transactions on Solana and refreshed every few minutes. The fee wallet balance is read live from the network.</p></details>
-  </div>
-</div></section>
-</main>
+</div>
 
 <footer><div class="wrap">
   <div class="brand"><img src="logo.png" alt="" style="width:26px;height:26px;border-radius:50%">scratchly</div>
@@ -569,10 +598,21 @@ function initStatic(){
   const so = []; if (CFG.X_URL) so.push('<a class="btn sec sm" target="_blank" rel="noopener" href="' + CFG.X_URL + '">X / Twitter</a>'); if (CFG.TELEGRAM_URL) so.push('<a class="btn sec sm" target="_blank" rel="noopener" href="' + CFG.TELEGRAM_URL + '">Telegram</a>');
   $("socials").innerHTML = so.join(""); if (!so.length) $("socials").hidden = true;
   fillKeys(); drawTiers(-1); calc(); $("calcN").oninput = calc;
-  // whitepaper tartalomjegyzek kiemeles
+  // whitepaper olvasonezet
+  const rd = $("wpReader");
+  function openReader(id){
+    rd.hidden = false; document.body.style.overflow = "hidden"; rd.scrollTop = 0;
+    if (id){ const el = document.getElementById(id); if (el) setTimeout(() => { rd.scrollTop = el.offsetTop - 70; }, 30); }
+  }
+  function closeReader(){ rd.hidden = true; document.body.style.overflow = ""; }
+  document.querySelectorAll("[data-open]").forEach(b => b.onclick = () => openReader(b.dataset.open));
+  $("wpClose").onclick = closeReader;
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !rd.hidden) closeReader(); });
+  document.querySelectorAll("#toc a").forEach(a => a.onclick = e => { e.preventDefault(); const el = document.getElementById(a.getAttribute("href").slice(1)); if (el) rd.scrollTo({top: el.offsetTop - 70, behavior: "smooth"}); });
+  if (location.hash === "#whitepaper-read") openReader();
   if ("IntersectionObserver" in window){
     const links = [...document.querySelectorAll("#toc a")];
-    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), {rootMargin:"-20% 0px -70% 0px"});
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), {root:rd, rootMargin:"-10% 0px -75% 0px"});
     document.querySelectorAll(".doc h3").forEach(h => io.observe(h));
   }
 }
