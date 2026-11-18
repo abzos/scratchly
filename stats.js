@@ -64,7 +64,8 @@ async function main() {
     S.totalFees += fee;
     S.accounts += closed;
     if (dest) seen.add(dest);
-    S.recent.unshift({ w: dest ? short(dest) : "unknown", l: reclaimed, n: closed, t: tx.blockTime, f: fee });
+    S.recent.unshift({ w: dest ? short(dest) : "unknown", l: reclaimed, n: closed, t: tx.blockTime, f: fee, s: s.signature });
+    S.sigs = (S.sigs || []).concat(s.signature).slice(-200); S.lastT = tx.blockTime;
     S.recent = S.recent.slice(0, 10);
   }
   if (batch.length) S.lastSig = batch[batch.length - 1].signature;

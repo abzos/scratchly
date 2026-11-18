@@ -7,24 +7,63 @@ body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:
 a{display:block;text-decoration:none;color:#F2F4FF;padding:16px 18px;border-radius:16px;background:linear-gradient(160deg,#16143A,#0A0A1C);border:1px solid #2A2758;min-height:130px}
 .b{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;letter-spacing:-.3px}
 .b img{width:24px;height:24px;border-radius:50%}
+.b .l{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:#8F98C0}
+.d{width:7px;height:7px;border-radius:50%;background:#6E77A0}.d.on{background:#4ADE9A;box-shadow:0 0 0 0 rgba(74,222,154,.6);animation:p 2s infinite}
+@keyframes p{70%{box-shadow:0 0 0 7px rgba(74,222,154,0)}100%{box-shadow:0 0 0 0 rgba(74,222,154,0)}}
 .k{margin-top:12px;font-size:12px;color:#8F98C0}
-.v{font-size:30px;font-weight:700;letter-spacing:-1px;line-height:1.1;margin-top:2px;background:linear-gradient(100deg,#8B6CFF,#2DE2E6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.v{font-size:30px;font-weight:700;letter-spacing:-1px;line-height:1.1;margin-top:2px;background:linear-gradient(100deg,#8B6CFF,#2DE2E6);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
 .s{margin-top:8px;font-size:12px;color:#98A1C8}
 .s b{color:#fff;font-weight:600}
 </style></head>
 <body>
 <a href="https://app.scratchly.cfd" target="_blank" rel="noopener">
-  <div class="b"><img src="logo.png" alt="">scratchly</div>
+  <div class="b"><img src="logo.png" alt="">scratchly<span class="l"><span class="d" id="d"></span><span id="st">connecting</span></span></div>
   <div class="k">SOL reclaimed through Scratchly</div>
   <div class="v" id="v">0 SOL</div>
   <div class="s"><b id="a">0</b> accounts closed, <b id="w">0</b> wallets</div>
 </a>
+<script src="config.js"></script>
 <script>
-fetch("stats.json?t=" + Date.now()).then(r => r.json()).then(s => {
-  const sol = (s.totalReclaimed || 0) / 1e9;
-  document.getElementById("v").textContent = (sol === 0 ? "0" : sol.toFixed(sol >= 100 ? 1 : sol >= 1 ? 3 : 4)) + " SOL";
-  document.getElementById("a").textContent = (s.accounts || 0).toLocaleString("en-US");
-  document.getElementById("w").textContent = (s.wallets || 0).toLocaleString("en-US");
-}).catch(() => {});
+(function(){
+const C = window.SCRATCHLY_CONFIG || {}, RPC = C.RPC_URL || "https://api.mainnet-beta.solana.com", FEE = C.FEE_WALLET;
+const $ = id => document.getElementById(id);
+let base = {totalReclaimed:0, accounts:0, wallets:0, _seen:[]}, delta = [], seen = new Set(), newest = null, retry = 0, shown = {v:0, a:0, w:0};
+const rpc = (m, p) => fetch(RPC, {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({jsonrpc:"2.0", id:1, method:m, params:p})}).then(r => r.json()).then(j => { if (j.error) throw new Error(j.error.message); return j.result; });
+function tween(el, to, dec, suf, key){ const from = shown[key], t0 = performance.now(); shown[key] = to; (function f(t){ const p = Math.min(1, (t - t0)/900), v = from + (to - from)*(1 - Math.pow(1 - p, 3)); el.textContent = v.toLocaleString("en-US", {minimumFractionDigits:dec, maximumFractionDigits:dec}) + suf; if (p < 1) requestAnimationFrame(f); })(t0); }
+function render(){
+  const known = new Set(base._seen || []), nw = new Set(); let rec = base.totalReclaimed || 0, acc = base.accounts || 0;
+  delta.forEach(d => { rec += d.rec; acc += d.n; if (d.dest && !known.has(d.dest)) nw.add(d.dest); });
+  const sol = rec/1e9; tween($("v"), sol, sol === 0 ? 0 : sol >= 100 ? 1 : sol >= 1 ? 3 : 4, " SOL", "v"); tween($("a"), acc, 0, "", "a"); tween($("w"), (base.wallets || 0) + nw.size, 0, "", "w");
+}
+function parse(tx){
+  if (!tx || !tx.meta || tx.meta.err) return null;
+  const keys = tx.transaction.message.accountKeys.map(k => typeof k === "string" ? k : k.pubkey); let n = 0, rec = 0, dest = null;
+  for (const ix of tx.transaction.message.instructions){ const p = ix.parsed; if (!p) continue;
+    if ((ix.program === "spl-token" || ix.program === "spl-token-2022") && p.type === "closeAccount"){ n++; const i = keys.indexOf(p.info.account); if (i >= 0) rec += tx.meta.preBalances[i]; dest = p.info.destination || dest; } }
+  return n ? {n, rec, dest, t:tx.blockTime || 0} : null;
+}
+async function ingest(sig){
+  if (seen.has(sig)) return; seen.add(sig);
+  for (let i = 0; i < 6; i++){ try { const tx = await rpc("getTransaction", [sig, {encoding:"jsonParsed", maxSupportedTransactionVersion:0, commitment:"confirmed"}]); if (tx){ const c = parse(tx); if (c){ c.s = sig; delta.push(c); render(); } return; } } catch(e){} await new Promise(r => setTimeout(r, 1300)); }
+}
+async function loadBase(){
+  try { base = await (await fetch("stats.json?t=" + Date.now())).json(); } catch(e){}
+  const sigs = new Set(base.sigs || []), cut = base.lastT || (base.updated ? Math.floor(new Date(base.updated).getTime()/1000) : 0);
+  delta = delta.filter(d => !sigs.has(d.s) && (base.lastT ? d.t >= cut : d.t > cut)); render();
+}
+async function catchUp(){
+  try { const o = {limit:60}, until = newest || base.lastSig; if (until) o.until = until; const s = await rpc("getSignaturesForAddress", [FEE, o]); if (s && s.length){ newest = s[0].signature; for (const x of s.slice().reverse()) if (!x.err) await ingest(x.signature); } } catch(e){}
+}
+function dot(on){ $("d").className = "d" + (on ? " on" : ""); $("st").textContent = on ? "live" : "polling"; }
+function feed(){
+  let ws; try { ws = new WebSocket(RPC.replace(/^http/, "ws")); } catch(e){ dot(false); return; }
+  ws.onopen = () => ws.send(JSON.stringify({jsonrpc:"2.0", id:1, method:"logsSubscribe", params:[{mentions:[FEE]}, {commitment:"confirmed"}]}));
+  ws.onmessage = ev => { let m; try { m = JSON.parse(ev.data); } catch(e){ return; } if (m.id === 1 && m.result != null){ retry = 0; dot(true); } if (m.method === "logsNotification"){ const v = m.params && m.params.result && m.params.result.value; if (v && !v.err) ingest(v.signature); } };
+  const ping = setInterval(() => { if (ws.readyState === 1) ws.send(JSON.stringify({jsonrpc:"2.0", id:99, method:"getVersion"})); }, 30000);
+  ws.onclose = () => { clearInterval(ping); dot(false); setTimeout(feed, Math.min(30000, 2000*(++retry))); };
+  ws.onerror = () => { try { ws.close(); } catch(e){} };
+}
+(async () => { await loadBase(); await catchUp(); feed(); setInterval(loadBase, 60000); setInterval(catchUp, 25000); })();
+})();
 </script>
 </body></html>

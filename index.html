@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Scratchly - Reclaim SOL from your Solana wallet</title>
-<meta name="description" content="Close empty Solana token accounts and reclaim the SOL locked inside. Non-custodial, fees shown before you sign, 0% for top holders.">
+<meta name="description" content="Close empty Solana token accounts and reclaim the SOL locked inside. Non-custodial, real-time stats, check any wallet for free.">
 <meta name="theme-color" content="#06060D">
 <meta property="og:title" content="Scratchly - Reclaim SOL from your Solana wallet">
-<meta property="og:description" content="Non-custodial wallet cleaner. 9% standard fee, 4% for holders, 0% for top holders. Live on-chain stats.">
+<meta property="og:description" content="Non-custodial Solana wallet cleaner. Real-time on-chain stats. Check any wallet for free.">
 <meta property="og:image" content="https://app.scratchly.cfd/og.png">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
@@ -272,6 +272,17 @@ footer .brand{margin-bottom:10px;color:#fff}
 .clr li:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--v);margin-right:9px;vertical-align:middle}
 @media(min-width:900px){.vgrid{grid-template-columns:1fr 1fr}}
 
+/* wallet check */
+.chkrow{display:flex;gap:8px;margin-top:10px}
+.chkrow input{flex:1;min-width:0;background:#08081A;border:1px solid var(--line2);border-radius:10px;color:#fff;font:500 13px var(--mono);padding:11px 12px}
+.chkrow input::placeholder{color:var(--dim);font-family:Inter}
+.chkrow input:focus{outline:2px solid var(--c);outline-offset:1px}
+.chkmeta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px}
+.lnk{background:none;border:0;cursor:pointer;font-family:inherit}
+.chk{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.chk-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.chk-big{font:700 30px/1.1 var(--disp);letter-spacing:-.03em;margin:8px 0 2px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
 </style>
 </head>
 <body>
@@ -279,42 +290,42 @@ footer .brand{margin-bottom:10px;color:#fff}
 
 <header class="nav"><div class="wrap">
   <a class="brand" href="#top"><img src="logo.png" alt="Scratchly logo">scratchly</a>
-  <nav class="links"><a href="#app">Cleaner</a><a href="#stats">Live stats</a><a href="#fees">Fees</a><a href="#token">Token</a><a href="#verify">Verify</a><a href="#roadmap">Roadmap</a><a href="#whitepaper">Whitepaper</a></nav>
+  <nav class="links"><a href="#app">Cleaner</a><a href="#stats">Live stats</a><a href="#check">Wallet check</a><a href="#verify">Verify</a><a href="#roadmap">Roadmap</a><a href="#whitepaper">Whitepaper</a></nav>
   <button class="btn pri sm" id="btnConnect">Connect wallet</button>
 </div></header>
 <div class="rail"><div class="rail-in">
-  <div class="ri"><span class="dot off" id="tkDot"></span><b data-k="ticker">$SCR</b><b id="tkPrice" class="dim">launching soon</b><b id="tkChg"></b></div>
-  <div class="ri"><small>Market cap</small><b id="rMcap">-</b></div>
-  <div class="ri"><small>Fee wallet</small><b id="rFee">-</b></div>
+  <div class="ri"><span class="dot off" id="liveDot"></span><b id="liveState">connecting</b></div>
   <div class="ri"><small>Reclaimed</small><b id="rTotal">0 SOL</b></div>
   <div class="ri"><small>Accounts closed</small><b id="rAcc">0</b></div>
+  <div class="ri"><small>Wallets cleaned</small><b id="rWal">0</b></div>
+  <div class="ri"><small>Last clean</small><b id="rLast">-</b></div>
 </div></div>
 
 <main id="top">
 <div class="wrap top">
   <div class="intro">
     <h1>Reclaim the SOL hiding in your wallet.</h1>
-    <p class="lead">Close empty token accounts and get the locked SOL back. Non-custodial, the fee is shown before you sign, and holders pay less.</p>
+    <p class="lead">Close empty token accounts and get the locked SOL back. Non-custodial, and you see every detail before you sign.</p>
   </div>
 
   <aside class="console" id="app"><div class="panel glass">
     <div class="hd"><h2>Wallet cleaner</h2><span class="muted" style="font-size:12.5px"><span class="dot"></span>Solana mainnet</span></div>
     <div id="stIdle" class="stack" style="margin-top:14px">
-      <p class="muted" style="font-size:14.5px">Connect your wallet. We scan it for empty token accounts. Nothing is signed until you press clean.</p>
+      <p class="muted" style="font-size:14.5px">Connect your wallet. We scan it for empty token accounts. Nothing is signed until you press clean, and you see the full summary first.</p>
       <div><button class="btn pri" id="btnConnect2" style="width:100%">Connect wallet</button></div>
       <div id="noWallet" hidden class="stack">
         <p class="muted" style="font-size:13.5px">No wallet found in this browser. Open this page inside your wallet app:</p>
         <div class="links-row"><a class="btn sec sm" id="lnkPhantom" href="#">Open in Phantom</a><a class="btn sec sm" id="lnkSolflare" href="#">Open in Solflare</a></div>
       </div>
       <p class="err" id="errIdle" hidden></p>
-      <div class="row2" style="margin-top:2px"><span class="muted">Your fee</span><b><span data-k="std">9%</span> / <span data-k="hold">4%</span> / <span data-k="dia">0%</span></b></div>
+
     </div>
 
     <div id="stScan" class="center" hidden style="padding:26px 0"><div class="spin"></div><p class="muted">Scanning your wallet...</p></div>
 
     <div id="stRes" hidden style="margin-top:14px">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-        <span class="chip" id="chipAddr"></span><span class="badge" id="tierBadge"></span>
+        <span class="chip" id="chipAddr"></span><span class="muted" style="font-size:12.5px">Solana mainnet</span>
       </div>
       <div class="center" style="margin:22px 0 18px">
         <div class="muted" style="font-size:13.5px">You can reclaim</div>
@@ -323,10 +334,9 @@ footer .brand{margin-bottom:10px;color:#fff}
       </div>
       <div>
         <div class="row2"><span class="muted">Rent returned to you</span><b id="sReclaim">-</b></div>
-        <div class="row2"><span class="muted">Scratchly fee (<span id="sPct">9%</span>)</span><b id="sFee">-</b></div>
+        <div class="row2"><span class="muted">Scratchly fee (<span id="sPct">5%</span>)</span><b id="sFee">-</b></div>
         <div class="row2 total"><span>You receive</span><b class="ok" id="sNet">-</b></div>
       </div>
-      <p class="dim" style="font-size:12.5px;margin-top:6px" id="feeNote"></p>
       <div class="prio"><span class="muted">Network priority</span><div class="seg"><button type="button" class="on" id="prio0">Standard</button><button type="button" id="prio1">Fast</button></div></div>
       <p class="dim" style="font-size:12px;margin:2px 0 0" id="prioNote">Standard uses no priority fee.</p>
       <div style="margin-top:14px"><button class="btn pri" id="btnClean" style="width:100%">Clean wallet</button></div>
@@ -359,58 +369,20 @@ footer .brand{margin-bottom:10px;color:#fff}
   </div></aside>
 
   <div class="bento" id="stats">
-    <div class="tile glass w2 t-total"><div class="k">Total SOL reclaimed<span class="live"><span class="dot"></span>live</span></div><div class="v" id="stTotal">0 SOL</div><div class="s" id="stUsd">&nbsp;</div></div>
-    <div class="tile glass w2 t-price"><div class="k"><span data-k="ticker">$SCR</span> price<span class="live" id="pxLive" hidden><span class="dot"></span>live</span></div>
-      <div class="v"><span id="bPrice">-</span><span class="chg" id="bChg"></span></div>
-      <div class="mini" id="bMini"><span>Not trading yet</span></div></div>
-    <div class="tile glass w2 t-fees"><div class="k">Fees received</div>
-      <div class="kv"><span>Fee wallet balance</span><b id="fwBal">-</b></div>
-      <div class="kv"><span id="fwUsd" style="color:var(--dim)">&nbsp;</span><span></span></div>
-      <div class="kv"><span>All-time fees</span><b id="stFee">0 SOL</b></div>
-      <div style="margin-top:10px"><a class="lnk" id="lnkFee2" target="_blank" rel="noopener">View wallet on Solscan</a></div></div>
+    <div class="tile glass w2 t-total"><div class="k">Total SOL reclaimed<span class="live"><span class="dot" id="liveDot2"></span>real-time</span></div><div class="v" id="stTotal">0 SOL</div><div class="s" id="stUsd">&nbsp;</div></div>
+    <div class="tile glass w2 t-check" id="check"><div class="k">Check any wallet</div>
+      <div class="chkrow"><input id="chkIn" placeholder="Paste a Solana address" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Solana address"><button class="btn pri sm" id="chkBtn" type="button">Check</button></div>
+      <div class="chkmeta"><span class="dim" style="font-size:12px">Read-only. Nothing is signed.</span><button class="lnk" id="chkMine" type="button" hidden>Use my wallet</button></div>
+      <div id="chkOut" class="chk" hidden></div></div>
     <div class="tile glass w2 r2 feed"><div class="k">Recent cleans</div><div id="feed"><div class="empty">No cleans yet. The first one will show up here.</div></div><p class="dim" style="font-size:11.5px;margin-top:6px" id="stUpd"></p></div>
     <div class="tile glass"><div class="k">Accounts closed</div><div class="v" id="stAcc">0</div></div>
     <div class="tile glass"><div class="k">Wallets cleaned</div><div class="v" id="stWal">0</div></div>
+    <div class="tile glass w2"><div class="k">How much is locked?</div>
+      <div class="kv"><span><b id="calcNv" style="font-family:var(--mono);color:#fff">50</b> empty accounts</span><b id="calcOut">0.102 SOL</b></div>
+      <input type="range" id="calcN" min="1" max="300" value="50" aria-label="Number of empty accounts" style="width:100%;accent-color:#8B6CFF;margin-top:10px">
+      <div class="s" id="calcUsd">Each empty account locks about 0.00204 SOL.</div></div>
   </div>
 </div>
-
-<section class="s" id="fees"><div class="wrap">
-  <h2 class="sec">Fees that drop as you hold</h2>
-  <p class="sub">The fee is a share of the SOL you get back, never charged on top. You see the exact amount before you sign.</p>
-  <div class="tiers" id="tierCards"></div>
-  <div class="calc glass">
-    <div class="top2"><b style="font:600 16px var(--disp)">Fee calculator</b><span class="muted" style="font-size:13.5px"><b id="calcNv" style="font-family:var(--mono);color:#fff">50</b> empty accounts</span></div>
-    <input type="range" id="calcN" min="1" max="300" value="50" aria-label="Number of empty accounts">
-    <div class="cols">
-      <div class="c"><small>Standard</small><b id="cStd">-</b><em id="cStdF"></em></div>
-      <div class="c"><small>Holder</small><b id="cHold">-</b><em id="cHoldF"></em></div>
-      <div class="c"><small>Diamond</small><b id="cDia">-</b><em id="cDiaF"></em></div>
-    </div>
-    <p class="dim" style="font-size:12px;margin-top:10px">You receive per tier. Each empty account releases about 0.00204 SOL.</p>
-  </div>
-</div></section>
-
-<section class="s" id="token"><div class="wrap">
-  <h2 class="sec"><span data-k="ticker">$SCR</span> token</h2>
-  <p class="sub">Your balance when you clean sets your fee tier. It is a utility feature of the app and carries no promise of returns.</p>
-  <div class="panel glass" style="margin-top:20px">
-    <div class="pxmain" style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><span style="font:700 clamp(32px,7vw,46px) var(--disp);letter-spacing:-.04em" id="pxPrice">-</span><span class="chg" id="pxChg" style="margin:0"></span></div>
-    <div class="soon" id="notLive"><span class="dot off" style="margin:0"></span>Not trading yet. Price, market cap and chart appear here at launch.</div>
-    <div class="pxgrid">
-      <div class="px"><small>Market cap</small><b id="pxMcap">-</b></div>
-      <div class="px"><small>Liquidity</small><b id="pxLiq">-</b></div>
-      <div class="px"><small>24h volume</small><b id="pxVol">-</b></div>
-      <div class="px"><small>24h txns</small><b id="pxTx">-</b></div>
-    </div>
-    <div class="chart" id="chartBox" hidden></div>
-    <div class="muted" style="font-size:13.5px;margin-top:20px">Token contract</div>
-    <div class="addr" id="mintAddr"></div>
-    <div class="links-row" style="margin-top:12px"><button class="btn sec sm" id="cpMint">Copy address</button><a class="btn pri sm" id="lnkPump" target="_blank" rel="noopener">View on pump.fun</a><a class="btn sec sm" id="lnkDex" target="_blank" rel="noopener">Dexscreener</a></div>
-    <div class="muted" style="font-size:13.5px;margin-top:20px">Fee wallet (all app fees go here)</div>
-    <div class="addr" id="feeAddr"></div>
-    <div class="links-row" style="margin-top:12px"><a class="btn sec sm" id="lnkFee" target="_blank" rel="noopener">View on Solscan</a></div>
-  </div>
-</div></section>
 
 <section class="s" id="verify"><div class="wrap">
   <h2 class="sec">Verify what you sign</h2>
@@ -421,7 +393,7 @@ footer .brand{margin-bottom:10px;color:#fff}
       <ol class="vsteps">
         <li>Make sure the address bar says <b>app.scratchly.cfd</b>.</li>
         <li>In your wallet prompt, check that every instruction belongs to the programs on the left.</li>
-        <li>Check that the only SOL transfer goes to the fee wallet below, and matches the fee on screen.</li>
+        <li>Check that the only SOL transfer goes to the fee wallet below, and that it matches the fee shown in the summary.</li>
         <li>If anything else appears, reject the request.</li>
       </ol>
       <div class="muted" style="font-size:13px;margin-top:14px">Fee wallet</div>
@@ -434,21 +406,21 @@ footer .brand{margin-bottom:10px;color:#fff}
 <section class="s" id="roadmap"><div class="wrap">
   <h2 class="sec">Roadmap</h2>
   <p class="sub">Five tracks, three horizons. A statement of direction, not a promise of dates.</p>
-  <div class="rm"><div class="head"><span>Track</span><span>Now</span><span>Next</span><span>Later</span></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></i><div><b>Product</b><small>What users can do</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Empty account cleaner for Token and Token-2022</li><li class="live">Advanced burn and close, opt-in per token</li><li class="live">Automatic harvest of withheld Token-2022 fees</li><li class="live">Market value and dust hints in Advanced</li><li class="live">Network priority option: Standard or Fast</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Cleanup of empty NFT and edition accounts</li><li class="plan">More price sources for dust detection</li><li class="plan">Saved preferences</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Read-only multi-wallet overview</li><li class="plan">Scheduled scans with reminders</li><li class="">Cleanup of other reclaimable Solana accounts</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></i><div><b>Security and trust</b><small>How we earn confidence</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Transaction simulation before every signature</li><li class="live">Explicit compute budget on each transaction</li><li class="live">Single signer, fee shown before signing</li><li class="live">Verify panel listing every program used</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Wallet review requests to remove new-site warnings</li><li class="build">Source code publication and verification notes</li><li class="plan">Independent security review</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Bug bounty program</li><li class="">Guided flow for hardware wallets</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9.500c0-1 1-1.500 3-1.500s3 .7 3 1.800c0 2.200-6 1.200-6 3.700 0 1.100 1.200 1.800 3 1.800s3-.5 3-1.600"/></svg></i><div><b>Token and fees</b><small>What holding does</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Holder tiers at 9%, 4% and 0%</li><li class="live">Public fee wallet with live balance</li><li class="live">Fee and token metrics on the site</li><li class="live">Fee amount shown for every clean in the public feed</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Published fee-use policy</li><li class="plan">Public log of fee-wallet movements</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Buyback policy based on fee revenue, with proof</li><li class="">Extra holder perks inside the app</li><li class="">Referral rewards</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.5-4 3-6 6.500-6s6 2 6.500 6"/><path d="M16 5a3.500 3.500 0 010 6.500M18.500 14.500c2 .7 3 2.500 3.200 5.500"/></svg></i><div><b>Community and growth</b><small>How the project spreads</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Live stats and share card after each clean</li><li class="live">Public changelog</li><li class="live">Embeddable live counter widget</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Launch campaign and educational posts</li><li class="plan">Community ambassadors</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Localized versions of the app</li><li class="">Community-led translations and guides</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.500"/><circle cx="18" cy="6" r="2.500"/><circle cx="18" cy="18" r="2.500"/><path d="M8.300 11l7.400-4M8.300 13l7.400 4"/></svg></i><div><b>Ecosystem</b><small>Where Scratchly connects</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Works with Phantom, Solflare and Backpack</li><li class="live">Public read-only stats JSON</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Embeddable Clean wallet widget for other dapps</li><li class="plan">Wallet and analytics integrations</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Hygiene tools for other networks, such as approval revokes on EVM chains</li></ul></div></div></div>
+  <div class="rm"><div class="head"><span>Track</span><span>Now</span><span>Next</span><span>Later</span></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></i><div><b>Product</b><small>What users can do</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Empty account cleaner for Token and Token-2022</li><li class="live">Advanced burn and close, opt-in per token</li><li class="live">Automatic harvest of withheld Token-2022 fees</li><li class="live">Market value and dust hints in Advanced</li><li class="live">Network priority option: Standard or Fast</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Cleanup of empty NFT and edition accounts</li><li class="plan">More price sources for dust detection</li><li class="plan">Saved preferences</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Read-only multi-wallet overview</li><li class="plan">Scheduled scans with reminders</li><li class="">Cleanup of other reclaimable Solana accounts</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.500-6 4 12 2.500-6H21"/></svg></i><div><b>Wallet health</b><small>Know your wallet</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Check any wallet by address, read-only</li><li class="live">Rent calculator</li><li class="live">Plain health label: Clean, Tidy, Cluttered</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Shareable wallet health report card</li><li class="plan">Flags for spam and risky tokens</li><li class="plan">Health history, stored locally in your browser</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Alerts when new empty accounts appear</li><li class="">Hygiene tips tailored to the wallet</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></i><div><b>Security and trust</b><small>How we earn confidence</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Transaction simulation before every signature</li><li class="live">Explicit compute budget on each transaction</li><li class="live">Single signer, fee shown before signing</li><li class="live">Verify panel listing every program used</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Wallet review requests to remove new-site warnings</li><li class="build">Source code publication and verification notes</li><li class="plan">Independent security review</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Bug bounty program</li><li class="">Guided flow for hardware wallets</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.5-4 3-6 6.500-6s6 2 6.500 6"/><path d="M16 5a3.500 3.500 0 010 6.500M18.500 14.500c2 .7 3 2.500 3.200 5.500"/></svg></i><div><b>Community and growth</b><small>How the project spreads</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Real-time live counter on the site</li><li class="live">Share card after each clean</li><li class="live">Public changelog</li><li class="live">Embeddable live counter widget</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Launch campaign and educational posts</li><li class="plan">Community ambassadors</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Localized versions of the app</li><li class="">Community-led translations and guides</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.500"/><circle cx="18" cy="6" r="2.500"/><circle cx="18" cy="18" r="2.500"/><path d="M8.300 11l7.400-4M8.300 13l7.400 4"/></svg></i><div><b>Ecosystem</b><small>Where Scratchly connects</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Works with Phantom, Solflare and Backpack</li><li class="live">Public read-only stats JSON</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Embeddable Clean wallet widget for other dapps</li><li class="plan">Wallet and analytics integrations</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Hygiene tools for other networks, such as approval revokes on EVM chains</li></ul></div></div></div>
   <div class="legend"><span><i style="background:var(--ok)"></i>Live</span><span><i style="background:var(--c)"></i>In progress</span><span><i style="background:var(--v)"></i>Planned</span><span><i style="background:var(--dim)"></i>Exploring</span></div>
 </div></section>
 
 <section class="s" id="whitepaper"><div class="wrap">
   <div class="wpcard glass">
     <div class="wpc-head">
-      <div><h2 class="sec" style="font-size:clamp(24px,4vw,34px)">Whitepaper</h2><p class="sub" style="margin-top:8px">Version 1.1, November 2026. Eleven short sections, about 8 pages.</p></div>
+      <div><h2 class="sec" style="font-size:clamp(24px,4vw,34px)">Whitepaper</h2><p class="sub" style="margin-top:8px">Version 1.2, November 2026. Ten short sections, about 8 pages.</p></div>
       <div class="links-row"><button class="btn pri" data-open="">Read online</button><a class="btn sec" href="whitepaper.pdf" target="_blank" rel="noopener" download>Download PDF</a></div>
     </div>
     <div class="wpc-grid">
       <button class="kp" data-open="wp-solution"><small>What it is</small><b>A non-custodial cleaner</b><span>Closes empty token accounts and returns the locked SOL to you.</span></button>
-      <button class="kp" data-open="wp-fees"><small>What it costs</small><b><span data-k="std">9%</span> / <span data-k="hold">4%</span> / <span data-k="dia">0%</span></b><span>A share of the SOL released, shown before you sign.</span></button>
-      <button class="kp" data-open="wp-token"><small>Why the token</small><b>Your balance sets your tier</b><span>No staking and no lock-up. Hold more, pay less.</span></button>
-      <button class="kp" data-open="wp-security"><small>How it stays safe</small><b>No custody, simulated first</b><span>One signer, every transaction checked before you sign it.</span></button>
+      <button class="kp" data-open="wp-how"><small>How it works</small><b>Scan, simulate, sign</b><span>Every transaction is checked before your wallet is asked to approve it.</span></button>
+      <button class="kp" data-open="wp-security"><small>How it stays safe</small><b>No custody, one signer</b><span>Standard programs only, and a Verify panel to compare with your wallet.</span></button>
+      <button class="kp" data-open="wp-transparency"><small>How it is counted</small><b>Real-time metrics</b><span>Counters follow the network live, straight from public transactions.</span></button>
     </div>
   </div>
 </div></section>
@@ -464,10 +436,11 @@ footer .brand{margin-bottom:10px;color:#fff}
       <div class="addr" id="jsonUrl"></div>
       <div class="links-row" style="margin-top:12px"><button class="btn sec sm" id="cpJson" type="button">Copy URL</button><a class="btn sec sm" href="stats.json" target="_blank" rel="noopener">Open</a></div></div>
     <div class="glass vcard"><h3>Changelog</h3><div class="cl">
+      <div class="clr"><div class="d"><b>v1.2</b><small>Nov 2026</small></div><ul><li>Real-time counters from a live network feed</li><li>Check any wallet by address, read-only</li><li>Rent calculator</li><li>Simpler pricing, no token needed</li></ul></div>
       <div class="clr"><div class="d"><b>v1.1</b><small>Nov 2026</small></div><ul><li>Market value and dust hints in Advanced</li><li>Network priority option: Standard or Fast</li><li>Verify panel with every program used</li><li>Embeddable live counter and public stats JSON</li><li>Public changelog</li></ul></div>
-      <div class="clr"><div class="d"><b>v1.0</b><small>Nov 2026</small></div><ul><li>New design with live stats, token price and fee wallet balance</li><li>Fees reduced to 9% / 4% / 0%</li><li>Whitepaper and roadmap</li></ul></div>
+      <div class="clr"><div class="d"><b>v1.0</b><small>Nov 2026</small></div><ul><li>New design with live stats</li><li>Whitepaper and roadmap</li></ul></div>
       <div class="clr"><div class="d"><b>v0.9</b><small>Nov 2026</small></div><ul><li>Simulation before every signature, explicit compute budget</li><li>Token-2022 withheld fee harvest, unclosable accounts skipped</li></ul></div>
-      <div class="clr"><div class="d"><b>v0.1</b><small>Nov 2026</small></div><ul><li>Wallet cleaner for empty token accounts, holder fee tiers</li></ul></div>
+      <div class="clr"><div class="d"><b>v0.1</b><small>Nov 2026</small></div><ul><li>Wallet cleaner for empty token accounts</li></ul></div>
     </div></div>
   </div>
 </div></section>
@@ -478,19 +451,19 @@ footer .brand{margin-bottom:10px;color:#fff}
     <details class="q"><summary>Can Scratchly touch my funds?</summary><p>No. It never has your keys. Every transaction is built in your browser and signed in your own wallet, and you can read what you sign before approving.</p></details>
     <details class="q"><summary>What is rent?</summary><p>Every token account on Solana locks a small deposit of SOL, about 0.00204. When an empty account is closed, the deposit returns to you.</p></details>
     <details class="q"><summary>Will it close accounts that hold tokens?</summary><p>Never by default. Only empty accounts are selected. Tokens with a balance can be burned and closed only if you pick them yourself in Advanced.</p></details>
-    <details class="q"><summary>How do holder tiers work?</summary><p>The app reads your token balance when you connect. Holding enough puts you in a lower tier automatically. Nothing is staked or locked.</p></details>
+    <details class="q"><summary>How does Scratchly make money?</summary><p>It takes a small fee from the SOL that is released when accounts are closed. The exact amount is always shown in the summary before you sign. Details are in the whitepaper.</p></details>
     <details class="q"><summary>My wallet shows a warning. What now?</summary><p>New sites are sometimes flagged until wallets review them. Check that the address is app.scratchly.cfd and that the prompt matches the summary on screen. If anything differs, do not approve.</p></details>
-    <details class="q"><summary>Where do the live stats come from?</summary><p>They are counted from Scratchly transactions on Solana and refreshed every few minutes. The fee wallet balance is read live from the network.</p></details>
+    <details class="q"><summary>Where do the live stats come from?</summary><p>They follow Scratchly transactions on Solana in real time. Your browser listens to the network directly, on top of a baseline that is refreshed every few minutes.</p></details>
   </div>
 </div></section>
 </main>
 
 <div class="reader" id="wpReader" hidden role="dialog" aria-modal="true" aria-label="Scratchly whitepaper">
   <div class="reader-in">
-    <div class="reader-bar"><div><b>Scratchly whitepaper</b><small>Version 1.1 - November 2026</small></div><div class="links-row"><a class="btn sec sm" href="whitepaper.pdf" target="_blank" rel="noopener" download>PDF</a><button class="btn pri sm" id="wpClose">Close</button></div></div>
-    <div class="wp-body"><nav class="toc" id="toc"><a href="#wp-abstract">Abstract</a><a href="#wp-problem">The problem</a><a href="#wp-solution">The solution</a><a href="#wp-how">How it works</a><a href="#wp-security">Security and trust model</a><a href="#wp-fees">Fee model</a><a href="#wp-token">The token</a><a href="#wp-transparency">Transparency and metrics</a><a href="#wp-roadmap">Roadmap</a><a href="#wp-risks">Risks</a><a href="#wp-disclaimer">Disclaimer</a></nav><article class="doc"><h3 id="wp-abstract">Abstract</h3>
-<p>Scratchly is a non-custodial utility for Solana wallets. It finds empty token accounts, closes them, and returns the SOL deposit locked inside to the wallet owner. A small fee, taken only from the SOL that is released, funds the product. Holding the project token <span data-k="ticker">$SCR</span> lowers that fee to <span data-k="hold">4%</span> or <span data-k="dia">0%</span>.</p>
-<p>This paper describes the problem, the mechanism, the fee model, the trust model, the role of the token, and the roadmap. It is written to be checked: every claim about how the product behaves can be verified on-chain or in the open transaction flow of the app.</p>
+    <div class="reader-bar"><div><b>Scratchly whitepaper</b><small>Version 1.2 - November 2026</small></div><div class="links-row"><a class="btn sec sm" href="whitepaper.pdf" target="_blank" rel="noopener" download>PDF</a><button class="btn pri sm" id="wpClose">Close</button></div></div>
+    <div class="wp-body"><nav class="toc" id="toc"><a href="#wp-abstract">Abstract</a><a href="#wp-problem">The problem</a><a href="#wp-solution">The solution</a><a href="#wp-how">How it works</a><a href="#wp-security">Security and trust model</a><a href="#wp-fees">Fee</a><a href="#wp-transparency">Transparency and metrics</a><a href="#wp-roadmap">Roadmap</a><a href="#wp-risks">Risks</a><a href="#wp-disclaimer">Disclaimer</a></nav><article class="doc"><h3 id="wp-abstract">Abstract</h3>
+<p>Scratchly is a non-custodial utility for Solana wallets. It finds empty token accounts, closes them, and returns the SOL deposit locked inside to the wallet owner. A flat fee of <b data-k="fee">5%</b>, taken only from the SOL that is released, funds the product. There are no tokens, tiers, or lock-ups to understand.</p>
+<p>This paper describes the problem, the mechanism, the trust model, the fee, how the numbers on the site are produced, and the roadmap. It is written to be checked: every claim about how the product behaves can be verified on-chain or in the open transaction flow of the app.</p>
 
 <h3 id="wp-problem">The problem</h3>
 <p>Every token account on Solana holds a rent-exempt deposit of about <b>0.00203928 SOL</b>. An account is created whenever a wallet receives a new token: a swap, an airdrop, a memecoin purchase. Selling the full balance does not close the account, so the deposit stays locked. Active wallets accumulate dozens or hundreds of these accounts. One hundred empty accounts lock roughly 0.204 SOL.</p>
@@ -503,7 +476,7 @@ footer .brand{margin-bottom:10px;color:#fff}
 
 <h3 id="wp-solution">The solution</h3>
 <p>Scratchly reads the connected wallet, lists what can be reclaimed, builds the transactions, and shows one plain summary before anything is signed: SOL returned, fee, and what the user receives. The rent returns to the owner's wallet inside the same transaction that pays the fee. There is no deposit, no account, and no custody.</p>
-<p>The product has two modes. <b>Quick clean</b> closes empty accounts and is the default. <b>Advanced</b> lets the user burn tokens they no longer want and close those accounts too. Nothing in Advanced is selected by default, and burning requires an explicit confirmation. Where a market price exists, Advanced shows the value next to each token and can pre-select likely dust, so valuable tokens are not burned by mistake.</p>
+<p>The product has three parts. <b>Quick clean</b> closes empty accounts and is the default. <b>Advanced</b> lets the user burn tokens they no longer want and close those accounts too. Nothing in Advanced is selected by default, and burning requires an explicit confirmation. Where a market price exists, Advanced shows the value next to each token and can pre-select likely dust, so valuable tokens are not burned by mistake. <b>Wallet check</b> lets anyone paste any address and see how much SOL is locked in empty accounts. It is read-only, needs no connection, and signs nothing.</p>
 
 <h3 id="wp-how">How it works</h3>
 <ol>
@@ -521,10 +494,11 @@ footer .brand{margin-bottom:10px;color:#fff}
 <li>Optionally <code>Burn</code>, only for tokens the user selected in Advanced.</li>
 <li>Where needed, <code>HarvestWithheldTokensToMint</code> so that a Token-2022 account becomes closable. Anyone can run this instruction.</li>
 <li>A <code>SystemProgram</code> transfer of the displayed fee to the fee wallet.</li>
+<li>Compute budget instructions for the limit and the optional priority fee.</li>
 </ul>
 
 <h3 id="wp-security">Security and trust model</h3>
-<p>Scratchly is non-custodial. It has no access to private keys or seed phrases and cannot move funds without a signature from the owner. The instructions above are the complete list of what the app can ask a wallet to do.</p>
+<p>Scratchly is non-custodial. It has no access to private keys or seed phrases and cannot move funds without a signature from the owner. The instructions above are the complete list of what the app can ask a wallet to do, and the site lists every program involved in its Verify section.</p>
 <h4>What users should check</h4>
 <ul>
 <li>Open the app only from <b>app.scratchly.cfd</b>.</li>
@@ -539,40 +513,31 @@ footer .brand{margin-bottom:10px;color:#fff}
 <li><b>Wallets may warn</b> about new domains or about transactions that close accounts. We work with wallet teams on review and keep the transaction format as simple and transparent as possible.</li>
 </ul>
 
-<h3 id="wp-fees">Fee model</h3>
-<p>The fee is a percentage of the SOL released by closing accounts. It is never charged on top of the user's balance, and it is shown before signing. Network fees (about 0.000005 SOL per signature plus a small compute cost) are paid by the user as on any Solana transaction.</p>
+<h3 id="wp-fees">Fee</h3>
+<p>Scratchly charges a flat <b data-k="fee">5%</b> of the SOL released by closing accounts. It is never charged on top of the user's balance, it is the same for everyone, and it is shown in the summary before signing. Network fees (about 0.000005 SOL per signature plus a small compute cost) are paid by the user as on any Solana transaction. Wallet check is free.</p>
 <table>
-<tr><th>Tier</th><th>Requirement</th><th>Fee on released SOL</th></tr>
-<tr><td>Standard</td><td>No token needed</td><td class="n" data-k="std">9%</td></tr>
-<tr><td>Holder</td><td>Hold <span data-k="t1">1M</span> <span data-k="ticker">$SCR</span></td><td class="n" data-k="hold">4%</td></tr>
-<tr><td>Diamond</td><td>Hold <span data-k="t2">5M</span> <span data-k="ticker">$SCR</span></td><td class="n" data-k="dia">0%</td></tr>
+<tr><th>Item</th><th>Detail</th></tr>
+<tr><td>Fee</td><td class="n" data-k="fee">5%</td></tr>
+<tr><td>Charged on</td><td>Only the SOL released by closed accounts</td></tr>
+<tr><td>Shown</td><td>In the summary before every signature</td></tr>
+<tr><td>Wallet check</td><td>Free, read-only</td></tr>
 </table>
 <h4>Example</h4>
-<p>A wallet with 100 empty token accounts releases 0.203928 SOL. At the Standard tier the fee is about 0.0184 SOL and the user receives about 0.1856 SOL. At the Holder tier the fee is about 0.0082 SOL and the user receives about 0.1957 SOL. At the Diamond tier the user receives the full 0.2039 SOL.</p>
+<p>A wallet with 100 empty token accounts releases 0.203928 SOL. The fee is about 0.0102 SOL and the user receives about 0.1937 SOL.</p>
 <div class="note"><b>Minimum balance rule.</b> A new Solana account must hold at least about 0.00089 SOL. While the fee wallet is below that minimum, a fee smaller than the gap would make the transaction fail, so the app skips the fee for that transaction instead. The user keeps the full amount.</div>
 <h4>Market context</h4>
-<p>Publicly listed fees among comparable rent-recovery tools range from roughly 1% to 20% as of November 2026. The Standard tier sits in the middle of that range. The tiers give holders a path to a lower or zero fee, and live fee reporting lets anyone see where the money goes.</p>
-
-<h3 id="wp-token">The token</h3>
-<p><span data-k="ticker">$SCR</span> is a utility token launched on pump.fun. Its role inside the product is simple: your balance at the moment you clean decides your fee tier.</p>
-<ul>
-<li>The app reads the balance of the connected wallet when it scans. No staking, lock-up, or transfer is needed.</li>
-<li>Thresholds are <span data-k="t1">1M</span> and <span data-k="t2">5M</span> tokens. With the standard pump.fun supply of 1,000,000,000 these are 0.1% and 0.5% of supply.</li>
-<li>Tiers are applied to the Solana wallet that signs the transaction.</li>
-</ul>
-<div class="note"><b>What the token is not.</b> It gives no ownership of the project, no claim on revenue, no dividends, and no governance rights. Its price can fall to zero. Nothing in this paper promises a return.</div>
-<p>Fee revenue is received by the public fee wallet. It supports operations, development, and growth. The team is working on a published fee-use policy, which may include buybacks. No amounts or timing are promised.</p>
+<p>Publicly listed fees among comparable rent-recovery tools range from roughly 1% to 20% as of November 2026. A flat fee in the lower-middle of that range, with no tiers to unlock, keeps the offer simple.</p>
 
 <h3 id="wp-transparency">Transparency and metrics</h3>
-<p>The fee wallet address is public on the site, and its balance is read live from the network. The counters on the site (SOL reclaimed, accounts closed, wallets cleaned, fees earned) are calculated by an automated job from public transactions that involve the fee wallet. Refresh takes a few minutes, so the numbers can lag. A clean you complete yourself is added to your screen immediately.</p>
-<p>Statistics are informational. Because anyone can create a transaction that touches the fee wallet, they should be read as an indicator, not as an audited figure. Token price and market data come from public DEX data.</p>
+<p>The fee wallet address is public, and the site lists the programs it uses. The counters on the site (SOL reclaimed, accounts closed, wallets cleaned, recent cleans) are real-time. Your browser listens to the network for new Scratchly transactions and adds them as they are confirmed. Underneath, an automated job writes a baseline from public transactions every few minutes, so the counters stay correct for new visitors.</p>
+<p>The counters are informational. Because anyone can create a transaction that touches the fee wallet, they should be read as an indicator, not as an audited figure. The dollar value of SOL comes from public market data. A public stats file and an embeddable widget are available for anyone who wants to show the numbers elsewhere.</p>
 
 <h3 id="wp-roadmap">Roadmap</h3>
-<p>The roadmap is organised in tracks (product, security, token and fees, community, ecosystem) and in three horizons: <b>Now</b>, <b>Next</b>, and <b>Later</b>. It is a statement of direction, not a promise of dates. The detailed roadmap is in the Roadmap section of the site.</p>
+<p>The roadmap is organised in tracks (product, wallet health, security, community, ecosystem) and in three horizons: <b>Now</b>, <b>Next</b>, and <b>Later</b>. It is a statement of direction, not a promise of dates. The detailed roadmap is in the Roadmap section of the site.</p>
 
 <h3 id="wp-risks">Risks</h3>
 <ul>
-<li><b>Market risk.</b> The token is volatile and can lose all of its value.</li>
+<li><b>Market risk.</b> The price of SOL moves, and so does the dollar value of what is reclaimed.</li>
 <li><b>Technical risk.</b> Software can contain bugs. RPC providers, wallets, or the network can have outages or change behaviour.</li>
 <li><b>Wallet warnings.</b> New sites may be flagged by wallets until reviewed.</li>
 <li><b>Irreversibility.</b> Burning tokens cannot be undone. A closed account can be created again, and its deposit is paid again when a token is received.</li>
@@ -589,7 +554,7 @@ footer .brand{margin-bottom:10px;color:#fff}
 <footer><div class="wrap">
   <div class="brand"><img src="logo.png" alt="" style="width:26px;height:26px;border-radius:50%">scratchly</div>
   <div class="links-row" id="socials" style="margin:6px 0 14px"></div>
-  <p>Scratchly is a utility tool. Use at your own risk and check every transaction in your wallet. Nothing here is financial advice, and the token carries no promise of returns or profit.</p>
+  <p>Scratchly is a utility tool. Use at your own risk and check every transaction in your wallet. Nothing here is financial advice.</p>
 </div></footer>
 
 <script src="config.js"></script>
@@ -597,8 +562,8 @@ footer .brand{margin-bottom:10px;color:#fff}
 window.__scratchlyStart = function(){
 (function(){
 const CFG = window.SCRATCHLY_CONFIG;
-// A dijszintek itt vannak megadva (felulirjak a config.js-ben levo ertekeket): 9% / 4% / 0%
-CFG.FEE_BPS_STANDARD = 900; CFG.FEE_BPS_TIER1 = 400; CFG.FEE_BPS_TIER2 = 0;
+// Egysegesen 5% dij (basis point). Ez felulirja a config.js-ben levo ertekeket.
+const FEE_BPS = 500;
 const $ = id => document.getElementById(id);
 const RPC = CFG.RPC_URL || "https://api.mainnet-beta.solana.com";
 const TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
@@ -617,11 +582,6 @@ const fmtPrice = n => { if (!n) return "-"; if (n >= 1) return "$" + n.toFixed(2
 const ago = t => { const s = Math.max(1, Math.floor(Date.now()/1000 - t)); return s < 60 ? s + "s ago" : s < 3600 ? Math.floor(s/60) + "m ago" : s < 86400 ? Math.floor(s/3600) + "h ago" : Math.floor(s/86400) + "d ago"; };
 const show = id => { ["stIdle","stScan","stRes","stDone"].forEach(x => $(x).hidden = x !== id); };
 
-function tierFor(h){
-  if (h >= CFG.TIER2_MIN) return {name:"Diamond", bps:CFG.FEE_BPS_TIER2, cls:"t2", idx:2};
-  if (h >= CFG.TIER1_MIN) return {name:"Holder", bps:CFG.FEE_BPS_TIER1, cls:"", idx:1};
-  return {name:"Standard", bps:CFG.FEE_BPS_STANDARD, cls:"", idx:0};
-}
 function countTo(el, target, o){
   o = o || {}; const dec = o.dec || 0, dur = o.dur || 1200, suf = o.suf || "", from = parseFloat(el.dataset.v || "0");
   if (from === target) { el.textContent = target.toLocaleString("en-US", {minimumFractionDigits:dec, maximumFractionDigits:dec}) + suf; return; }
@@ -643,15 +603,8 @@ const PROGRAMS = [
   {n:"Compute Budget", a:"ComputeBudget111111111111111111111111111111", u:"Sets the compute limit and the optional priority fee."}];
 const fmtVal = n => n < 0.01 ? "< $0.01" : usd(n);
 function copyTxt(s, btn){ navigator.clipboard && navigator.clipboard.writeText(s); if (btn){ const o = btn.textContent; btn.textContent = "Copied"; setTimeout(() => btn.textContent = o, 1400); } }
-function initVerify(){
-  $("progList").innerHTML = PROGRAMS.map(p => '<div class="prog"><div><b>' + p.n + '</b><small>' + p.u + '</small></div><code>' + p.a + '</code><button class="btn sec sm" type="button" data-copy="' + p.a + '">Copy</button></div>').join("");
-  document.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyTxt(b.dataset.copy, b));
-  $("feeAddr2").textContent = CFG.FEE_WALLET;
-  if (CFG.REPO_URL) $("srcLink").insertAdjacentHTML("afterbegin", '<a class="btn pri sm" target="_blank" rel="noopener" href="' + CFG.REPO_URL + '">View source code</a>');
-  const embed = '<iframe src="' + location.origin + '/widget.html" width="320" height="150" style="border:0;border-radius:16px" loading="lazy"></iframe>';
-  $("embedCode").textContent = embed; $("jsonUrl").textContent = location.origin + "/stats.json";
-  $("cpEmbed").onclick = () => copyTxt(embed, $("cpEmbed")); $("cpJson").onclick = () => copyTxt(location.origin + "/stats.json", $("cpJson"));
-}
+
+/* ---------- advanced: token ertek + dust ---------- */
 function renderBurnList(){
   $("burnList").innerHTML = withBal.length ? withBal.map((x, i) => {
     const val = x.value != null ? '<small class="' + (x.value >= 1 ? 'hv' : x.value < 0.01 ? 'dust' : '') + '">' + (x.value >= 1 ? 'Worth ' : '') + fmtVal(x.value) + '</small>' : x.priced ? '<small>No market price</small>' : '';
@@ -684,35 +637,27 @@ function updateValWarn(){
 function setPrio(v){ prio = v; $("prio0").classList.toggle("on", !v); $("prio1").classList.toggle("on", !!v); $("prioNote").textContent = v ? "Fast adds a small priority fee, under 0.00001 SOL per transaction." : "Standard uses no priority fee."; }
 
 /* ---------- static content ---------- */
-function fillKeys(){
-  const m = {ticker:"$" + CFG.TICKER, t1:fmtTok(CFG.TIER1_MIN), t2:fmtTok(CFG.TIER2_MIN), std:pct(CFG.FEE_BPS_STANDARD), hold:pct(CFG.FEE_BPS_TIER1), dia:pct(CFG.FEE_BPS_TIER2)};
-  document.querySelectorAll("[data-k]").forEach(e => { const v = m[e.dataset.k]; if (v != null) e.textContent = v; });
-}
-function drawTiers(active){
-  const T = [
-    {n:"Standard", b:CFG.FEE_BPS_STANDARD, d:"Everyone. No token needed."},
-    {n:"Holder", b:CFG.FEE_BPS_TIER1, d:"Hold " + fmtTok(CFG.TIER1_MIN) + " $" + CFG.TICKER + " or more."},
-    {n:"Diamond", b:CFG.FEE_BPS_TIER2, d:"Hold " + fmtTok(CFG.TIER2_MIN) + " $" + CFG.TICKER + " or more."}
-  ];
-  $("tierCards").innerHTML = T.map((t,i) => '<div class="tier' + (i === active ? ' on' : '') + '"><h3>' + t.n + (i === active ? ' <span class="badge">Your tier</span>' : '') + '</h3><div class="pct' + (i ? ' g' : '') + '">' + pct(t.b) + '</div><p>' + t.d + '</p></div>').join("");
+function fillKeys(){ document.querySelectorAll("[data-k=fee]").forEach(e => e.textContent = pct(FEE_BPS)); }
+function initVerify(){
+  $("progList").innerHTML = PROGRAMS.map(p => '<div class="prog"><div><b>' + p.n + '</b><small>' + p.u + '</small></div><code>' + p.a + '</code><button class="btn sec sm" type="button" data-copy="' + p.a + '">Copy</button></div>').join("");
+  document.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyTxt(b.dataset.copy, b));
+  $("feeAddr2").textContent = CFG.FEE_WALLET;
+  if (CFG.REPO_URL) $("srcLink").insertAdjacentHTML("afterbegin", '<a class="btn pri sm" target="_blank" rel="noopener" href="' + CFG.REPO_URL + '">View source code</a>');
+  const embed = '<iframe src="' + location.origin + '/widget.html" width="320" height="150" style="border:0;border-radius:16px" loading="lazy"></iframe>';
+  $("embedCode").textContent = embed; $("jsonUrl").textContent = location.origin + "/stats.json";
+  $("cpEmbed").onclick = () => copyTxt(embed, $("cpEmbed")); $("cpJson").onclick = () => copyTxt(location.origin + "/stats.json", $("cpJson"));
 }
 function calc(){
-  const n = +$("calcN").value, rec = n * 2039280; $("calcNv").textContent = n;
-  [["cStd", CFG.FEE_BPS_STANDARD], ["cHold", CFG.FEE_BPS_TIER1], ["cDia", CFG.FEE_BPS_TIER2]].forEach(([id, b]) => {
-    const fee = Math.floor(rec * b / 10000); $(id).textContent = fmtSol(rec - fee); $(id + "F").textContent = fee ? "fee " + fmtSol(fee) : "no fee"; });
+  const n = +$("calcN").value, sol = n * 2039280 / 1e9; $("calcNv").textContent = n; $("calcOut").textContent = fmtSol(sol * 1e9);
+  $("calcUsd").textContent = solUsd ? "About " + usd(sol * solUsd) + " locked. Each empty account holds about 0.00204 SOL." : "Each empty account locks about 0.00204 SOL.";
 }
 function initStatic(){
-  $("mintAddr").textContent = CFG.COIN_MINT; $("feeAddr").textContent = CFG.FEE_WALLET;
-  $("lnkPump").href = "https://pump.fun/coin/" + CFG.COIN_MINT;
-  $("lnkDex").href = "https://dexscreener.com/solana/" + CFG.COIN_MINT;
-  $("lnkFee").href = "https://solscan.io/account/" + CFG.FEE_WALLET; $("lnkFee2").href = $("lnkFee").href;
-  $("cpMint").onclick = () => { navigator.clipboard && navigator.clipboard.writeText(CFG.COIN_MINT); $("cpMint").textContent = "Copied"; setTimeout(() => $("cpMint").textContent = "Copy address", 1500); };
   const u = encodeURIComponent(location.href.split("#")[0]), r = encodeURIComponent(location.origin);
   $("lnkPhantom").href = "https://phantom.app/ul/browse/" + u + "?ref=" + r;
   $("lnkSolflare").href = "https://solflare.com/ul/v1/browse/" + u + "?ref=" + r;
   const so = []; if (CFG.X_URL) so.push('<a class="btn sec sm" target="_blank" rel="noopener" href="' + CFG.X_URL + '">X / Twitter</a>'); if (CFG.TELEGRAM_URL) so.push('<a class="btn sec sm" target="_blank" rel="noopener" href="' + CFG.TELEGRAM_URL + '">Telegram</a>');
   $("socials").innerHTML = so.join(""); if (!so.length) $("socials").hidden = true;
-  fillKeys(); drawTiers(-1); calc(); $("calcN").oninput = calc;
+  fillKeys(); calc(); $("calcN").oninput = calc;
   // whitepaper olvasonezet
   const rd = $("wpReader");
   function openReader(id){
@@ -732,75 +677,113 @@ function initStatic(){
   }
 }
 
-/* ---------- live price (Dexscreener) ---------- */
-async function dex(mint){
-  const r = await fetch("https://api.dexscreener.com/latest/dex/tokens/" + mint); const j = await r.json();
-  const p = (j.pairs || []).filter(x => x.chainId === "solana").sort((a, b) => ((b.liquidity && b.liquidity.usd) || 0) - ((a.liquidity && a.liquidity.usd) || 0));
-  return p[0] || null;
-}
-let chartPair = null;
-async function loadPrice(){
+/* ---------- SOL ar (csak a dollarertekhez) ---------- */
+async function loadSolPrice(){
   try {
-    const [t, s] = await Promise.all([dex(CFG.COIN_MINT), dex(SOL_MINT).catch(() => null)]);
-    if (s && s.priceUsd) solUsd = parseFloat(s.priceUsd);
-    if (!t){ setLive(false); renderStats(); renderFee(); return; }
-    setLive(true);
-    const px = parseFloat(t.priceUsd || 0), ch = t.priceChange && t.priceChange.h24 != null ? t.priceChange.h24 : null;
-    const cs = ch == null ? "" : (ch >= 0 ? "+" : "-") + Math.abs(ch).toFixed(1) + "%", cc = ch == null ? "" : ch >= 0 ? "up" : "down";
-    const mc = compact(t.marketCap || t.fdv || 0), lq = compact((t.liquidity && t.liquidity.usd) || 0), vo = compact((t.volume && t.volume.h24) || 0);
-    $("tkPrice").textContent = fmtPrice(px); $("tkPrice").className = ""; $("tkChg").textContent = cs; $("tkChg").className = cc; $("rMcap").textContent = mc;
-    $("bPrice").textContent = fmtPrice(px); $("bChg").textContent = cs; $("bChg").className = "chg " + cc;
-    $("bMini").innerHTML = '<span>MCap<b>' + mc + '</b></span><span>Liq<b>' + lq + '</b></span><span>Vol 24h<b>' + vo + '</b></span>';
-    $("pxPrice").textContent = fmtPrice(px); $("pxChg").textContent = cs; $("pxChg").className = "chg " + cc;
-    $("pxMcap").textContent = mc; $("pxLiq").textContent = lq; $("pxVol").textContent = vo;
-    const tx = t.txns && t.txns.h24 ? t.txns.h24.buys + t.txns.h24.sells : 0; $("pxTx").textContent = tx.toLocaleString("en-US");
-    if (t.pairAddress && chartPair !== t.pairAddress){ chartPair = t.pairAddress; $("chartBox").hidden = false;
-      $("chartBox").innerHTML = '<iframe loading="lazy" title="Price chart" src="https://dexscreener.com/solana/' + t.pairAddress + '?embed=1&theme=dark&trades=0&info=0&loadChartSettings=0&chartLeftToolbar=0&chartTheme=dark"></iframe>'; }
-    renderStats(); renderFee();
-  } catch(e){ setLive(false); }
-}
-function setLive(on){
-  $("tkDot").className = "dot" + (on ? "" : " off"); $("notLive").hidden = on; $("pxLive").hidden = !on;
-  if (!on){ $("tkPrice").textContent = "launching soon"; $("tkPrice").className = "dim"; $("tkChg").textContent = ""; $("rMcap").textContent = "-";
-    $("bPrice").textContent = "-"; $("bChg").textContent = ""; $("bMini").innerHTML = "<span>Not trading yet</span>"; $("pxPrice").textContent = "-"; $("pxChg").textContent = ""; }
+    const r = await fetch("https://api.dexscreener.com/latest/dex/tokens/" + SOL_MINT), j = await r.json();
+    const p = (j.pairs || []).filter(x => x.chainId === "solana").sort((a, b) => ((b.liquidity && b.liquidity.usd) || 0) - ((a.liquidity && a.liquidity.usd) || 0))[0];
+    if (p && p.priceUsd){ solUsd = parseFloat(p.priceUsd); renderStats(); calc(); }
+  } catch(e){}
 }
 
-/* ---------- fee wallet (live from chain) ---------- */
-async function loadFeeBal(){ try { const r = await rpc("getBalance", [CFG.FEE_WALLET]); liveFee = r && r.value != null ? r.value : null; renderFee(); } catch(e){} }
-function renderFee(){
-  if (liveFee == null) return; const s = fmtSol(liveFee);
-  $("fwBal").textContent = s; $("rFee").textContent = s; $("fwUsd").innerHTML = solUsd ? "&asymp; " + usd(liveFee/1e9*solUsd) : "&nbsp;";
-}
-
-/* ---------- live stats (stats.json + azonnali sajat tisztitas) ---------- */
+/* ---------- statisztika: baseline (stats.json) + valos ideju halozati feed ---------- */
+const live = {delta:[], seen:new Set(), ok:false, retry:0, newest:null};
 function view(){
-  const s = stats || {totalReclaimed:0, totalFees:0, accounts:0, wallets:0, recent:[], updated:null}, p = pending || {rec:0, fee:0, acc:0, w:0, recent:[]};
-  return {rec:s.totalReclaimed + p.rec, fee:s.totalFees + p.fee, acc:s.accounts + p.acc, wal:s.wallets + p.w, recent:p.recent.concat(s.recent || []), updated:s.updated};
+  const s = stats || {totalReclaimed:0, accounts:0, wallets:0, recent:[], updated:null, _seen:[]};
+  const known = new Set(s._seen || []); const newW = new Set();
+  let rec = s.totalReclaimed, acc = s.accounts;
+  live.delta.forEach(d => { rec += d.rec; acc += d.n; if (d.dest && !known.has(d.dest)) newW.add(d.dest); });
+  const rcSet = new Set(); const recent = [];
+  live.delta.slice().sort((a, b) => b.t - a.t).concat(s.recent || []).forEach(x => { const k = x.s || (x.w + x.t); if (!rcSet.has(k)){ rcSet.add(k); recent.push({w:x.w, n:x.n, l:x.rec != null ? x.rec : x.l, t:x.t}); } });
+  return {rec, acc, wal:s.wallets + newW.size, recent, updated:s.updated};
 }
-async function loadStats(){
-  try { const r = await fetch("stats.json?t=" + Date.now()); if (!r.ok) throw 0; stats = await r.json(); } catch(e){ stats = stats || {totalReclaimed:0, totalFees:0, accounts:0, wallets:0, recent:[], updated:null}; }
-  if (pending){
-    const rec = (stats.recent || []);
-    pending.recent = pending.recent.filter(pe => !rec.some(se => se.w === pe.w && Math.abs(se.t - pe.t) < 600));
-    if (!pending.recent.length || Date.now() - pending.t > 30*60*1000) pending = null;
-  }
+async function loadStats(first){
+  try { const r = await fetch("stats.json?t=" + Date.now()); if (!r.ok) throw 0; stats = await r.json(); } catch(e){ stats = stats || {totalReclaimed:0, accounts:0, wallets:0, recent:[], updated:null, _seen:[]}; }
+  // amit a baseline mar tartalmaz, azt a lokalis listabol kivesszuk
+  const sigs = new Set(stats.sigs || []), cut = stats.lastT || (stats.updated ? Math.floor(new Date(stats.updated).getTime()/1000) : 0);
+  live.delta = live.delta.filter(d => !sigs.has(d.s) && (stats.lastT ? d.t >= cut : d.t > cut));
   renderStats();
+  if (first){ await catchUp(); startFeed(); }
 }
-function bumpStats(rec, fe, acc){
-  if (!pending) pending = {rec:0, fee:0, acc:0, w:0, recent:[], t:Date.now(), seen:false};
-  pending.rec += rec; pending.fee += fe; pending.acc += acc; if (!pending.seen){ pending.w += 1; pending.seen = true; }
-  pending.recent.unshift({w:short(owner.toString()), l:rec, n:acc, t:Math.floor(Date.now()/1000), f:fe}); pending.t = Date.now();
+function parseClean(tx){
+  if (!tx || !tx.meta || tx.meta.err) return null;
+  const keys = tx.transaction.message.accountKeys.map(k => typeof k === "string" ? k : k.pubkey);
+  let n = 0, rec = 0, fee = 0, dest = null;
+  for (const ix of tx.transaction.message.instructions){
+    const p = ix.parsed; if (!p) continue;
+    if ((ix.program === "spl-token" || ix.program === "spl-token-2022") && p.type === "closeAccount"){ n++; const i = keys.indexOf(p.info.account); if (i >= 0) rec += tx.meta.preBalances[i]; dest = p.info.destination || dest; }
+    if (ix.program === "system" && p.type === "transfer" && p.info.destination === CFG.FEE_WALLET) fee += Number(p.info.lamports);
+  }
+  return n ? {n, rec, fee, dest, w:dest ? short(dest) : "unknown", t:tx.blockTime || Math.floor(Date.now()/1000)} : null;
+}
+async function ingest(sig){
+  if (live.seen.has(sig)) return; live.seen.add(sig);
+  for (let i = 0; i < 6; i++){
+    try {
+      const tx = await rpc("getTransaction", [sig, {encoding:"jsonParsed", maxSupportedTransactionVersion:0, commitment:"confirmed"}]);
+      if (tx){ const c = parseClean(tx); if (c){ c.s = sig; if (!live.delta.some(d => d.s === sig)) live.delta.push(c); renderStats(); } return; }
+    } catch(e){}
+    await new Promise(r => setTimeout(r, 1300));
+  }
+}
+async function catchUp(){
+  try {
+    const opts = {limit:60}, until = live.newest || (stats && stats.lastSig); if (until) opts.until = until;
+    const sigs = await rpc("getSignaturesForAddress", [CFG.FEE_WALLET, opts]);
+    if (sigs && sigs.length){ live.newest = sigs[0].signature; for (const s of sigs.slice().reverse()) if (!s.err) await ingest(s.signature); }
+  } catch(e){}
+}
+function setLiveState(on){ live.ok = on; ["liveDot", "liveDot2"].forEach(id => $(id).className = "dot" + (on ? "" : " off")); $("liveState").textContent = on ? "live" : "polling"; }
+function startFeed(){
+  let ws; try { ws = new WebSocket(RPC.replace(/^http/, "ws")); } catch(e){ setLiveState(false); return; }
+  ws.onopen = () => ws.send(JSON.stringify({jsonrpc:"2.0", id:1, method:"logsSubscribe", params:[{mentions:[CFG.FEE_WALLET]}, {commitment:"confirmed"}]}));
+  ws.onmessage = ev => {
+    let m; try { m = JSON.parse(ev.data); } catch(e){ return; }
+    if (m.id === 1 && m.result != null){ live.retry = 0; setLiveState(true); }
+    if (m.method === "logsNotification"){ const v = m.params && m.params.result && m.params.result.value; if (v && !v.err) ingest(v.signature); }
+  };
+  const ping = setInterval(() => { if (ws.readyState === 1) ws.send(JSON.stringify({jsonrpc:"2.0", id:99, method:"getVersion"})); }, 30000);
+  ws.onclose = () => { clearInterval(ping); setLiveState(false); setTimeout(startFeed, Math.min(30000, 2000 * (++live.retry))); };
+  ws.onerror = () => { try { ws.close(); } catch(e){} };
+}
+function bumpStats(batches){
+  batches.forEach(b => { live.seen.add(b.s); if (!live.delta.some(d => d.s === b.s)) live.delta.push({s:b.s, n:b.n, rec:b.rec, fee:b.fee, dest:owner.toString(), w:short(owner.toString()), t:Math.floor(Date.now()/1000)}); });
   renderStats();
 }
 function renderStats(){
   const v = view(), sol = v.rec/1e9, dec = sol === 0 ? 0 : sol >= 100 ? 1 : sol >= 1 ? 3 : 4;
   countTo($("stTotal"), sol, {dec, suf:" SOL"}); countTo($("rTotal"), sol, {dec, suf:" SOL"});
-  countTo($("stAcc"), v.acc); countTo($("rAcc"), v.acc); countTo($("stWal"), v.wal);
-  $("stFee").textContent = fmtSol(v.fee);
+  countTo($("stAcc"), v.acc); countTo($("rAcc"), v.acc); countTo($("stWal"), v.wal); countTo($("rWal"), v.wal);
   $("stUsd").innerHTML = solUsd ? "&asymp; " + usd(sol*solUsd) + " returned to wallet owners" : "Returned to wallet owners";
-  $("stUpd").textContent = v.updated ? "On-chain counts updated " + ago(new Date(v.updated).getTime()/1000) + ", refreshed every few minutes." : "Counting starts with the first clean.";
-  const r = v.recent;
-  $("feed").innerHTML = r.length ? r.slice(0, 6).map(x => '<div class="row"><div class="av">' + x.w.slice(0, 2) + '</div><div><b style="font:600 13px var(--mono)">' + x.w + '</b><div class="dim" style="font-size:12px">' + x.n + ' account' + (x.n === 1 ? '' : 's') + ' closed</div></div><div class="r"><b>+' + fmtSol(x.l) + '</b><small>' + (x.f != null ? 'fee ' + fmtSol(x.f) + ', ' : '') + ago(x.t) + '</small></div></div>').join("") : '<div class="empty">No cleans yet. The first one will show up here.</div>';
+  const r = v.recent; $("rLast").textContent = r.length ? ago(r[0].t) : "-";
+  $("stUpd").textContent = live.ok ? "Following the network in real time." : "Baseline " + (v.updated ? "updated " + ago(new Date(v.updated).getTime()/1000) : "starts with the first clean") + ", refreshed every few minutes.";
+  $("feed").innerHTML = r.length ? r.slice(0, 6).map(x => '<div class="row"><div class="av">' + x.w.slice(0, 2) + '</div><div><b style="font:600 13px var(--mono)">' + x.w + '</b><div class="dim" style="font-size:12px">' + x.n + ' account' + (x.n === 1 ? '' : 's') + ' closed</div></div><div class="r"><b>+' + fmtSol(x.l) + '</b><small>' + ago(x.t) + '</small></div></div>').join("") : '<div class="empty">No cleans yet. The first one will show up here.</div>';
+}
+
+/* ---------- wallet check (barmelyik cim, csak olvas) ---------- */
+function healthLabel(n){ return n === 0 ? "Clean" : n < 10 ? "Tidy" : n < 50 ? "Cluttered" : "Heavily cluttered"; }
+async function checkWallet(){
+  const raw = $("chkIn").value.trim(), out = $("chkOut"); out.hidden = false;
+  let pk; try { if (raw.length < 32 || raw.length > 44) throw 0; pk = new solanaWeb3.PublicKey(raw); } catch(e){ out.innerHTML = '<span class="err" style="margin:0">That does not look like a Solana address.</span>'; return; }
+  out.innerHTML = '<span class="muted">Checking...</span>'; $("chkBtn").disabled = true;
+  try {
+    let empties = 0, rent = 0, other = 0, harvest = 0;
+    for (const pid of [TOKEN_PROGRAM_ID, TOKEN22_PROGRAM_ID]){
+      const res = await rpc("getTokenAccountsByOwner", [pk.toString(), {programId:pid}, {encoding:"jsonParsed"}]);
+      (res.value || []).forEach(a => { const info = a.account.data.parsed.info, ta = info.tokenAmount; if (info.state === "frozen") return;
+        if (ta.amount === "0"){ empties++; rent += a.account.lamports; (info.extensions || []).forEach(x => { if (x.extension === "transferFeeAmount" && x.state && Number(x.state.withheldAmount) > 0) harvest++; }); } else other++; });
+    }
+    const label = healthLabel(empties), usdTxt = solUsd && rent ? " (about " + usd(rent/1e9*solUsd) + ")" : "";
+    const mine = owner && owner.toString() === pk.toString();
+    const text = empties ? "I found " + fmtSol(rent) + " locked in " + empties + " empty token accounts in my Solana wallet. Check yours: app.scratchly.cfd" : "My Solana wallet is clean: no empty token accounts. Check yours: app.scratchly.cfd";
+    out.innerHTML = '<div class="chk-top"><span class="badge' + (empties ? '' : ' t2') + '">' + label + '</span><span class="dim" style="font-size:12px">' + short(pk.toString()) + '</span></div>'
+      + '<div class="chk-big">' + (empties ? fmtSol(rent) : "0 SOL") + '</div>'
+      + '<div class="muted" style="font-size:13.5px">' + (empties ? "locked in " + empties + " empty account" + (empties === 1 ? "" : "s") + usdTxt : "No empty token accounts found.") + '</div>'
+      + '<div class="dim" style="font-size:12px;margin-top:4px">' + other + (other === 1 ? ' account holds' : ' accounts hold') + ' tokens' + (harvest ? ', ' + harvest + ' need a fee harvest first' : '') + '.</div>'
+      + '<div class="links-row" style="margin-top:12px">' + (empties ? '<button class="btn pri sm" type="button" id="chkClean">' + (mine ? "Clean this wallet" : "Connect to clean") + '</button>' : '') + '<a class="btn sec sm" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '">Share result</a></div>';
+    const cb = $("chkClean"); if (cb) cb.onclick = () => { location.hash = "#app"; if (!owner) connect(); else scan(); };
+  } catch(e){ out.innerHTML = '<span class="err" style="margin:0">Could not read this wallet: ' + (e.message || "RPC error") + '. Try again.</span>'; }
+  $("chkBtn").disabled = false;
 }
 
 /* ---------- wallet ---------- */
@@ -818,7 +801,7 @@ async function connect(){
     const res = await provider.connect();
     const pk = res && res.publicKey ? res.publicKey : provider.publicKey;
     owner = new solanaWeb3.PublicKey(pk.toString());
-    $("btnConnect").textContent = short(owner.toString());
+    $("btnConnect").textContent = short(owner.toString()); $("chkMine").hidden = false;
     provider.on && provider.on("disconnect", resetAll);
     provider.on && provider.on("accountChanged", () => location.reload());
     await scan();
@@ -841,14 +824,13 @@ async function scan(){
       const res = await rpc("getTokenAccountsByOwner", [owner.toString(), {programId:pid}, {encoding:"jsonParsed"}]);
       (res.value || []).forEach(a => all.push({a, pid}));
     }
-    empties = []; withBal = []; hold = 0;
+    empties = []; withBal = [];
     all.forEach(({a, pid}) => {
       const info = a.account.data.parsed.info, ta = info.tokenAmount;
       const item = {pubkey:a.pubkey, program:pid, lamports:a.account.lamports, mint:info.mint, amount:ta.amount, ui:parseFloat(ta.uiAmountString || "0"), decimals:ta.decimals, harvest:false};
       (info.extensions || []).forEach(x => { if (x.extension === "transferFeeAmount" && x.state && Number(x.state.withheldAmount) > 0) item.harvest = true; });
-      if (info.mint === CFG.COIN_MINT) hold += item.ui;
       if (info.state === "frozen") return;
-      if (ta.amount === "0") empties.push(item); else if (info.mint !== CFG.COIN_MINT) withBal.push(item);
+      if (ta.amount === "0") empties.push(item); else withBal.push(item);
     });
     try { const bl = await rpc("getBalance", [CFG.FEE_WALLET]); feeBal = bl && bl.value != null ? bl.value : 0; } catch(e){ feeBal = 0; }
     withBal.sort((x, y) => x.mint.localeCompare(y.mint));
@@ -864,7 +846,7 @@ const FEE_MIN_BAL = 890880; // egy ures rendszer-szamla minimalis egyenlege (ren
 function feeAdj(fee, bal){ return (bal < FEE_MIN_BAL && bal + fee < FEE_MIN_BAL) ? 0 : fee; } // ha a fee tarca meg ures es a dij kisebb a minimumnal, nem kuldjuk (kulonben a tranzakcio elbukna)
 function chunk(arr, n){ const o = []; for (let i = 0; i < arr.length; i += n) o.push(arr.slice(i, i + n)); return o; }
 function buildPlan(burnSel){
-  const t = tierFor(hold);
+  const t = {name:"Standard", bps:FEE_BPS, idx:0};
   const groups = chunk(empties, EMPTY_BATCH).concat(chunk(burnSel, BURN_BATCH));
   let bal = feeBal;
   const batches = groups.map(items => { const reclaim = items.reduce((s, i) => s + i.lamports, 0); const fee = feeAdj(Math.floor(reclaim * t.bps / 10000), bal); bal += fee; return {items, reclaim, fee}; });
@@ -877,9 +859,6 @@ function selectedBurn(){
 }
 function renderRes(){
   $("chipAddr").textContent = short(owner.toString());
-  const t = tierFor(hold);
-  $("tierBadge").textContent = t.name + " tier - " + pct(t.bps) + " fee"; $("tierBadge").className = "badge " + t.cls;
-  drawTiers(t.idx);
   $("advCount").textContent = withBal.length;
   renderBurnList(); priceTokens();
   refresh();
@@ -891,8 +870,6 @@ function refresh(){
   $("bigSub").textContent = nEmpty + " empty account" + (nEmpty === 1 ? "" : "s") + (nBurn > 0 ? " + " + nBurn + " burned" : "");
   $("sReclaim").textContent = fmtSol(plan.reclaim); $("sPct").textContent = pct(plan.tier.bps);
   $("sFee").textContent = plan.fee ? "-" + fmtSol(plan.fee) : "0 SOL"; $("sNet").textContent = fmtSol(plan.net);
-  const left = plan.tier.idx === 0 ? CFG.TIER1_MIN : plan.tier.idx === 1 ? CFG.TIER2_MIN : 0;
-  $("feeNote").textContent = left ? "Hold " + fmtTok(left) + " $" + CFG.TICKER + " for a lower fee. You hold " + fmtTok(hold) + "." : "You hold " + fmtTok(hold) + " $" + CFG.TICKER + ". Thank you for holding.";
   const n = plan.batches.length;
   $("btnClean").disabled = busy || plan.reclaim === 0;
   $("btnClean").textContent = plan.reclaim === 0 ? "Nothing to clean" : "Clean wallet" + (n > 1 ? " (" + n + " transactions)" : "");
@@ -954,7 +931,7 @@ async function clean(){
   if (busy || !plan || !plan.reclaim) return;
   busy = true; $("btnClean").disabled = true; $("errRes").hidden = true;
   const conn = new solanaWeb3.Connection(RPC, "confirmed"), total = plan.batches.length, bps = plan.tier.bps;
-  const done = [], fails = [], skipped = []; let got = 0, rec = 0, fe = 0, accN = 0, cancelled = false, bal = feeBal;
+  const done = [], fails = [], skipped = []; let got = 0, rec = 0, fe = 0, accN = 0, cancelled = false, bal = feeBal; const bInfo = [];
   try { const bl = await rpc("getBalance", [CFG.FEE_WALLET]); bal = bl && bl.value != null ? bl.value : bal; } catch(e){}
   for (let i = 0; i < total; i++){
     const items = plan.batches[i].items.slice();
@@ -982,7 +959,7 @@ async function clean(){
       $("btnClean").textContent = "Cleaning...";
       const sig = await conn.sendRawTransaction(signed.serialize(), {skipPreflight:false});
       await conn.confirmTransaction({signature:sig, blockhash:bh.blockhash, lastValidBlockHeight:bh.lastValidBlockHeight}, "confirmed");
-      done.push(sig); got += c.reclaim - c.fee; bal += c.fee; rec += c.reclaim; fe += c.fee; accN += items.length;
+      done.push(sig); got += c.reclaim - c.fee; bal += c.fee; rec += c.reclaim; fe += c.fee; accN += items.length; bInfo.push({s:sig, n:items.length, rec:c.reclaim, fee:c.fee});
     } catch(e){
       const m = e && e.message ? e.message : String(e);
       if (/reject|denied|cancel/i.test(m)){ cancelled = true; break; }
@@ -990,7 +967,7 @@ async function clean(){
     }
   }
   busy = false;
-  if (done.length){ bumpStats(rec, fe, accN); loadFeeBal(); }
+  if (done.length){ bumpStats(bInfo); }
   if (done.length || fails.length || skipped.length){ showDone(got, done, fails, skipped.length); return; }
   $("errRes").textContent = cancelled ? "Cancelled in wallet. Nothing was changed." : "Something went wrong. Please try again.";
   $("errRes").hidden = false; refresh();
@@ -1007,10 +984,11 @@ function showDone(got, sigs, fails, skipped){
 
 
 /* ---------- wire up ---------- */
-initStatic(); initVerify(); loadPrice(); loadStats(); loadFeeBal();
-setInterval(() => { if (!document.hidden) loadPrice(); }, 20000);
-setInterval(() => { if (!document.hidden) loadStats(); }, 60000);
-setInterval(() => { if (!document.hidden) loadFeeBal(); }, 30000);
+initStatic(); initVerify(); loadSolPrice(); loadStats(true);
+setInterval(() => { if (!document.hidden) loadStats(false); }, 60000);
+setInterval(() => { if (!document.hidden) catchUp(); }, 25000);
+setInterval(() => { if (!document.hidden) renderStats(); }, 20000);
+setInterval(() => { if (!document.hidden) loadSolPrice(); }, 90000);
 if (typeof solanaWeb3 === "undefined"){ $("errIdle").textContent = "Could not load the Solana library. Check your connection and reload."; $("errIdle").hidden = false; }
 $("btnConnect").onclick = () => owner ? (location.hash = "#app") : connect();
 $("btnConnect2").onclick = connect;
@@ -1018,7 +996,7 @@ $("btnClean").onclick = clean;
 $("ack").onchange = refresh;
 $("btnRescan").onclick = scan;
 $("btnAgain").onclick = scan;
-$("btnDisc").onclick = () => { try { provider && provider.disconnect && provider.disconnect(); } catch(e){} resetAll(); };
+$("btnDisc").onclick = () => { try { provider && provider.disconnect && provider.disconnect(); } catch(e){} resetAll(); $("chkMine").hidden = true; };
 $("prio0").onclick = () => setPrio(0); $("prio1").onclick = () => setPrio(1);
 $("btnDust").onclick = () => {
   document.querySelectorAll("#burnList input").forEach(c => { const x = withBal[+c.dataset.i]; c.checked = !!x && x.value != null && x.value < 0.01; });
@@ -1026,6 +1004,9 @@ $("btnDust").onclick = () => {
   refresh();
 };
 $("btnClear").onclick = () => { document.querySelectorAll("#burnList input").forEach(c => c.checked = false); refresh(); };
+$("chkBtn").onclick = checkWallet;
+$("chkIn").onkeydown = e => { if (e.key === "Enter") checkWallet(); };
+$("chkMine").onclick = () => { if (owner){ $("chkIn").value = owner.toString(); checkWallet(); } };
 
 })();
 };
