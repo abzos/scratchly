@@ -3,15 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Scratchly - Reclaim SOL from your Solana wallet</title>
-<meta name="description" content="Close empty Solana token accounts and reclaim the SOL locked inside. Non-custodial, real-time stats, check any wallet for free.">
+<title>Scratchly: Close Empty Solana Token Accounts, Reclaim SOL</title>
+<meta name="description" content="Solana wallet cleaner. Close empty token accounts and get the locked SOL back. Non-custodial, simulated before you sign, real-time stats, free wallet check.">
+<link rel="canonical" href="https://app.scratchly.cfd/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="author" content="Scratchly">
 <meta name="theme-color" content="#06060D">
-<meta property="og:title" content="Scratchly - Reclaim SOL from your Solana wallet">
+<meta property="og:site_name" content="Scratchly"><meta property="og:url" content="https://app.scratchly.cfd/"><meta property="og:title" content="Scratchly - Close empty Solana token accounts and reclaim SOL">
 <meta property="og:description" content="Non-custodial Solana wallet cleaner. Real-time on-chain stats. Check any wallet for free.">
 <meta property="og:image" content="https://app.scratchly.cfd/og.png">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Scratchly - Solana wallet cleaner">
 <meta name="twitter:image" content="https://app.scratchly.cfd/og.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Scratchly", "url": "https://app.scratchly.cfd/", "applicationCategory": "FinanceApplication", "operatingSystem": "Web", "description": "Non-custodial Solana wallet cleaner that closes empty token accounts and returns the locked SOL.", "image": "https://app.scratchly.cfd/og.png", "browserRequirements": "Requires a Solana wallet such as Phantom, Solflare or Backpack"}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Scratchly", "url": "https://app.scratchly.cfd/", "logo": "https://app.scratchly.cfd/logo.png"}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can Scratchly touch my funds?", "acceptedAnswer": {"@type": "Answer", "text": "No. It never has your keys. Every transaction is built in your browser and signed in your own wallet, and you can read what you sign before approving."}}, {"@type": "Question", "name": "What is rent?", "acceptedAnswer": {"@type": "Answer", "text": "Every token account on Solana locks a small deposit of SOL, about 0.00204. When an empty account is closed, the deposit returns to you."}}, {"@type": "Question", "name": "Will it close accounts that hold tokens?", "acceptedAnswer": {"@type": "Answer", "text": "Never by default. Only empty accounts are selected. Tokens with a balance can be burned and closed only if you pick them yourself in Advanced."}}, {"@type": "Question", "name": "How does Scratchly make money?", "acceptedAnswer": {"@type": "Answer", "text": "It takes a small fee from the SOL that is released when accounts are closed. The exact amount is always shown in the summary before you sign. Details are in the whitepaper."}}, {"@type": "Question", "name": "My wallet shows a warning. What now?", "acceptedAnswer": {"@type": "Answer", "text": "New sites are sometimes flagged until wallets review them. Check that the address is app.scratchly.cfd and that the prompt matches the summary on screen. If anything differs, do not approve."}}, {"@type": "Question", "name": "Where do the live stats come from?", "acceptedAnswer": {"@type": "Answer", "text": "They follow Scratchly transactions on Solana in real time. Your browser listens to the network directly, on top of a baseline that is refreshed every few minutes."}}]}</script>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -283,6 +287,35 @@ footer .brand{margin-bottom:10px;color:#fff}
 .chk-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .chk-big{font:700 30px/1.1 var(--disp);letter-spacing:-.03em;margin:8px 0 2px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 
+/* guide oldalak + learn kartyak */
+.gcards{display:grid;gap:12px;margin-top:20px}
+.gcard{display:block;padding:20px;border-radius:20px}
+.gcard h2,.gcard h3{font:600 17px/1.3 var(--disp);letter-spacing:-.02em;margin:0 0 6px}
+.gcard p{color:var(--mut);font-size:14px;line-height:1.5}
+.gcard span{display:inline-block;margin-top:10px;color:var(--c);font-size:13px;font-weight:600}
+.gcard:hover{transform:translateY(-2px)}
+.guide{max-width:780px;padding-top:30px;padding-bottom:30px}
+.guide h1{font:700 clamp(28px,6vw,42px)/1.1 var(--disp);letter-spacing:-.03em;margin:10px 0 12px}
+.guide .lede{color:#C6CCEA;font-size:17px;line-height:1.6}
+.guide .upd{color:var(--dim);font-size:12.5px;margin:8px 0 18px}
+.guide h2{font:700 23px/1.2 var(--disp);letter-spacing:-.02em;margin:30px 0 10px}
+.guide h3{font:600 16px Inter;margin:16px 0 4px}
+.guide p,.guide li{color:#C6CCEA;font-size:16px;line-height:1.7}
+.guide p{margin:10px 0}.guide ul,.guide ol{margin:10px 0 10px 22px}.guide li{margin:6px 0}
+.guide b{color:#fff;font-weight:600}
+.guide a{color:var(--c);text-decoration:underline;text-underline-offset:3px}
+.guide .btn{text-decoration:none}.guide .btn.pri{color:#05050C}.guide .btn.sec{color:#fff}
+.guide code{font:500 13.5px var(--mono);background:#0A0A1C;border:1px solid var(--line);border-radius:6px;padding:2px 7px;word-break:break-word}
+.guide table{width:100%;max-width:520px;border-collapse:collapse;margin:14px 0;font-size:15px}
+.guide th,.guide td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}.guide th{color:var(--dim);font-weight:500;font-size:12.5px}.guide td.n{font-family:var(--mono)}
+.crumbs{font-size:13px;color:var(--dim)}.crumbs a{color:var(--mut);text-decoration:none}
+.cta{padding:24px;border-radius:22px;margin:34px 0}.cta h2{margin:0 0 6px}.cta p{margin:0 0 14px}
+.related ul{list-style:none;margin:10px 0 0;display:grid;gap:8px}.related li a{font-size:15.5px}
+footer a{color:var(--mut)}footer a:hover{color:#fff}
+@media(min-width:900px){.gcards{grid-template-columns:repeat(3,1fr)}}
+
+.guide a.gcard{color:inherit;text-decoration:none}.guide a.gcard h2,.guide a.gcard h3{color:#fff}.guide a.gcard p{color:var(--mut)}.guide a.gcard span{color:var(--c)}
+
 </style>
 </head>
 <body>
@@ -290,7 +323,7 @@ footer .brand{margin-bottom:10px;color:#fff}
 
 <header class="nav"><div class="wrap">
   <a class="brand" href="#top"><img src="logo.png" alt="Scratchly logo">scratchly</a>
-  <nav class="links"><a href="#app">Cleaner</a><a href="#stats">Live stats</a><a href="#check">Wallet check</a><a href="#verify">Verify</a><a href="#roadmap">Roadmap</a><a href="#whitepaper">Whitepaper</a></nav>
+  <nav class="links"><a href="#app">Cleaner</a><a href="#stats">Live stats</a><a href="#check">Wallet check</a><a href="#verify">Verify</a><a href="#roadmap">Roadmap</a><a href="#whitepaper">Whitepaper</a><a href="/guides">Guides</a></nav>
   <button class="btn pri sm" id="btnConnect">Connect wallet</button>
 </div></header>
 <div class="rail"><div class="rail-in">
@@ -445,6 +478,17 @@ footer .brand{margin-bottom:10px;color:#fff}
   </div>
 </div></section>
 
+<section class="s" id="learn"><div class="wrap">
+  <h2 class="sec">Learn how Solana wallets work</h2>
+  <p class="sub">Short guides on rent, empty token accounts and how to clean a wallet safely.</p>
+  <div class="gcards">
+    <a class="gcard glass" href="/solana-rent-explained"><h3>Solana rent explained</h3><p>Why every token account locks about 0.00204 SOL, and how it adds up.</p><span>Read the guide</span></a>
+    <a class="gcard glass" href="/close-empty-token-accounts-solana"><h3>How to close empty token accounts</h3><p>Find them, close them and get your SOL back, step by step.</p><span>Read the guide</span></a>
+    <a class="gcard glass" href="/is-it-safe-to-close-token-accounts"><h3>Is it safe to close token accounts?</h3><p>What a legitimate transaction looks like, and the red flags to avoid.</p><span>Read the guide</span></a>
+  </div>
+  <p style="margin-top:14px"><a class="lnk" href="/guides">See all guides</a></p>
+</div></section>
+
 <section class="s"><div class="wrap">
   <h2 class="sec">Questions</h2>
   <div class="faq">
@@ -554,6 +598,7 @@ footer .brand{margin-bottom:10px;color:#fff}
 <footer><div class="wrap">
   <div class="brand"><img src="logo.png" alt="" style="width:26px;height:26px;border-radius:50%">scratchly</div>
   <div class="links-row" id="socials" style="margin:6px 0 14px"></div>
+  <p style="margin-bottom:10px"><a href="/guides">Guides</a> &nbsp; <a href="#verify">Verify</a> &nbsp; <a href="#whitepaper">Whitepaper</a> &nbsp; <a href="#roadmap">Roadmap</a></p>
   <p>Scratchly is a utility tool. Use at your own risk and check every transaction in your wallet. Nothing here is financial advice.</p>
 </div></footer>
 
