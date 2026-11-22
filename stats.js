@@ -54,9 +54,11 @@ async function main() {
       if ((ix.program === "spl-token" || ix.program === "spl-token-2022") && p.type === "closeAccount") {
         closed++;
         const idx = keys.indexOf(p.info.account);
-        if (idx >= 0) reclaimed += tx.meta.preBalances[idx];
+        if (idx >= 0) reclaimed += Math.min(tx.meta.preBalances[idx], 4000000);
         dest = p.info.destination || dest;
       }
+      if (ix.program === "stake" && p.type === "withdraw") { closed++; reclaimed += Math.min(Number(p.info.lamports || 0), 2282880); dest = p.info.destination || dest; }
+      if (ix.program === "bpf-upgradeable-loader" && p.type === "close") { closed++; const bi = keys.indexOf(p.info.account); if (bi >= 0) reclaimed += tx.meta.preBalances[bi]; dest = p.info.recipient || p.info.destination || dest; }
       if (ix.program === "system" && p.type === "transfer" && p.info.destination === CFG.FEE_WALLET) fee += Number(p.info.lamports);
     }
     if (!closed) continue;

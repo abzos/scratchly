@@ -40,7 +40,9 @@ function parse(tx){
   if (!tx || !tx.meta || tx.meta.err) return null;
   const keys = tx.transaction.message.accountKeys.map(k => typeof k === "string" ? k : k.pubkey); let n = 0, rec = 0, dest = null;
   for (const ix of tx.transaction.message.instructions){ const p = ix.parsed; if (!p) continue;
-    if ((ix.program === "spl-token" || ix.program === "spl-token-2022") && p.type === "closeAccount"){ n++; const i = keys.indexOf(p.info.account); if (i >= 0) rec += tx.meta.preBalances[i]; dest = p.info.destination || dest; } }
+    if ((ix.program === "spl-token" || ix.program === "spl-token-2022") && p.type === "closeAccount"){ n++; const i = keys.indexOf(p.info.account); if (i >= 0) rec += Math.min(tx.meta.preBalances[i], 4000000); dest = p.info.destination || dest; }
+    if (ix.program === "stake" && p.type === "withdraw"){ n++; rec += Math.min(Number(p.info.lamports || 0), 2282880); dest = p.info.destination || dest; }
+    if (ix.program === "bpf-upgradeable-loader" && p.type === "close"){ n++; const i2 = keys.indexOf(p.info.account); if (i2 >= 0) rec += tx.meta.preBalances[i2]; dest = p.info.recipient || p.info.destination || dest; } }
   return n ? {n, rec, dest, t:tx.blockTime || 0} : null;
 }
 async function ingest(sig){

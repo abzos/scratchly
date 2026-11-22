@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recover SOL: Stake, Program Buffers, Wrapped SOL | Scratchly</title>
+<meta name="description" content="Recover SOL from inactive stake accounts, leftover program buffers and wrapped SOL. Non-custodial, simulated before you sign. Beta.">
+<link rel="canonical" href="https://app.scratchly.cfd/recover"><meta name="robots" content="index,follow,max-image-preview:large"><meta name="theme-color" content="#06060D">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Scratchly"><meta property="og:title" content="Recover SOL from your Solana wallet | Scratchly"><meta property="og:description" content="Inactive stake accounts, wrapped SOL and leftover program buffers. Non-custodial and simulated before you sign."><meta property="og:url" content="https://app.scratchly.cfd/recover"><meta property="og:image" content="https://app.scratchly.cfd/og.png">
+<meta name="twitter:card" content="summary_large_image"><link rel="icon" type="image/png" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Scratchly Recover", "url": "https://app.scratchly.cfd/recover", "applicationCategory": "FinanceApplication", "operatingSystem": "Web", "description": "Recover SOL from withdrawable stake accounts, wrapped SOL and leftover program buffers. Non-custodial, simulated before you sign."}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Scratchly", "item": "https://app.scratchly.cfd/"}, {"@type": "ListItem", "position": 2, "name": "Recover", "item": "https://app.scratchly.cfd/recover"}]}</script>
+</head><body><div class="bg"></div>
+<header class="nav"><div class="wrap"><a class="brand" href="/"><img src="/logo.png" alt="Scratchly logo" width="34" height="34">scratchly</a><nav class="links"><a href="/">Cleaner</a><a href="/recover">Recover</a><a href="/guides">Guides</a></nav><button class="btn pri sm" id="btnConnect" type="button">Connect wallet</button></div></header>
+<main class="wrap guide" style="max-width:860px">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Scratchly</a> / <span>Recover</span></nav>
+<h1>Recover more SOL from your wallet</h1>
+<p class="lede">Beyond empty token accounts, SOL can sit in inactive stake accounts, wrapped SOL and leftover program buffers. Find it, review it, and move it back to your wallet.</p>
+<div class="note-beta"><b>Beta.</b> This tool is new. Start with a small amount, review every wallet prompt, and compare it with the summary on screen. Every transaction is simulated before you are asked to sign, and the SOL always goes to your own wallet.</div>
+<div class="panel glass" id="rc" style="margin-top:18px">
+  <div id="rcIdle" class="stack"><p class="muted" style="font-size:14.5px">Connect your wallet. We scan for withdrawable stake accounts, wrapped SOL and program buffers. Nothing is signed until you press recover.</p>
+    <div><button class="btn pri" id="btnConnect2" type="button" style="width:100%">Connect wallet</button></div>
+    <div id="noWallet" hidden class="stack"><p class="muted" style="font-size:13.5px">No wallet found in this browser. Open this page inside your wallet app:</p><div class="links-row"><a class="btn sec sm" id="lnkPhantom" href="#">Open in Phantom</a><a class="btn sec sm" id="lnkSolflare" href="#">Open in Solflare</a></div></div>
+    <p class="err" id="errIdle" hidden></p></div>
+  <div id="rcScan" class="center" hidden style="padding:26px 0"><div class="spin"></div><p class="muted">Scanning your wallet...</p></div>
+  <div id="rcRes" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span class="chip" id="chipAddr"></span><button class="btn sec sm" id="btnSelAll" type="button">Reset selection</button></div>
+    <div class="center" style="margin:20px 0 14px"><div class="muted" style="font-size:13.5px">You receive</div><div class="big" id="bigSol" style="margin-top:6px">0 SOL</div><div class="muted" id="bigSub" style="margin-top:8px;font-size:14px"></div></div>
+    <div><div class="row2"><span class="muted">SOL returned</span><b id="sRet">-</b></div><div class="row2"><span class="muted">Scratchly fee</span><b id="sFee">-</b></div><div class="row2 total"><span>You receive</span><b class="ok" id="sNet">-</b></div></div>
+    <div style="margin-top:14px"><button class="btn pri" id="btnRun" type="button" style="width:100%">Recover SOL</button></div><p class="err" id="errRes" hidden></p>
+    <div id="rcList"></div><div id="scanNotes"></div>
+    <div class="center" style="margin-top:14px"><button class="btn sec sm" id="btnRescan" type="button">Rescan</button> <button class="btn sec sm" id="btnDisc" type="button">Disconnect</button></div></div>
+  <div id="rcDone" class="center stack" hidden><div><div class="big" id="doneSol">0 SOL</div><p class="muted" style="margin-top:8px;font-size:14px" id="doneSub"></p></div><div id="doneTx" style="text-align:left"></div><p class="err" id="errDone" hidden></p>
+    <div class="links-row" style="justify-content:center"><a class="btn pri sm" id="btnShare" target="_blank" rel="noopener">Share on X</a><button class="btn sec sm" id="btnAgain" type="button">Scan again</button></div></div>
+</div>
+<h2>What each module does</h2>
+<div class="gcards">
+<div class="gcard glass"><h3>Stake accounts</h3><p>Lists stake accounts you control that are not delegated or are fully deactivated. Withdrawing returns the whole balance, including your original stake. The fee applies only to the account deposit, never to your stake.</p></div>
+<div class="gcard glass"><h3>Wrapped SOL</h3><p>Wrapped SOL is SOL held in a token account, often left over after a swap. Unwrapping closes the account and returns the SOL. The fee applies only to the account deposit.</p></div>
+<div class="gcard glass"><h3>Program buffers</h3><p>For developers. Failed or abandoned deployments can leave buffer accounts that hold SOL. Closing them returns the deposit. Keep a buffer if you plan to upgrade a program soon.</p></div></div>
+<section class="related"><h2>Related guides</h2><ul><li><a href="/solana-rent-explained">Solana rent explained</a></li><li><a href="/close-empty-token-accounts-solana">How to close empty token accounts</a></li><li><a href="/is-it-safe-to-close-token-accounts">Is it safe to close token accounts?</a></li></ul></section>
+</main>
+<footer><div class="wrap"><div class="brand"><img src="/logo.png" alt="" width="26" height="26" style="border-radius:50%">scratchly</div><p><a href="/">Cleaner</a> &nbsp; <a href="/recover">Recover</a> &nbsp; <a href="/guides">Guides</a> &nbsp; <a href="/#verify">Verify</a></p><p style="margin-top:10px">Scratchly is a utility tool. Use at your own risk and check every transaction in your wallet. Nothing here is financial advice.</p></div></footer>
+<script src="/config.js"></script>
+<script type="module">
+(async () => {
+  try { const m = await import("https://cdn.jsdelivr.net/npm/buffer@6.0.3/+esm"); const B = m.Buffer || (m.default && m.default.Buffer); if (B) { window.Buffer = B; window.global = window.global || window; } } catch (e) {}
+  await new Promise(r => { const t = document.createElement("script"); t.src = "https://cdn.jsdelivr.net/npm/@solana/web3.js@1.98.0/lib/index.iife.min.js"; t.onload = r; t.onerror = r; document.head.appendChild(t); });
+  (function(){
+const CFG = window.SCRATCHLY_CONFIG, FEE_BPS = 500, FEE_MIN_BAL = 890880;
+const $ = id => document.getElementById(id);
+const RPC = CFG.RPC_URL || "https://api.mainnet-beta.solana.com";
+const TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", STAKE = "Stake11111111111111111111111111111111111111", LOADER = "BPFLoaderUpgradeab1e11111111111111111111111";
+const CLOCK = "SysvarC1ock11111111111111111111111111111111", STAKE_HIST = "SysvarStakeHistory1111111111111111111111111", WSOL = "So11111111111111111111111111111111111111112", CB_PROGRAM = "ComputeBudget111111111111111111111111111111";
+const B58_BUFFER = "2UzHM"; // base58 of [1,0,0,0], the tag of an upgradeable-loader buffer account
+const MAX_U64 = "18446744073709551615", BATCH = 8;
+let provider = null, owner = null, items = [], busy = false, feeBal = 0, solUsd = 0;
+const short = s => s.slice(0, 4) + "..." + s.slice(-4);
+const fmtSol = l => { const v = l/1e9; return (v === 0 ? "0" : v.toFixed(v < 0.01 ? 5 : 4).replace(/0+$/, "").replace(/\.$/, "")) + " SOL"; };
+const usd = n => "$" + n.toLocaleString("en-US", {maximumFractionDigits: n < 10 ? 2 : 0});
+const show = id => ["rcIdle", "rcScan", "rcRes", "rcDone"].forEach(x => $(x).hidden = x !== id);
+const chunk = (a, n) => { const o = []; for (let i = 0; i < a.length; i += n) o.push(a.slice(i, i + n)); return o; };
+const feeAdj = (fee, bal) => (bal < FEE_MIN_BAL && bal + fee < FEE_MIN_BAL) ? 0 : fee;
+const u8 = a => typeof Buffer !== "undefined" ? Buffer.from(a) : new Uint8Array(a);
+async function rpc(method, params){
+  const r = await fetch(RPC, {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({jsonrpc:"2.0", id:1, method, params})});
+  const j = await r.json(); if (j.error) throw new Error(j.error.message); return j.result;
+}
+function confetti(n){ const cols = ["#8B6CFF", "#2DE2E6", "#FFB86B", "#FF7AA8", "#4ADE9A"]; for (let i = 0; i < (n || 50); i++){ const d = document.createElement("div"); d.className = "cf"; d.style.left = Math.random()*100 + "vw"; d.style.background = cols[i % 5]; d.style.animationDuration = (2 + Math.random()*2) + "s"; d.style.animationDelay = Math.random()*.4 + "s"; document.body.appendChild(d); setTimeout(() => d.remove(), 4800); } }
+
+/* ---------- wallet ---------- */
+function findProvider(){ const w = window; return (w.phantom && w.phantom.solana && w.phantom.solana.isPhantom && w.phantom.solana) || (w.solflare && w.solflare.isSolflare && w.solflare) || (w.backpack && w.backpack.solana) || (w.solana && w.solana.connect && w.solana) || null; }
+async function connect(){
+  $("errIdle").hidden = true; provider = findProvider();
+  if (!provider){ $("noWallet").hidden = false; return; }
+  try {
+    const res = await provider.connect(), pk = res && res.publicKey ? res.publicKey : provider.publicKey;
+    owner = new solanaWeb3.PublicKey(pk.toString()); $("btnConnect").textContent = short(owner.toString());
+    provider.on && provider.on("accountChanged", () => location.reload());
+    await scan();
+  } catch(e){ show("rcIdle"); $("errIdle").textContent = "Connection cancelled or failed. " + (e.message || ""); $("errIdle").hidden = false; }
+}
+
+/* ---------- scan ---------- */
+const settle = p => p.then(v => ({v}), e => ({e}));
+async function scan(){
+  show("rcScan"); items = []; const o = owner.toString(), notes = [];
+  try {
+    const [ep, st, bf, ws, fb] = await Promise.all([
+      settle(rpc("getEpochInfo", [])),
+      settle(rpc("getProgramAccounts", [STAKE, {encoding:"jsonParsed", filters:[{memcmp:{offset:44, bytes:o}}]}])),
+      settle(rpc("getProgramAccounts", [LOADER, {encoding:"base64", dataSlice:{offset:0, length:0}, filters:[{memcmp:{offset:0, bytes:B58_BUFFER}}, {memcmp:{offset:5, bytes:o}}]}])),
+      settle(rpc("getTokenAccountsByOwner", [o, {mint:WSOL}, {encoding:"jsonParsed"}])),
+      settle(rpc("getBalance", [CFG.FEE_WALLET]))]);
+    feeBal = fb.v && fb.v.value != null ? fb.v.value : 0;
+    const epoch = ep.v ? ep.v.epoch : 0, now = Math.floor(Date.now()/1000); let activeStake = 0, cooling = 0;
+    if (st.e) notes.push("Stake accounts could not be scanned with this connection."); else (st.v || []).forEach(a => {
+      const p = a.account.data && a.account.data.parsed; if (!p || !p.info) return; const meta = p.info.meta; if (!meta) return;
+      const lock = meta.lockup || {}, locked = (Number(lock.unixTimestamp || 0) > now || Number(lock.epoch || 0) > epoch) && lock.custodian !== o; if (locked) return;
+      const reserve = Number(meta.rentExemptReserve || 2282880);
+      if (p.type === "initialized") items.push({kind:"stake", pubkey:a.pubkey, lamports:a.account.lamports, feeBase:reserve, note:"Not delegated"});
+      else if (p.type === "delegated" && p.info.stake && p.info.stake.delegation){
+        const d = p.info.stake.delegation.deactivationEpoch;
+        if (d === MAX_U64) activeStake++; else if (epoch > Number(d)) items.push({kind:"stake", pubkey:a.pubkey, lamports:a.account.lamports, feeBase:reserve, note:"Deactivated"}); else cooling++;
+      }
+    });
+    if (bf.e) notes.push("Program buffers could not be scanned with this connection."); else (bf.v || []).forEach(a => items.push({kind:"buffer", pubkey:a.pubkey, lamports:a.account.lamports, feeBase:a.account.lamports, note:"Deployment buffer"}));
+    if (ws.e) notes.push("Wrapped SOL could not be scanned."); else ((ws.v && ws.v.value) || []).forEach(a => {
+      const info = a.account.data.parsed.info; if (!info.isNative || info.state === "frozen" || info.tokenAmount.amount === "0") return;
+      items.push({kind:"wsol", pubkey:a.pubkey, lamports:a.account.lamports, feeBase:Number((info.rentExemptReserve && info.rentExemptReserve.amount) || 2039280), note:"Wrapped SOL"});
+    });
+    items.forEach(i => i.sel = i.kind !== "buffer");
+    $("scanNotes").innerHTML = notes.concat(activeStake ? [activeStake + " active stake account" + (activeStake === 1 ? "" : "s") + " not listed: still earning."] : [], cooling ? [cooling + " stake account" + (cooling === 1 ? "" : "s") + " still cooling down: check again later."] : []).map(t => '<p class="dim" style="font-size:12.5px;margin-top:6px">' + t + '</p>').join("");
+    render(); show("rcRes");
+  } catch(e){ show("rcIdle"); $("errIdle").textContent = "Scan failed: " + (e.message || "RPC error"); $("errIdle").hidden = false; }
+}
+
+/* ---------- render + plan ---------- */
+const KINDS = {
+  stake:{t:"Stake accounts", s:"Inactive stake you can withdraw. This includes your original stake, because it is yours. The fee applies only to the account deposit."},
+  wsol:{t:"Wrapped SOL", s:"SOL held in wrapped token accounts. Unwrapping returns it to your wallet. The fee applies only to the account deposit."},
+  buffer:{t:"Program buffers", s:"For developers: leftover buffer accounts from program deployments. Keep a buffer if you plan to upgrade a program soon. Nothing here is selected by default."}};
+function render(){
+  $("rcList").innerHTML = ["stake", "wsol", "buffer"].map(k => {
+    const its = items.filter(i => i.kind === k), tot = its.reduce((s, i) => s + i.lamports, 0);
+    return '<div class="rgrp"><div class="rgh"><h3>' + KINDS[k].t + '</h3><span class="chip">' + its.length + ' found' + (its.length ? ', ' + fmtSol(tot) : '') + '</span></div><p class="dim" style="font-size:12.5px;margin:4px 0 4px">' + KINDS[k].s + '</p>'
+      + (its.length ? its.map(i => '<label class="tok"><input type="checkbox" data-id="' + i.pubkey + '"' + (i.sel ? ' checked' : '') + '><span class="mint">' + short(i.pubkey) + '</span><span class="amt">' + fmtSol(i.lamports) + '<small>' + i.note + '</small></span></label>').join("") : '<div class="empty">Nothing found.</div>') + '</div>';
+  }).join("");
+  document.querySelectorAll("#rcList input").forEach(c => c.onchange = () => { const it = items.find(i => i.pubkey === c.dataset.id); if (it) it.sel = c.checked; refresh(); });
+  $("chipAddr").textContent = short(owner.toString()); refresh();
+}
+function buildPlan(){
+  const sel = items.filter(i => i.sel), groups = []; ["stake", "wsol", "buffer"].forEach(k => chunk(sel.filter(i => i.kind === k), BATCH).forEach(g => groups.push(g)));
+  let bal = feeBal; const batches = groups.map(g => { const ret = g.reduce((s, i) => s + i.lamports, 0), base = g.reduce((s, i) => s + i.feeBase, 0), fee = feeAdj(Math.floor(base * FEE_BPS / 10000), bal); bal += fee; return {items:g, ret, fee}; });
+  const ret = batches.reduce((s, b) => s + b.ret, 0), fee = batches.reduce((s, b) => s + b.fee, 0); return {batches, ret, fee, net:ret - fee, n:sel.length};
+}
+let plan = null;
+function refresh(){
+  plan = buildPlan(); $("bigSol").textContent = fmtSol(plan.net); $("bigSub").textContent = plan.n + " account" + (plan.n === 1 ? "" : "s") + " selected" + (solUsd && plan.net ? ", about " + usd(plan.net/1e9*solUsd) : "");
+  $("sRet").textContent = fmtSol(plan.ret); $("sFee").textContent = plan.fee ? "-" + fmtSol(plan.fee) : "0 SOL"; $("sNet").textContent = fmtSol(plan.net);
+  $("btnRun").disabled = busy || plan.ret === 0; $("btnRun").textContent = plan.ret === 0 ? "Nothing selected" : "Recover SOL" + (plan.batches.length > 1 ? " (" + plan.batches.length + " transactions)" : "");
+}
+
+/* ---------- transactions ---------- */
+const W = () => solanaWeb3;
+const pk = s => new (W().PublicKey)(s);
+function ix(programId, data, keys){ return new (W().TransactionInstruction)({programId:pk(programId), data:u8(data), keys}); }
+const k = (pubkey, isSigner, isWritable) => ({pubkey:typeof pubkey === "string" ? pk(pubkey) : pubkey, isSigner, isWritable});
+function ixFor(it){
+  if (it.kind === "wsol") return ix(TOKEN_PROGRAM_ID, [9], [k(it.pubkey, false, true), k(owner, false, true), k(owner, true, false)]); // SPL Token CloseAccount
+  if (it.kind === "buffer") return ix(LOADER, [5, 0, 0, 0], [k(it.pubkey, false, true), k(owner, false, true), k(owner, true, false)]); // UpgradeableLoader Close
+  const d = new Uint8Array(12); new DataView(d.buffer).setUint32(0, 4, true); new DataView(d.buffer).setBigUint64(4, BigInt(it.lamports), true); // Stake Withdraw(lamports)
+  return ix(STAKE, d, [k(it.pubkey, false, true), k(owner, false, true), k(CLOCK, false, false), k(STAKE_HIST, false, false), k(owner, true, false)]);
+}
+function cuLimitIx(units){ const d = new Uint8Array(5); d[0] = 2; new DataView(d.buffer).setUint32(1, units, true); return ix(CB_PROGRAM, d, []); }
+function buildTx(its, fee, bh, units){
+  const tx = new (W().Transaction)(), map = []; if (units){ tx.add(cuLimitIx(units)); map.push(-1); }
+  its.forEach((it, i) => { tx.add(ixFor(it)); map.push(i); });
+  tx.add(W().SystemProgram.transfer({fromPubkey:owner, toPubkey:pk(CFG.FEE_WALLET), lamports:fee})); map.push(-1);
+  tx.feePayer = owner; tx.recentBlockhash = bh; return {tx, map};
+}
+const b64 = u => { let s = ""; for (let i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); };
+async function simulate(tx){ const r = await rpc("simulateTransaction", [b64(tx.serialize({requireAllSignatures:false, verifySignatures:false})), {encoding:"base64", sigVerify:false, replaceRecentBlockhash:true, commitment:"processed"}]); return r.value; }
+async function run(){
+  if (busy || !plan || !plan.ret) return; busy = true; $("btnRun").disabled = true; $("errRes").hidden = true;
+  const conn = new (W().Connection)(RPC, "confirmed"), done = [], fails = [], skipped = []; let got = 0, cancelled = false, bal = feeBal;
+  try { const bl = await rpc("getBalance", [CFG.FEE_WALLET]); bal = bl && bl.value != null ? bl.value : bal; } catch(e){}
+  for (let i = 0; i < plan.batches.length; i++){
+    const its = plan.batches[i].items.slice();
+    const calc = () => { const ret = its.reduce((s, x) => s + x.lamports, 0), base = its.reduce((s, x) => s + x.feeBase, 0); return {ret, fee:feeAdj(Math.floor(base * FEE_BPS / 10000), bal)}; };
+    try {
+      $("btnRun").textContent = "Preparing " + (i + 1) + " of " + plan.batches.length + "..."; const bh = await conn.getLatestBlockhash();
+      let sim = null, tries = 0, c = calc();
+      while (its.length){ c = calc(); const b = buildTx(its, c.fee, bh.blockhash, null); sim = await simulate(b.tx); if (!sim.err) break;
+        const ie = sim.err && sim.err.InstructionError, idx = ie ? b.map[ie[0]] : -1; if (idx >= 0 && tries++ < 12){ skipped.push(its[idx]); its.splice(idx, 1); continue; } break; }
+      if (!its.length) continue; if (sim.err){ fails.push("simulation failed (" + JSON.stringify(sim.err) + ")"); continue; }
+      const units = Math.min(1400000, Math.ceil((sim.unitsConsumed || 30000) * 1.25) + 300), tx = buildTx(its, c.fee, bh.blockhash, units).tx;
+      $("btnRun").textContent = "Approve in your wallet (" + (i + 1) + "/" + plan.batches.length + ")..."; const signed = await provider.signTransaction(tx);
+      $("btnRun").textContent = "Sending..."; const sig = await conn.sendRawTransaction(signed.serialize(), {skipPreflight:false});
+      await conn.confirmTransaction({signature:sig, blockhash:bh.blockhash, lastValidBlockHeight:bh.lastValidBlockHeight}, "confirmed");
+      done.push(sig); got += c.ret - c.fee; bal += c.fee;
+    } catch(e){ const m = e && e.message ? e.message : String(e); if (/reject|denied|cancel/i.test(m)){ cancelled = true; break; } fails.push(m); }
+  }
+  busy = false;
+  if (done.length || fails.length || skipped.length){
+    $("doneSol").textContent = fmtSol(got); $("doneSub").textContent = (done.length ? "returned to your wallet" : "No transaction went through") + (skipped.length ? " (" + skipped.length + " skipped: cannot be recovered yet)" : "");
+    $("doneTx").innerHTML = done.map((s, i) => '<a class="txlink" target="_blank" rel="noopener" href="https://solscan.io/tx/' + s + '">Transaction ' + (i + 1) + ': ' + short(s) + '</a>').join("");
+    $("errDone").hidden = !fails.length; if (fails.length) $("errDone").textContent = fails.length + " transaction(s) failed: " + fails[0] + ". You can scan again and retry.";
+    $("btnShare").href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent("Just recovered " + fmtSol(got) + " from my Solana wallet with Scratchly.\n\napp.scratchly.cfd/recover");
+    show("rcDone"); if (done.length) confetti(60); return;
+  }
+  $("errRes").textContent = cancelled ? "Cancelled in wallet. Nothing was changed." : "Something went wrong. Please try again."; $("errRes").hidden = false; refresh();
+}
+async function loadSol(){ try { const r = await fetch("https://api.dexscreener.com/latest/dex/tokens/" + WSOL), j = await r.json(); const p = (j.pairs || []).filter(x => x.chainId === "solana").sort((a, b) => ((b.liquidity && b.liquidity.usd) || 0) - ((a.liquidity && a.liquidity.usd) || 0))[0]; if (p && p.priceUsd){ solUsd = parseFloat(p.priceUsd); if (plan) refresh(); } } catch(e){} }
+const u = encodeURIComponent(location.href.split("#")[0]), ru = encodeURIComponent(location.origin);
+$("lnkPhantom").href = "https://phantom.app/ul/browse/" + u + "?ref=" + ru; $("lnkSolflare").href = "https://solflare.com/ul/v1/browse/" + u + "?ref=" + ru;
+$("btnConnect").onclick = () => owner ? (location.hash = "#rc") : connect(); $("btnConnect2").onclick = connect; $("btnRun").onclick = run;
+$("btnRescan").onclick = scan; $("btnAgain").onclick = scan; $("btnSelAll").onclick = () => { items.forEach(i => i.sel = i.kind !== "buffer"); render(); };
+$("btnDisc").onclick = () => { try { provider && provider.disconnect && provider.disconnect(); } catch(e){} owner = null; provider = null; $("btnConnect").textContent = "Connect wallet"; show("rcIdle"); };
+if (typeof solanaWeb3 === "undefined"){ $("errIdle").textContent = "Could not load the Solana library. Check your connection and reload."; $("errIdle").hidden = false; }
+loadSol();
+
+  })();
+})();
+</script></body></html>
