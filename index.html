@@ -25,7 +25,7 @@
 :root{--bg:#06060D;--s1:#0C0B1D;--s2:#12112B;--line:#25234B;--line2:#37336E;--tx:#F2F4FF;--mut:#98A1C8;--dim:#6E77A0;--v:#8B6CFF;--c:#2DE2E6;--ok:#4ADE9A;--bad:#FF6B8B;--warn:#FFB86B;
 --grad:linear-gradient(100deg,#8B6CFF,#2DE2E6);--disp:"Sora",Inter,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:84px}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:128px}
 body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx);line-height:1.6;overflow-x:hidden;padding-top:env(safe-area-inset-top)}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit}
@@ -36,7 +36,7 @@ button{font-family:inherit}
 .bg:after{content:"";position:absolute;inset:0;opacity:.045;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>")}
 /* nav */
 .nav{position:sticky;top:0;z-index:40;background:rgba(6,6,13,.74);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(37,35,75,.7)}
-.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px;gap:14px}
+.nav>.wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:14px}
 .brand{display:flex;align-items:center;gap:10px;font:700 20px var(--disp);letter-spacing:-.4px}
 .brand img{width:34px;height:34px;border-radius:50%}
 .links{display:none;gap:26px;color:var(--mut);font-size:14px;font-weight:500}
@@ -320,16 +320,30 @@ footer a{color:var(--mut)}footer a:hover{color:#fff}
 .rgrp{margin-top:20px}.rgh{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.rgh h3{font:600 16px var(--disp);margin:0}
 .badge-beta{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px;background:rgba(255,184,107,.16);color:#FFC98A;margin-left:8px;vertical-align:middle}
 
+/* fulek + frissitett megjelenes */
+.tabsbar{border-top:1px solid rgba(37,35,75,.5)}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:7px 0}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;color:var(--mut);font-size:14px;font-weight:500;white-space:nowrap;transition:color .15s,background .15s}
+.tab:hover{color:#fff;background:rgba(255,255,255,.05)}
+.tab.on{color:#fff;background:linear-gradient(180deg,rgba(139,108,255,.24),rgba(139,108,255,.10));box-shadow:inset 0 0 0 1px rgba(139,108,255,.5)}
+.tb{font-style:normal;font-size:10px;font-weight:700;color:#FFC98A;background:rgba(255,184,107,.16);border-radius:999px;padding:1px 6px}
+@property --a{syntax:"<angle>";initial-value:0deg;inherits:false}
+.console .glass:before{background:conic-gradient(from var(--a),rgba(139,108,255,.9),rgba(37,35,75,.4) 26%,rgba(45,226,230,.75) 52%,rgba(37,35,75,.4) 78%,rgba(139,108,255,.9));animation:spin 9s linear infinite}
+@keyframes spin{to{--a:360deg}}
+.tile:after,.gcard:after{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(220px circle at var(--mx,50%) var(--my,0%),rgba(139,108,255,.16),transparent 62%);opacity:0;transition:opacity .25s;pointer-events:none}
+.tile:hover:after,.gcard:hover:after{opacity:1}
+.panel{box-shadow:0 30px 90px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.02) inset}
+h2.sec{letter-spacing:-.035em}
+.btn.pri{background-size:160% 100%;transition:background-position .4s,transform .12s,box-shadow .2s}
+.btn.pri:hover{background-position:100% 0}
+
 </style>
 </head>
 <body>
 <div class="bg"></div>
 
-<header class="nav"><div class="wrap">
-  <a class="brand" href="#top"><img src="logo.png" alt="Scratchly logo">scratchly</a>
-  <nav class="links"><a href="#app">Cleaner</a><a href="#stats">Live stats</a><a href="#check">Wallet check</a><a href="/recover">Recover</a><a href="#verify">Verify</a><a href="#roadmap">Roadmap</a><a href="#whitepaper">Whitepaper</a><a href="/guides">Guides</a></nav>
-  <button class="btn pri sm" id="btnConnect">Connect wallet</button>
-</div></header>
+<header class="nav"><div class="wrap"><a class="brand" href="/"><img src="/logo.png" alt="Scratchly logo" width="34" height="34">scratchly</a><button class="btn pri sm" id="btnConnect" type="button">Connect wallet</button></div><div class="tabsbar"><div class="wrap"><nav class="tabs" aria-label="Main"><a class="tab on" href="/" aria-current="page">Cleaner</a><a class="tab" href="/recover">Recover<i class="tb">Beta</i></a><a class="tab" href="/#check">Check</a><a class="tab" href="/guides">Guides</a><a class="tab" href="/#verify">Verify</a><a class="tab" href="/#roadmap">Roadmap</a><a class="tab" href="/#whitepaper">Whitepaper</a></nav></div></div></header>
 <div class="rail"><div class="rail-in">
   <div class="ri"><span class="dot off" id="liveDot"></span><b id="liveState">connecting</b></div>
   <div class="ri"><small>Reclaimed</small><b id="rTotal">0 SOL</b></div>
@@ -443,7 +457,7 @@ footer a{color:var(--mut)}footer a:hover{color:#fff}
 <section class="s" id="roadmap"><div class="wrap">
   <h2 class="sec">Roadmap</h2>
   <p class="sub">Five tracks, three horizons. A statement of direction, not a promise of dates.</p>
-  <div class="rm"><div class="head"><span>Track</span><span>Now</span><span>Next</span><span>Later</span></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></i><div><b>Product</b><small>What users can do</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Empty account cleaner for Token and Token-2022</li><li class="build">Recover tool (beta): inactive stake, wrapped SOL, program buffers</li><li class="live">Advanced burn and close, opt-in per token</li><li class="live">Automatic harvest of withheld Token-2022 fees</li><li class="live">Market value and dust hints in Advanced</li><li class="live">Network priority option: Standard or Fast</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">NFT burn with metadata deposit recovery</li><li class="plan">Address lookup table close, with the two-step cooldown</li><li class="plan">Cleanup of empty NFT and edition accounts</li><li class="plan">More price sources for dust detection</li><li class="plan">Saved preferences</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Read-only multi-wallet overview</li><li class="plan">Scheduled scans with reminders</li><li class="">Cleanup of other reclaimable Solana accounts</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.500-6 4 12 2.500-6H21"/></svg></i><div><b>Wallet health</b><small>Know your wallet</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Check any wallet by address, read-only</li><li class="live">Rent calculator</li><li class="live">Plain health label: Clean, Tidy, Cluttered</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Shareable wallet health report card</li><li class="plan">Flags for spam and risky tokens</li><li class="plan">Health history, stored locally in your browser</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Alerts when new empty accounts appear</li><li class="">Hygiene tips tailored to the wallet</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></i><div><b>Security and trust</b><small>How we earn confidence</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Transaction simulation before every signature</li><li class="live">Explicit compute budget on each transaction</li><li class="live">Single signer, fee shown before signing</li><li class="live">Verify panel listing every program used</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Wallet review requests to remove new-site warnings</li><li class="build">Source code publication and verification notes</li><li class="plan">Independent security review</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Bug bounty program</li><li class="">Guided flow for hardware wallets</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.5-4 3-6 6.500-6s6 2 6.500 6"/><path d="M16 5a3.500 3.500 0 010 6.500M18.500 14.500c2 .7 3 2.500 3.200 5.500"/></svg></i><div><b>Community and growth</b><small>How the project spreads</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Real-time live counter on the site</li><li class="live">Share card after each clean</li><li class="live">Public changelog</li><li class="live">Embeddable live counter widget</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Launch campaign and educational posts</li><li class="plan">Community ambassadors</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Localized versions of the app</li><li class="">Community-led translations and guides</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.500"/><circle cx="18" cy="6" r="2.500"/><circle cx="18" cy="18" r="2.500"/><path d="M8.300 11l7.400-4M8.300 13l7.400 4"/></svg></i><div><b>Ecosystem</b><small>Where Scratchly connects</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Works with Phantom, Solflare and Backpack</li><li class="live">Public read-only stats JSON</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Embeddable Clean wallet widget for other dapps</li><li class="plan">Wallet and analytics integrations</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Hygiene tools for other networks, such as approval revokes on EVM chains</li></ul></div></div></div>
+  <div class="rm"><div class="head"><span>Track</span><span>Now</span><span>Next</span><span>Later</span></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></i><div><b>Product</b><small>What users can do</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Empty account cleaner for Token and Token-2022</li><li class="build">Recover tool (beta): inactive stake, wrapped SOL, program buffers, lookup tables</li><li class="live">Advanced burn and close, opt-in per token</li><li class="live">Automatic harvest of withheld Token-2022 fees</li><li class="live">Market value and dust hints in Advanced</li><li class="live">Network priority option: Standard or Fast</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">NFT burn with metadata deposit recovery</li><li class="plan">Cleanup of empty NFT and edition accounts</li><li class="plan">More price sources for dust detection</li><li class="plan">Saved preferences</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Read-only multi-wallet overview</li><li class="plan">Scheduled scans with reminders</li><li class="">Cleanup of other reclaimable Solana accounts</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.500-6 4 12 2.500-6H21"/></svg></i><div><b>Wallet health</b><small>Know your wallet</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Check any wallet by address, read-only</li><li class="live">Rent calculator</li><li class="live">Plain health label: Clean, Tidy, Cluttered</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Shareable wallet health report card</li><li class="plan">Flags for spam and risky tokens</li><li class="plan">Health history, stored locally in your browser</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Alerts when new empty accounts appear</li><li class="">Hygiene tips tailored to the wallet</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></i><div><b>Security and trust</b><small>How we earn confidence</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Transaction simulation before every signature</li><li class="live">Explicit compute budget on each transaction</li><li class="live">Single signer, fee shown before signing</li><li class="live">Verify panel listing every program used</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Wallet review requests to remove new-site warnings</li><li class="build">Source code publication and verification notes</li><li class="plan">Independent security review</li></ul></div><div class="cell" data-p="Later"><ul><li class="plan">Bug bounty program</li><li class="">Guided flow for hardware wallets</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.5-4 3-6 6.500-6s6 2 6.500 6"/><path d="M16 5a3.500 3.500 0 010 6.500M18.500 14.500c2 .7 3 2.500 3.200 5.500"/></svg></i><div><b>Community and growth</b><small>How the project spreads</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Real-time live counter on the site</li><li class="live">Share card after each clean</li><li class="live">Public changelog</li><li class="live">Embeddable live counter widget</li></ul></div><div class="cell" data-p="Next"><ul><li class="build">Launch campaign and educational posts</li><li class="plan">Community ambassadors</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Localized versions of the app</li><li class="">Community-led translations and guides</li></ul></div></div><div class="track"><div class="tn"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B9A6FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.500"/><circle cx="18" cy="6" r="2.500"/><circle cx="18" cy="18" r="2.500"/><path d="M8.300 11l7.400-4M8.300 13l7.400 4"/></svg></i><div><b>Ecosystem</b><small>Where Scratchly connects</small></div></div><div class="cell" data-p="Now"><ul><li class="live">Works with Phantom, Solflare and Backpack</li><li class="live">Public read-only stats JSON</li></ul></div><div class="cell" data-p="Next"><ul><li class="plan">Embeddable Clean wallet widget for other dapps</li><li class="plan">Wallet and analytics integrations</li></ul></div><div class="cell" data-p="Later"><ul><li class="">Hygiene tools for other networks, such as approval revokes on EVM chains</li></ul></div></div></div>
   <div class="legend"><span><i style="background:var(--ok)"></i>Live</span><span><i style="background:var(--c)"></i>In progress</span><span><i style="background:var(--v)"></i>Planned</span><span><i style="background:var(--dim)"></i>Exploring</span></div>
 </div></section>
 
@@ -855,19 +869,19 @@ function findProvider(){
       || (w.solflare && w.solflare.isSolflare && w.solflare)
       || (w.backpack && w.backpack.solana) || (w.solana && w.solana.connect && w.solana) || null;
 }
-async function connect(){
+async function connect(silent){
   $("errIdle").hidden = true;
   provider = findProvider();
-  if (!provider){ $("noWallet").hidden = false; show("stIdle"); location.hash = "#app"; return; }
+  if (!provider){ if (silent) return; $("noWallet").hidden = false; show("stIdle"); location.hash = "#app"; return; }
   try {
-    const res = await provider.connect();
+    const res = await provider.connect(silent ? {onlyIfTrusted:true} : undefined);
     const pk = res && res.publicKey ? res.publicKey : provider.publicKey;
     owner = new solanaWeb3.PublicKey(pk.toString());
     $("btnConnect").textContent = short(owner.toString()); $("chkMine").hidden = false;
     provider.on && provider.on("disconnect", resetAll);
     provider.on && provider.on("accountChanged", () => location.reload());
     await scan();
-  } catch(e){ show("stIdle"); $("errIdle").textContent = "Connection cancelled or failed. " + (e.message || ""); $("errIdle").hidden = false; }
+  } catch(e){ if (silent){ provider = null; owner = null; show("stIdle"); return; } show("stIdle"); $("errIdle").textContent = "Connection cancelled or failed. " + (e.message || ""); $("errIdle").hidden = false; }
 }
 function resetAll(){ owner = null; provider = null; empties = []; withBal = []; plan = null; $("btnConnect").textContent = "Connect wallet"; drawTiers(-1); show("stIdle"); }
 
@@ -1053,7 +1067,7 @@ setInterval(() => { if (!document.hidden) renderStats(); }, 20000);
 setInterval(() => { if (!document.hidden) loadSolPrice(); }, 90000);
 if (typeof solanaWeb3 === "undefined"){ $("errIdle").textContent = "Could not load the Solana library. Check your connection and reload."; $("errIdle").hidden = false; }
 $("btnConnect").onclick = () => owner ? (location.hash = "#app") : connect();
-$("btnConnect2").onclick = connect;
+$("btnConnect2").onclick = () => connect();
 $("btnClean").onclick = clean;
 $("ack").onchange = refresh;
 $("btnRescan").onclick = scan;
@@ -1069,6 +1083,9 @@ $("btnClear").onclick = () => { document.querySelectorAll("#burnList input").for
 $("chkBtn").onclick = checkWallet;
 $("chkIn").onkeydown = e => { if (e.key === "Enter") checkWallet(); };
 $("chkMine").onclick = () => { if (owner){ $("chkIn").value = owner.toString(); checkWallet(); } };
+document.addEventListener("pointermove", e => { const t = e.target.closest && e.target.closest(".tile,.gcard"); if (t){ const r = t.getBoundingClientRect(); t.style.setProperty("--mx", (e.clientX - r.left) + "px"); t.style.setProperty("--my", (e.clientY - r.top) + "px"); } });
+{ const qw = new URLSearchParams(location.search).get("w"); if (qw && qw.length >= 32 && qw.length <= 44){ $("chkIn").value = qw; setTimeout(checkWallet, 500); } }
+connect(true); // korabban jovahagyott wallet eseten csendben csatlakozik
 
 })();
 };

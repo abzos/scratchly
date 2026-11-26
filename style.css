@@ -1,7 +1,7 @@
 :root{--bg:#06060D;--s1:#0C0B1D;--s2:#12112B;--line:#25234B;--line2:#37336E;--tx:#F2F4FF;--mut:#98A1C8;--dim:#6E77A0;--v:#8B6CFF;--c:#2DE2E6;--ok:#4ADE9A;--bad:#FF6B8B;--warn:#FFB86B;
 --grad:linear-gradient(100deg,#8B6CFF,#2DE2E6);--disp:"Sora",Inter,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:84px}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:128px}
 body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx);line-height:1.6;overflow-x:hidden;padding-top:env(safe-area-inset-top)}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit}
@@ -12,7 +12,7 @@ button{font-family:inherit}
 .bg:after{content:"";position:absolute;inset:0;opacity:.045;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>")}
 /* nav */
 .nav{position:sticky;top:0;z-index:40;background:rgba(6,6,13,.74);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(37,35,75,.7)}
-.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px;gap:14px}
+.nav>.wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:14px}
 .brand{display:flex;align-items:center;gap:10px;font:700 20px var(--disp);letter-spacing:-.4px}
 .brand img{width:34px;height:34px;border-radius:50%}
 .links{display:none;gap:26px;color:var(--mut);font-size:14px;font-weight:500}
@@ -295,3 +295,21 @@ footer a{color:var(--mut)}footer a:hover{color:#fff}
 .note-beta{margin:14px 0;padding:12px 16px;border:1px solid rgba(255,184,107,.35);background:rgba(255,184,107,.07);border-radius:14px;color:#FFD9A8;font-size:14px;line-height:1.5}
 .rgrp{margin-top:20px}.rgh{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.rgh h3{font:600 16px var(--disp);margin:0}
 .badge-beta{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px;background:rgba(255,184,107,.16);color:#FFC98A;margin-left:8px;vertical-align:middle}
+
+/* fulek + frissitett megjelenes */
+.tabsbar{border-top:1px solid rgba(37,35,75,.5)}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:7px 0}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;color:var(--mut);font-size:14px;font-weight:500;white-space:nowrap;transition:color .15s,background .15s}
+.tab:hover{color:#fff;background:rgba(255,255,255,.05)}
+.tab.on{color:#fff;background:linear-gradient(180deg,rgba(139,108,255,.24),rgba(139,108,255,.10));box-shadow:inset 0 0 0 1px rgba(139,108,255,.5)}
+.tb{font-style:normal;font-size:10px;font-weight:700;color:#FFC98A;background:rgba(255,184,107,.16);border-radius:999px;padding:1px 6px}
+@property --a{syntax:"<angle>";initial-value:0deg;inherits:false}
+.console .glass:before{background:conic-gradient(from var(--a),rgba(139,108,255,.9),rgba(37,35,75,.4) 26%,rgba(45,226,230,.75) 52%,rgba(37,35,75,.4) 78%,rgba(139,108,255,.9));animation:spin 9s linear infinite}
+@keyframes spin{to{--a:360deg}}
+.tile:after,.gcard:after{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(220px circle at var(--mx,50%) var(--my,0%),rgba(139,108,255,.16),transparent 62%);opacity:0;transition:opacity .25s;pointer-events:none}
+.tile:hover:after,.gcard:hover:after{opacity:1}
+.panel{box-shadow:0 30px 90px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.02) inset}
+h2.sec{letter-spacing:-.035em}
+.btn.pri{background-size:160% 100%;transition:background-position .4s,transform .12s,box-shadow .2s}
+.btn.pri:hover{background-position:100% 0}
